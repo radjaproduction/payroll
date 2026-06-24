@@ -983,10 +983,10 @@
     }
 
  /* ============================================================
-   ===== POPUP PINJAMAN — BARU (GANTI SEMUA CSS DI ATAS) =====
+   ===== POPUP PINJAMAN — ZERO DELAY + KEYBOARD PUSH UP =====
    ============================================================ */
 
-/* ===== OVERLAY ===== */
+/* ===== OVERLAY — INSTANT, NO ANIMATION ===== */
 #pinjamanPopup {
   position: fixed;
   inset: 0;
@@ -996,72 +996,60 @@
   align-items: flex-end;
   z-index: 99999;
   padding: 0;
-  transform: translateZ(0);
-  will-change: opacity;
+  /* NO backdrop-filter, NO will-change — instant! */
 }
 
 #pinjamanPopup.active {
   display: flex;
-  animation: pinFadeIn 0.15s ease-out;
+  /* NO fade animation — instant show */
 }
 
-@keyframes pinFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* ===== SHEET (POPUP DARI BAWAH) ===== */
+/* ===== SHEET — INSTANT SLIDE, GPU ACCELERATED ===== */
 .pinjaman-sheet {
   width: 100%;
   max-width: 480px;
   background: var(--card);
-  border-radius: 24px 24px 0 0;
+  border-radius: 20px 20px 0 0;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: 92vh;
-  max-height: 92dvh;
-  animation: pinSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Dynamic height: akan di-set via JS saat keyboard aktif */
+  max-height: 85vh;
+  max-height: 85dvh;
+  /* Fast transform — hanya translateY */
+  transform: translateY(0);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
-  transform: translateZ(0);
-  will-change: transform;
 }
 
-@keyframes pinSlideUp {
-  from { 
-    transform: translateY(30%) scale(0.98);
-    opacity: 0.8;
-  }
-  to { 
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
+/* Saat pertama kali muncul — slide dari bawah */
+.pinjaman-sheet.entering {
+  transform: translateY(100%);
 }
 
 /* ===== HEADER ===== */
 .pin-header {
   position: relative;
   flex-shrink: 0;
-  transform: translateZ(0);
+  z-index: 2;
 }
 
 .pin-header-bg {
   background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  padding: 20px 20px 28px;
-  padding-top: calc(16px + var(--safe-top));
+  padding: 16px 20px 24px;
+  padding-top: calc(14px + var(--safe-top));
   position: relative;
   overflow: hidden;
 }
 
-/* HANYA 1 decorative element (sudah cukup) */
 .pin-header-bg::after {
   content: '';
   position: absolute;
   top: -40%;
   right: -10%;
-  width: 180px;
-  height: 180px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.06);
   pointer-events: none;
@@ -1070,24 +1058,22 @@
 .pin-header-content {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   position: relative;
   z-index: 1;
 }
 
 .pin-header-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 22px;
+  font-size: 20px;
   flex-shrink: 0;
 }
 
@@ -1097,7 +1083,7 @@
 }
 
 .pin-header-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 900;
   color: #fff;
   letter-spacing: -0.02em;
@@ -1105,34 +1091,33 @@
 }
 
 .pin-header-subtitle {
-  font-size: 12px;
+  font-size: 11px;
   color: rgba(255, 255, 255, 0.75);
   font-weight: 500;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .pin-header-close {
   position: absolute;
-  top: calc(14px + var(--safe-top));
-  right: 16px;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  top: calc(12px + var(--safe-top));
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  transition: background 0.1s;
   z-index: 2;
 }
 
 .pin-header-close:active {
   background: rgba(255, 255, 255, 0.3);
-  transform: scale(0.95);
 }
 
 /* ===== WAVE ===== */
@@ -1141,7 +1126,7 @@
   bottom: -1px;
   left: 0;
   right: 0;
-  height: 20px;
+  height: 16px;
   line-height: 0;
 }
 
@@ -1151,43 +1136,44 @@
   fill: var(--card);
 }
 
-/* ===== BODY ===== */
+/* ===== BODY — SCROLLABLE AREA ===== */
 .pin-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 20px;
-  padding-bottom: 8px;
+  padding: 14px 18px;
+  padding-bottom: 4px;
   -webkit-overflow-scrolling: touch;
-  transform: translateZ(0);
+  /* Penting: scroll ke field aktif */
+  scroll-behavior: smooth;
 }
 
 /* ===== INFO CARD ===== */
 .pin-info-card {
   background: linear-gradient(135deg, #E0EAFF 0%, #F0F7FF 100%);
-  border: 1.5px solid rgba(26, 86, 219, 0.15);
-  border-radius: 14px;
-  padding: 12px 14px;
+  border: 1.5px solid rgba(26, 86, 219, 0.12);
+  border-radius: 12px;
+  padding: 10px 12px;
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
 .pin-info-icon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 8px;
   background: var(--primary3);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
   flex-shrink: 0;
 }
 
 .pin-info-text {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--primary3);
   font-weight: 600;
   line-height: 1.5;
@@ -1196,42 +1182,39 @@
 
 /* ===== FORM GROUPS ===== */
 .pin-form-group {
-  margin-bottom: 16px;
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out, max-height 0.25s ease-out;
-  transform: translateZ(0);
+  margin-bottom: 14px;
 }
 
 .pin-form-group.hidden {
-  opacity: 0;
-  transform: translateY(-8px);
-  max-height: 0;
-  margin-bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
+  display: none !important;
 }
 
 .pin-form-group.visible {
-  opacity: 1;
-  transform: translateY(0);
-  max-height: 300px;
+  display: block !important;
+  animation: pinFieldShow 0.2s ease-out;
+}
+
+@keyframes pinFieldShow {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .pin-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  gap: 6px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .pin-label i {
   color: var(--primary);
-  font-size: 12px;
-  width: 16px;
+  font-size: 11px;
+  width: 14px;
   text-align: center;
 }
 
@@ -1242,9 +1225,9 @@
 
 .pin-select {
   width: 100%;
-  padding: 14px 44px 14px 16px;
+  padding: 12px 40px 12px 14px;
   border: 2px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--card2);
   font-size: 15px;
   font-family: inherit;
@@ -1259,7 +1242,7 @@
 
 .pin-select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(75, 142, 248, 0.12);
+  box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
   background: var(--card);
 }
 
@@ -1271,11 +1254,11 @@
 
 .pin-select-arrow {
   position: absolute;
-  right: 16px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   pointer-events: none;
 }
 
@@ -1288,8 +1271,8 @@
 
 .pin-input-prefix {
   position: absolute;
-  left: 16px;
-  font-size: 14px;
+  left: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--primary3);
   pointer-events: none;
@@ -1298,11 +1281,11 @@
 
 .pin-input {
   width: 100%;
-  padding: 14px 16px 14px 48px;
+  padding: 12px 14px 12px 44px;
   border: 2px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--card2);
-  font-size: 16px;
+  font-size: 16px; /* 16px = no zoom iOS */
   font-family: inherit;
   font-weight: 700;
   color: var(--text);
@@ -1312,7 +1295,7 @@
 
 .pin-input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(75, 142, 248, 0.12);
+  box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
   background: var(--card);
 }
 
@@ -1328,44 +1311,48 @@
 }
 
 .pin-input-hint {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
-  margin-top: 6px;
+  margin-top: 4px;
   font-weight: 500;
   padding-left: 4px;
 }
 
 /* ===== QUICK AMOUNTS ===== */
 .pin-quick-amounts {
-  margin-top: 8px;
-  animation: pinFadeIn 0.2s ease-out;
+  margin-top: 6px;
 }
 
 .pin-quick-amounts.hidden {
-  display: none;
+  display: none !important;
+}
+
+.pin-quick-amounts.visible {
+  display: block !important;
+  animation: pinFieldShow 0.2s ease-out;
 }
 
 .pin-quick-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   letter-spacing: 0.04em;
 }
 
 .pin-quick-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 
 .pin-quick-btn {
-  padding: 12px 8px;
+  padding: 10px 6px;
   border: 1.5px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--card2);
   color: var(--text2);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
@@ -1384,40 +1371,39 @@
   background: linear-gradient(135deg, var(--primary3), var(--primary));
   color: #fff;
   border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.25);
 }
 
-/* ===== FOOTER ===== */
+/* ===== FOOTER — STICKY, SELALI TERLIHAT ===== */
 .pin-footer {
-  padding: 12px 20px;
-  padding-bottom: calc(12px + var(--safe-bottom));
+  padding: 10px 18px;
+  padding-bottom: calc(10px + var(--safe-bottom));
   background: var(--card);
   border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
-  transform: translateZ(0);
+  /* Penting: selalu di atas */
+  z-index: 3;
 }
 
 .pin-btn-primary {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   background: linear-gradient(135deg, var(--primary3), var(--primary));
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   font-family: inherit;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-  transition: transform 0.1s, opacity 0.15s;
-  letter-spacing: 0.02em;
+  transition: opacity 0.15s, transform 0.1s;
 }
 
 .pin-btn-primary:active:not(:disabled) {
@@ -1433,12 +1419,12 @@
 
 .pin-btn-ghost {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border: 1.5px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--card2);
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
@@ -1451,29 +1437,24 @@
   color: var(--primary3);
 }
 
-/* ===== KEYBOARD ACTIVE ===== */
+/* ===== KEYBOARD ACTIVE — POPUP NAIK ===== */
 .pinjaman-sheet.keyboard-active {
+  /* Naik ke atas saat keyboard muncul */
+  transform: translateY(0) !important;
   max-height: 55vh;
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 390px) {
-  .pin-header-title { font-size: 20px; }
-  .pin-header-icon { width: 44px; height: 44px; font-size: 20px; }
+  .pin-header-title { font-size: 18px; }
+  .pin-header-icon { width: 40px; height: 40px; font-size: 18px; }
   .pin-quick-grid { grid-template-columns: repeat(2, 1fr); }
-  .pin-input { font-size: 16px; }
+  .pin-body { padding: 12px 14px; }
 }
 
 @media (max-height: 700px) {
-  .pinjaman-sheet { max-height: 96vh; max-height: 96dvh; }
-  .pin-header-bg { padding: 16px 16px 24px; }
-  .pin-body { padding: 14px 16px; }
-}
-
-/* ===== REDUCED MOTION ===== */
-@media (prefers-reduced-motion: reduce) {
-  .pinjaman-sheet { animation: none; }
-  .pin-form-group { transition: none; }
+  .pinjaman-sheet { max-height: 90vh; max-height: 90dvh; }
+  .pin-header-bg { padding: 14px 14px 20px; }
 }
 
     ::-webkit-scrollbar { width:4px; height:4px }
@@ -2007,7 +1988,7 @@
 
 <!-- POPUP PINJAMAN BARU -->
 <div class="popup" id="pinjamanPopup">
-  <div class="pinjaman-sheet">
+  <div class="pinjaman-sheet entering">  <!-- ← TAMBAH CLASS entering -->
     
     <!-- HEADER -->
     <div class="pin-header">
@@ -2878,7 +2859,11 @@
       finally { hideLoading(); }
     };
 
-   // ===== GANTI FUNGSI PINJAMAN LAMA DENGAN INI =====
+// ===== POPUP PINJAMAN — ZERO DELAY + KEYBOARD PUSH UP =====
+
+// State untuk keyboard
+let _pinKeyboardHeight = 0;
+let _pinViewportHandler = null;
 
 window.bukaPinjaman = () => {
   // Reset form
@@ -2892,21 +2877,129 @@ window.bukaPinjaman = () => {
   $('pinNominalHint').style.color = 'var(--muted)';
   setDis('btnSimpanPin', true);
   
-  // Hide semua kecuali nama (INSTANT, tanpa animasi)
+  // Hide semua kecuali nama — INSTANT (no animation)
   $('pinJenisGroup').className = 'pin-form-group hidden';
   $('pinNominalGroup').className = 'pin-form-group hidden';
   $('pinQuickAmounts').className = 'pin-quick-amounts hidden';
   
-  // Show popup — NO DELAY!
-  bukaPopup('pinjamanPopup');
+  // Reset popup position
+  const sheet = document.querySelector('.pinjaman-sheet');
+  if (sheet) {
+    sheet.classList.add('entering');
+    sheet.style.transform = '';
+  }
+  
+  // Show popup — INSTANT
+  const popup = $('pinjamanPopup');
+  popup.style.display = 'flex';
+  
+  // Trigger reflow untuk animasi slide
+  requestAnimationFrame(() => {
+    if (sheet) sheet.classList.remove('entering');
+  });
+  
+  // Init keyboard handler
+  _initPinKeyboardPush();
 };
+
+window.tutupPopup = (id) => {
+  const popup = $(id);
+  if (!popup) return;
+  
+  const sheet = popup.querySelector('.pinjaman-sheet');
+  if (sheet) {
+    // Slide down animation
+    sheet.style.transform = 'translateY(100%)';
+    setTimeout(() => {
+      popup.style.display = 'none';
+      sheet.style.transform = '';
+      _removePinKeyboardHandler();
+    }, 200);
+  } else {
+    popup.style.display = 'none';
+    _removePinKeyboardHandler();
+  }
+};
+
+// ===== KEYBOARD PUSH UP HANDLER =====
+function _initPinKeyboardPush() {
+  const sheet = document.querySelector('.pinjaman-sheet');
+  if (!sheet) return;
+  
+  // Method 1: Visual Viewport API (modern, paling akurat)
+  if (window.visualViewport) {
+    _pinViewportHandler = () => {
+      const vv = window.visualViewport;
+      const keyboardHeight = window.innerHeight - vv.height;
+      _pinKeyboardHeight = keyboardHeight;
+      
+      if (keyboardHeight > 100) {
+        // Keyboard terbuka — naikkan popup
+        sheet.classList.add('keyboard-active');
+        const offset = Math.max(0, keyboardHeight - 50);
+        sheet.style.transform = `translateY(-${offset}px)`;
+        
+        // Scroll ke input aktif
+        const activeEl = document.activeElement;
+        if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT')) {
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else {
+        // Keyboard tertutup
+        sheet.classList.remove('keyboard-active');
+        sheet.style.transform = '';
+      }
+    };
+    
+    window.visualViewport.addEventListener('resize', _pinViewportHandler);
+    window.visualViewport.addEventListener('scroll', _pinViewportHandler);
+  }
+  // Method 2: Fallback untuk browser lama
+  else {
+    let _lastWindowHeight = window.innerHeight;
+    
+    _pinViewportHandler = () => {
+      const currentHeight = window.innerHeight;
+      const heightDiff = _lastWindowHeight - currentHeight;
+      
+      if (heightDiff > 100) {
+        // Keyboard terbuka
+        sheet.classList.add('keyboard-active');
+        const offset = Math.max(0, heightDiff - 50);
+        sheet.style.transform = `translateY(-${offset}px)`;
+      } else {
+        // Keyboard tertutup
+        sheet.classList.remove('keyboard-active');
+        sheet.style.transform = '';
+      }
+    };
+    
+    window.addEventListener('resize', _pinViewportHandler);
+  }
+}
+
+function _removePinKeyboardHandler() {
+  if (window.visualViewport && _pinViewportHandler) {
+    window.visualViewport.removeEventListener('resize', _pinViewportHandler);
+    window.visualViewport.removeEventListener('scroll', _pinViewportHandler);
+  } else {
+    window.removeEventListener('resize', _pinViewportHandler);
+  }
+  _pinViewportHandler = null;
+  
+  // Reset transform
+  const sheet = document.querySelector('.pinjaman-sheet');
+  if (sheet) {
+    sheet.classList.remove('keyboard-active');
+    sheet.style.transform = '';
+  }
+}
 
 window.onPinNama = () => {
   const nama = $('pin_nama').value;
   $('pin_nama').style.color = nama ? '#1A2340' : '#7B8DB0';
   
   if (!nama) {
-    // Reset
     resetSelect('pin_jenis', MASTER.jenisPinjaman, '-- Pilih Jenis --');
     $('pin_jenis').disabled = true;
     $('pin_nominal').value = '';
@@ -2919,12 +3012,12 @@ window.onPinNama = () => {
     return;
   }
   
-  // Aktifkan jenis
+  // Aktifkan jenis — show dengan animasi
   $('pin_jenis').disabled = false;
   $('pinJenisGroup').className = 'pin-form-group visible';
   
-  // Focus tanpa setTimeout
-  requestAnimationFrame(() => $('pin_jenis').focus());
+  // Focus INSTANT (no setTimeout)
+  $('pin_jenis').focus();
 };
 
 window.onPinJenis = () => {
@@ -2942,9 +3035,9 @@ window.onPinJenis = () => {
   
   $('pin_nominal').disabled = false;
   $('pinNominalGroup').className = 'pin-form-group visible';
-  $('pinQuickAmounts').className = 'pin-quick-amounts';
+  $('pinQuickAmounts').className = 'pin-quick-amounts visible';
   
-  requestAnimationFrame(() => $('pin_nominal').focus());
+  $('pin_nominal').focus();
 };
 
 window.cekSimpanPin = () => {
@@ -2968,13 +3061,16 @@ window.setPinNominal = (amount) => {
   $('pin_nominal').value = amount;
   cekSimpanPin();
   
-  // Highlight active button
+  // Highlight button
   document.querySelectorAll('.pin-quick-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-};
-
-window.formatPinNominal = (input) => {
-  input.value = input.value.replace(/[^0-9]/g, '');
+  const target = event.target;
+  if (target) target.classList.add('active');
+  
+  // Update hint
+  const hint = $('pinNominalHint');
+  hint.textContent = 'Rp ' + fmt(amount);
+  hint.style.color = 'var(--primary3)';
+  hint.style.fontWeight = '700';
 };
 
 window.simpanPinjaman = async () => {
