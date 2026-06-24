@@ -1093,56 +1093,52 @@
         <span style="color:#fff;font-weight:900;font-size:16px;letter-spacing:.14em;">RADJA PRODUCTION</span>
       </div>
 
-      <div style="background:linear-gradient(160deg, var(--primary3), var(--primary));border-radius:22px;padding:18px 16px 16px;box-shadow:0 6px 28px rgba(0,180,216,.38);flex-shrink:0;display:flex;flex-direction:column;gap:13px;">
-        <div>
-          <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:5px;">Nama Pegawai</div>
-          <select id="inp_nama" onchange="onInpNama()" style="width:100%;padding:17px 14px;border:none;border-radius:13px;background:#fff;font-size:18px;font-family:inherit;font-weight:700;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;box-shadow:0 2px 10px rgba(0,0,0,.08);">
-            <option value="" style="color:var(--muted);font-weight:400;">input nama pegawai...</option>
-          </select>
-        </div>
+      <!-- FORM INPUT - Layout sesuai Sketch Gambar 2 -->
+      <div style="background:var(--card);border-radius:22px;padding:18px 16px;box-shadow:0 4px 18px rgba(26,86,219,.10);border:1.5px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:14px;">
 
+        <!-- NAMA PEGAWAI + BAGIAN (2 kolom) -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div>
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:5px;">Bagian</div>
-            <input type="text" id="inp_bagian" readonly placeholder="pilih bagian..." style="width:100%;padding:16px 12px;border:none;border-radius:13px;background:#fff;font-size:16px;font-family:inherit;font-weight:700;color:var(--text2);outline:none;box-shadow:0 2px 10px rgba(0,0,0,.08);">
-          </div>
-          <div>
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:5px;">Brand</div>
-            <select id="inp_brand" disabled onchange="onInpBrand()" style="width:100%;padding:16px 12px;border:none;border-radius:13px;background:#fff;font-size:16px;font-family:inherit;font-weight:600;color:var(--muted);appearance:none;-webkit-appearance:none;outline:none;box-shadow:0 2px 10px rgba(0,0,0,.08);">
-              <option value="" style="color:var(--muted);font-weight:400;">pilih brand...</option>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Nama Pegawai</div>
+            <select id="inp_nama" onchange="onInpNama()" style="width:100%;padding:17px 14px;border:1.5px solid var(--border);border-radius:13px;background:var(--card2);font-size:18px;font-family:inherit;font-weight:700;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;">
+              <option value="" style="color:var(--muted);font-weight:400;">input nama pegawai...</option>
             </select>
           </div>
+          <div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Bagian</div>
+            <input type="text" id="inp_bagian" readonly placeholder="pilih bagian..." style="width:100%;padding:17px 14px;border:1.5px solid var(--border);border-radius:13px;background:var(--card2);font-size:18px;font-family:inherit;font-weight:700;color:var(--text2);outline:none;">
+          </div>
         </div>
 
+        <!-- BRAND (full width) -->
         <div>
-          <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:5px;">Pekerjaan</div>
-          <select id="inp_jenis" disabled onchange="onInpJenis()" style="width:100%;padding:17px 14px;border:none;border-radius:13px;background:#fff;font-size:17px;font-family:inherit;font-weight:700;color:var(--muted);appearance:none;-webkit-appearance:none;outline:none;box-shadow:0 2px 10px rgba(0,0,0,.08);">
-            <option value="" style="color:var(--muted);font-weight:400;">pilih pekerjaan...</option>
+          <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Brand</div>
+          <select id="inp_brand" disabled onchange="onInpBrand()" style="width:100%;padding:17px 14px;border:1.5px solid var(--border);border-radius:13px;background:var(--bg2);font-size:16px;font-family:inherit;font-weight:600;color:var(--muted);appearance:none;-webkit-appearance:none;outline:none;">
+            <option value="" style="color:var(--muted);font-weight:400;">pilih brand...</option>
           </select>
         </div>
 
+        <!-- PEKERJAAN + QTY (2 kolom) -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div>
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:5px;">Harga/pcs</div>
-            <input type="text" id="inp_harga_display" readonly placeholder="harga..." style="width:100%;padding:16px 12px;border:none;border-radius:13px;background:#fff;font-size:16px;font-family:inherit;font-weight:700;color:var(--text2);outline:none;box-shadow:0 2px 10px rgba(0,0,0,.08);">
+            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Pekerjaan</div>
+            <select id="inp_jenis" disabled onchange="onInpJenis()" style="width:100%;padding:17px 14px;border:1.5px solid var(--border);border-radius:13px;background:var(--bg2);font-size:16px;font-family:inherit;font-weight:700;color:var(--muted);appearance:none;-webkit-appearance:none;outline:none;">
+              <option value="" style="color:var(--muted);font-weight:400;">pilih pekerjaan...</option>
+            </select>
           </div>
           <div>
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:5px;">QTY</div>
-            <input type="number" id="inp_qty" placeholder="input qty..." min="1" disabled oninput="onInpQty()" inputmode="numeric" style="width:100%;padding:16px 12px;border:none;border-radius:13px;background:#fff;font-size:16px;font-family:inherit;font-weight:500;color:var(--text);outline:none;text-align:left;box-shadow:0 2px 10px rgba(0,0,0,.08);">
+            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Qty</div>
+            <input type="number" id="inp_qty" placeholder="input qty..." min="1" disabled oninput="onInpQty()" inputmode="numeric" style="width:100%;padding:17px 14px;border:1.5px solid var(--border);border-radius:13px;background:var(--card2);font-size:16px;font-family:inherit;font-weight:500;color:var(--text);outline:none;text-align:left;">
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;margin-top:2px;">
-          <div>
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:5px;">Total</div>
-            <input type="text" id="inp_total_display" readonly placeholder="total..." style="width:100%;padding:18px 12px;border:none;border-radius:13px;background:#fff;font-size:19px;font-family:inherit;font-weight:900;color:var(--primary3);outline:none;box-shadow:0 2px 10px rgba(0,0,0,.08);">
-          </div>
-          <button id="btnTambahInput" disabled onclick="tambahKeStaging()" style="margin:0;padding:16px;font-size:15px;border-radius:50px;letter-spacing:.08em;background:rgba(255,255,255,.35);color:rgba(255,255,255,.5);box-shadow:none;border:none;font-weight:800;cursor:not-allowed;width:100%;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">+ TAMBAH</button>
-        </div>
       </div>
 
-      <!-- STAGING TABLE -->
-      <div id="stagingSection" style="background:#fff;border-radius:18px;box-shadow:0 4px 18px rgba(26,86,219,.10);border:1.5px solid var(--border);overflow:hidden;flex-shrink:0;display:none;">
+      <!-- TOMBOL + TAMBAH (di bawah form, sebelum tabel) -->
+      <button id="btnTambahInput" disabled onclick="tambahKeStaging()" style="width:100%;margin:0;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:var(--border);color:var(--muted);border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">+ TAMBAH</button>
+
+      <!-- STAGING TABLE - SELALU MUNCUL DARI AWAL -->
+      <div id="stagingSection" style="background:var(--card);border-radius:18px;box-shadow:0 4px 18px rgba(26,86,219,.10);border:1.5px solid var(--border);overflow:hidden;flex-shrink:0;">
         <div style="padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
           <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--primary3);display:flex;align-items:center;gap:6px;">
             <i class="fa-solid fa-list-check" style="font-size:12px;"></i>
@@ -1154,24 +1150,27 @@
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead>
-              <tr style="background:var(--bg2);">
-                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Brand</th>
-                <th style="padding:8px 6px;text-align:left;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Pekerjaan</th>
-                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Qty</th>
-                <th style="padding:8px 6px;text-align:right;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Harga</th>
-                <th style="padding:8px 6px;text-align:right;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Jumlah</th>
-                <th style="padding:8px 8px 8px 4px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);"></th>
+              <tr style="background:#E8EEF5;">
+                <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">BRAND</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">PEKERJAAN</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">QTY</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">HARGA</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">JUMLAH</th>
+                <th style="padding:8px 8px 8px 4px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;"></th>
               </tr>
             </thead>
             <tbody id="stagingTbody">
             </tbody>
           </table>
         </div>
-        <div style="padding:12px 14px;border-top:1px solid var(--border);">
-          <button id="btnSimpanInput" disabled onclick="simpanInputData()" style="width:100%;padding:15px;font-size:15px;border-radius:50px;letter-spacing:.08em;background:var(--border);color:var(--muted);border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">SIMPAN</button>
-        </div>
       </div>
 
+      <!-- TOMBOL SIMPAN (Full width, style kuning/emas) - SELALU MUNCUL -->
+      <div style="padding:0;">
+        <button id="btnSimpanInput" disabled onclick="simpanInputData()" style="width:100%;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:var(--border);color:var(--muted);border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">SIMPAN</button>
+      </div>
+
+      <!-- STATISTIK HARI INI -->
       <div style="background:linear-gradient(160deg, var(--primary3), var(--primary));border-radius:22px;padding:16px;box-shadow:0 6px 28px rgba(0,180,216,.38);flex-shrink:0;margin-bottom:calc(70px + var(--safe-bottom));">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:8px;">
@@ -1211,8 +1210,7 @@
       <button class="back-bar-btn" onclick="document.getElementById('inputPage').classList.remove('active');history.replaceState({page:'home'},'')"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
     </div>
   </div>
-
-  <!-- ===== SETTING PAGE ===== -->
+<!-- ===== SETTING PAGE ===== -->
   <div class="page" id="settingPage">
     <div class="page-header">
       <div class="page-back" onclick="document.getElementById('settingPage').classList.remove('active')"><i class="fa-solid fa-chevron-left"></i></div>
@@ -2047,10 +2045,8 @@
       bagianEl.style.color = '#7A6D55';
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
       resetSelect('inp_brand', [], '-- Pilih Brand --', true);
-      $('inp_harga_display').value = '';
       $('inp_qty').value = '';
       $('inp_qty').disabled = true;
-      $('inp_total_display').value = '';
       setDis('btnTambahInput', true); _styleBtnTambah(false);
       // Jangan reset staging list saat buka ulang (biarkan jika ada item)
       _renderStaging();
@@ -2069,9 +2065,7 @@
       const brandsForBagian = [...new Set(MASTER.hargaList.filter(h => (!peg.bagian || !h.bagian || h.bagian === peg.bagian)).map(h => h.brand))].filter(Boolean).sort();
       resetSelect('inp_brand', brandsForBagian, '-- Pilih Brand --', !nama || !brandsForBagian.length);
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
-      $('inp_harga_display').value = '';
       $('inp_qty').value = ''; $('inp_qty').disabled = true;
-      $('inp_total_display').value = '';
       setDis('btnTambahInput', true); _styleBtnTambah && _styleBtnTambah(false);
     };
 
@@ -2080,25 +2074,22 @@
       const bagian = $('inp_bagian').value;
       const pekerjaanList = [...new Set(MASTER.hargaList.filter(h => h.brand === brand && (!bagian || !h.bagian || h.bagian === bagian) && h.pekerjaan).map(h => h.pekerjaan))].sort();
       resetSelect('inp_jenis', pekerjaanList, '-- Pilih Pekerjaan --', !brand || !pekerjaanList.length);
-      $('inp_harga_display').value = '';
       $('inp_qty').value = ''; $('inp_qty').disabled = true;
-      $('inp_total_display').value = '';
       setDis('btnTambahInput', true); _styleBtnTambah && _styleBtnTambah(false);
     };
 
     window.onInpJenis = () => {
       const brand = $('inp_brand').value;
       const jenis = $('inp_jenis').value;
-      $('inp_harga_display').value = '';
       $('inp_qty').value = '';
-      $('inp_total_display').value = '';
-      setDis('btnTambahInput', true); _styleBtnTambah && _styleBtnTambah(false);
+      $('inp_qty').disabled = true;
+      setDis('btnTambahInput', true); 
+      _styleBtnTambah && _styleBtnTambah(false);
       if(brand && jenis) {
         const key = brand + '|' + jenis;
         const hargaVal = MASTER.harga[key] || 0;
-        if(hargaVal) { $('inp_harga_display').value = 'Rp ' + fmt(hargaVal); $('inp_qty').disabled = false; }
-        else { $('inp_harga_display').value = '⚠ Harga belum diset'; $('inp_qty').disabled = true; }
-      } else { $('inp_qty').disabled = true; }
+        if(hargaVal) { $('inp_qty').disabled = false; }
+      }
     };
 
     window.onInpQty = () => {
@@ -2107,9 +2098,9 @@
       const key = brand + '|' + jenis;
       const harga = MASTER.harga[key] || 0;
       const qty = parseInt($('inp_qty').value) || 0;
-      if(qty < 1 && $('inp_qty').value !== '') { showToast('⚠ QTY minimal 1!'); $('inp_total_display').value = ''; setDis('btnTambahInput', true); return; }
-      if(qty > 0 && harga > 0) { $('inp_total_display').value = 'Rp ' + fmt(harga * qty); setDis('btnTambahInput', false); _styleBtnTambah(true); }
-      else { $('inp_total_display').value = ''; setDis('btnTambahInput', true); _styleBtnTambah(false); }
+      if(qty < 1 && $('inp_qty').value !== '') { showToast('⚠ QTY minimal 1!'); setDis('btnTambahInput', true); _styleBtnTambah(false); return; }
+      if(qty > 0 && harga > 0) { setDis('btnTambahInput', false); _styleBtnTambah(true); }
+      else { setDis('btnTambahInput', true); _styleBtnTambah(false); }
     };
     window.cekSimpanInput = window.onInpQty;
 
@@ -2118,13 +2109,13 @@
       const btn = $('btnTambahInput');
       if(!btn) return;
       if(aktif) {
-        btn.style.background = '#fff';
-        btn.style.color = 'var(--primary3)';
-        btn.style.boxShadow = '0 4px 14px rgba(0,0,0,.15)';
+        btn.style.background = 'linear-gradient(135deg, #F59E0B, #FBBF24)';
+        btn.style.color = '#1A1A1A';
+        btn.style.boxShadow = '0 4px 14px rgba(245, 158, 11, .35)';
         btn.style.cursor = 'pointer';
       } else {
-        btn.style.background = 'rgba(255,255,255,.35)';
-        btn.style.color = 'rgba(255,255,255,.5)';
+        btn.style.background = 'var(--border)';
+        btn.style.color = 'var(--muted)';
         btn.style.boxShadow = 'none';
         btn.style.cursor = 'not-allowed';
       }
@@ -2139,12 +2130,21 @@
       const countEl = $('stagingCount');
       const totalEl = $('stagingTotal');
       if(!tbody) return;
+      // Section selalu terlihat, tidak di-hide
       if(_stagingList.length === 0) {
-        section.style.display = 'none';
+        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);padding:20px;text-align:center;font-size:13px">Belum ada item</td></tr>`;
+        countEl.textContent = '0';
+        totalEl.textContent = 'Rp 0';
         setDis('btnSimpanInput', true);
+        const btnSimpan = $('btnSimpanInput');
+        if(btnSimpan) {
+          btnSimpan.style.background = 'var(--border)';
+          btnSimpan.style.color = 'var(--muted)';
+          btnSimpan.style.cursor = 'not-allowed';
+          btnSimpan.style.boxShadow = 'none';
+        }
         return;
       }
-      section.style.display = 'block';
       countEl.textContent = _stagingList.length;
       const grandTotal = _stagingList.reduce((s, i) => s + i.jumlah, 0);
       totalEl.textContent = 'Rp ' + fmt(grandTotal);
@@ -2166,26 +2166,16 @@
       const btnSimpan = $('btnSimpanInput');
       if(btnSimpan) {
         btnSimpan.disabled = false;
-        btnSimpan.style.background = 'linear-gradient(135deg, var(--primary3), var(--primary))';
-        btnSimpan.style.color = '#fff';
+        btnSimpan.style.background = 'linear-gradient(135deg, #F59E0B, #FBBF24)';
+        btnSimpan.style.color = '#1A1A1A';
         btnSimpan.style.cursor = 'pointer';
-        btnSimpan.style.boxShadow = '0 4px 16px rgba(26,86,219,.28)';
+        btnSimpan.style.boxShadow = '0 4px 14px rgba(245, 158, 11, .35)';
       }
     }
 
     window.hapusStaging = (idx) => {
       _stagingList.splice(idx, 1);
       _renderStaging();
-      if(_stagingList.length === 0) {
-        const btnSimpan = $('btnSimpanInput');
-        if(btnSimpan) {
-          btnSimpan.disabled = true;
-          btnSimpan.style.background = 'var(--border)';
-          btnSimpan.style.color = 'var(--muted)';
-          btnSimpan.style.cursor = 'not-allowed';
-          btnSimpan.style.boxShadow = 'none';
-        }
-      }
     };
 
     window.tambahKeStaging = () => {
@@ -2203,10 +2193,8 @@
       // Reset brand, pekerjaan, qty — tapi nama & bagian tetap
       resetSelect('inp_brand', [...new Set(MASTER.hargaList.filter(h => (!bagian || !h.bagian || h.bagian === bagian) && h.brand).map(h => h.brand))].sort(), '-- Pilih Brand --', false);
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
-      $('inp_harga_display').value = '';
       $('inp_qty').value = '';
       $('inp_qty').disabled = true;
-      $('inp_total_display').value = '';
       setDis('btnTambahInput', true);
       _styleBtnTambah(false);
       showToast('✅ Item ditambahkan!');
@@ -2233,7 +2221,7 @@
         const bagianEl = $('inp_bagian'); bagianEl.value = ''; bagianEl.style.color = '#7A6D55';
         resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
         resetSelect('inp_brand', [], '-- Pilih Brand --', true);
-        $('inp_harga_display').value = ''; $('inp_qty').value = ''; $('inp_qty').disabled = true; $('inp_total_display').value = '';
+        $('inp_qty').value = ''; $('inp_qty').disabled = true;
         setDis('btnTambahInput', true); _styleBtnTambah(false);
         _qsNeedsRefresh = true;
       } catch(e) { showToast('❌ Gagal: '+e.message); btn.textContent = 'SIMPAN'; btn.disabled = false; }
