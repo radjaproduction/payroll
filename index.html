@@ -2858,7 +2858,107 @@
     </div>
   </div>
 
- <!-- ===== HAPUS POPUP PINJAMAN LAMA, GANTI DENGAN INI ===== -->
+ <!-- POPUP PINJAMAN -->
+<div class="popup" id="pinjamanPopup">
+  <div class="popup-sheet entering">
+    
+    <div class="popup-header">
+      <div class="popup-header-bg popup-header-blue">
+        <div class="popup-header-content">
+          <div class="popup-header-icon">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+          </div>
+          <div class="popup-header-text">
+            <div class="popup-header-title">Pinjaman</div>
+            <div class="popup-header-subtitle">Catat pinjaman pegawai</div>
+          </div>
+        </div>
+        <button class="popup-header-close" onclick="tutupPopup('pinjamanPopup')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="popup-header-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
+          <path d="M0,30L48,35C96,40,192,50,288,45C384,40,480,20,576,18C672,15,768,20,864,28C960,35,1056,45,1152,42C1248,40,1344,25,1392,18L1440,10L1440,60L1392,60C1344,60,1248,60,1152,60C1056,60,960,60,864,60C768,60,672,60,576,60C480,60,384,60,288,60C192,60,96,60,48,60L0,60Z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="popup-body">
+      <div class="popup-info popup-info-blue">
+        <div class="popup-info-icon popup-info-icon-blue">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <div class="popup-info-text popup-info-text-blue">
+          Pinjaman akan otomatis dipotong dari gaji pegawai saat periode pembayaran.
+        </div>
+      </div>
+
+      <div class="popup-form-group" id="pinNamaGroup">
+        <label class="popup-label">
+          <i class="fa-solid fa-user"></i>
+          Nama Pegawai
+        </label>
+        <div class="popup-select-wrap">
+          <select id="pin_nama" onchange="onPinNama()" class="popup-select">
+            <option value="">-- Pilih Pegawai --</option>
+          </select>
+          <div class="popup-select-arrow">
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup-form-group hidden" id="pinJenisGroup">
+        <label class="popup-label">
+          <i class="fa-solid fa-tags"></i>
+          Jenis Pinjaman
+        </label>
+        <div class="popup-select-wrap">
+          <select id="pin_jenis" onchange="onPinJenis()" class="popup-select" disabled>
+            <option value="">-- Pilih Jenis --</option>
+          </select>
+          <div class="popup-select-arrow">
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup-form-group hidden" id="pinNominalGroup">
+        <label class="popup-label">
+          <i class="fa-solid fa-money-bill-wave"></i>
+          Jumlah Pinjaman
+        </label>
+        <div class="popup-input-wrap">
+          <span class="popup-input-prefix">Rp</span>
+          <input type="number" id="pin_nominal" placeholder="0" min="1" disabled 
+            oninput="cekSimpanPin()" inputmode="numeric" pattern="[0-9]*" 
+            autocomplete="off" autocorrect="off" class="popup-input">
+        </div>
+        <div class="popup-hint" id="pinNominalHint">Masukkan jumlah pinjaman</div>
+      </div>
+
+      <div class="popup-quick hidden" id="pinQuickAmounts">
+        <div class="popup-quick-label">Pilih nominal cepat:</div>
+        <div class="popup-quick-grid">
+          <button onclick="setPinNominal(500000)" class="popup-quick-btn">500rb</button>
+          <button onclick="setPinNominal(1000000)" class="popup-quick-btn">1 Jt</button>
+          <button onclick="setPinNominal(2000000)" class="popup-quick-btn">2 Jt</button>
+          <button onclick="setPinNominal(5000000)" class="popup-quick-btn">5 Jt</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <button class="popup-btn-primary popup-btn-primary-blue" id="btnSimpanPin" disabled onclick="simpanPinjaman()">
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span>Simpan Pinjaman</span>
+      </button>
+      <button class="popup-btn-ghost" onclick="tutupPopup('pinjamanPopup')">Batal</button>
+    </div>
+
+  </div>
+</div>
 
 <!-- POPUP BAYAR -->
 <div class="popup" id="bayarPopup">
@@ -3797,32 +3897,31 @@ window.bukaPinjaman = () => {
   $('pin_nominal').disabled = true;
   $('pin_nominal').value = '';
   $('pinNominalHint').textContent = 'Masukkan jumlah pinjaman';
-  $('pinNominalHint').style.color = 'var(--muted)';
+  $('pinNominalHint').style.color = '#7B8DB0';
   setDis('btnSimpanPin', true);
   
-  // Hide semua kecuali nama — INSTANT (no animation)
-  $('pinJenisGroup').className = 'pin-form-group hidden';
-  $('pinNominalGroup').className = 'pin-form-group hidden';
-  $('pinQuickAmounts').className = 'pin-quick-amounts hidden';
+  // Hide field
+  $('pinJenisGroup').className = 'popup-form-group hidden';
+  $('pinNominalGroup').className = 'popup-form-group hidden';
+  $('pinQuickAmounts').className = 'popup-quick hidden';
   
-  // Reset popup position
-  const sheet = document.querySelector('.pinjaman-sheet');
-  if (sheet) {
-    sheet.classList.add('entering');
-    sheet.style.transform = '';
+  // Show popup
+  const popup = $('pinjamanPopup');
+  if (!popup) {
+    console.error('pinjamanPopup not found!');
+    return;
   }
   
-  // Show popup — INSTANT
-  const popup = $('pinjamanPopup');
   popup.style.display = 'flex';
   
-  // Trigger reflow untuk animasi slide
-  requestAnimationFrame(() => {
-    if (sheet) sheet.classList.remove('entering');
-  });
+  const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) {
+    sheet.classList.add('entering');
+    requestAnimationFrame(() => sheet.classList.remove('entering'));
+  }
   
-  // Init keyboard handler
-  _initPinKeyboardPush();
+  // Init keyboard
+  _initKeyboardHandler();
 };
 
 window.tutupPopup = (id) => {
