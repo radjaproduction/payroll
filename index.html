@@ -1590,10 +1590,6 @@
       outline:none !important;
     }
 
- /* ============================================================
-   ===== POPUP PINJAMAN — ZERO DELAY + KEYBOARD PUSH UP =====
-   ============================================================ */
-
 /* ===== OVERLAY — INSTANT, NO ANIMATION ===== */
 #pinjamanPopup {
   position: fixed;
@@ -3897,31 +3893,32 @@ window.bukaPinjaman = () => {
   $('pin_nominal').disabled = true;
   $('pin_nominal').value = '';
   $('pinNominalHint').textContent = 'Masukkan jumlah pinjaman';
-  $('pinNominalHint').style.color = '#7B8DB0';
+  $('pinNominalHint').style.color = 'var(--muted)';
   setDis('btnSimpanPin', true);
   
-  // Hide field
-  $('pinJenisGroup').className = 'popup-form-group hidden';
-  $('pinNominalGroup').className = 'popup-form-group hidden';
-  $('pinQuickAmounts').className = 'popup-quick hidden';
+  // Hide semua kecuali nama — INSTANT (no animation)
+  $('pinJenisGroup').className = 'pin-form-group hidden';
+  $('pinNominalGroup').className = 'pin-form-group hidden';
+  $('pinQuickAmounts').className = 'pin-quick-amounts hidden';
   
-  // Show popup
-  const popup = $('pinjamanPopup');
-  if (!popup) {
-    console.error('pinjamanPopup not found!');
-    return;
-  }
-  
-  popup.style.display = 'flex';
-  
-  const sheet = popup.querySelector('.popup-sheet');
+  // Reset popup position
+  const sheet = document.querySelector('.pinjaman-sheet');
   if (sheet) {
     sheet.classList.add('entering');
-    requestAnimationFrame(() => sheet.classList.remove('entering'));
+    sheet.style.transform = '';
   }
   
-  // Init keyboard
-  _initKeyboardHandler();
+  // Show popup — INSTANT
+  const popup = $('pinjamanPopup');
+  popup.style.display = 'flex';
+  
+  // Trigger reflow untuk animasi slide
+  requestAnimationFrame(() => {
+    if (sheet) sheet.classList.remove('entering');
+  });
+  
+  // Init keyboard handler
+  _initPinKeyboardPush();
 };
 
 window.tutupPopup = (id) => {
