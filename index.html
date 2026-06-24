@@ -1001,7 +1001,419 @@
       from { transform:translateY(-100%) }
       to { transform:translateY(0) }
     }
-  
+
+   /* ============================================================
+   ===== RINCIAN POPUP REDESIGN — FULL =====
+   ============================================================ */
+
+.rc-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 43, 110, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 999999;
+  padding: 0;
+}
+
+.rc-overlay.active {
+  display: flex;
+}
+
+.rc-card {
+  width: 100%;
+  max-width: 420px;
+  background: #F2F5FA;
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  max-height: 85dvh;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -8px 40px rgba(13, 43, 110, 0.25);
+}
+
+.rc-head {
+  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
+  padding: 14px 18px 20px;
+  padding-top: calc(12px + var(--safe-top));
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.rc-head::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+
+.rc-head::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: #F2F5FA;
+  border-radius: 20px 20px 0 0;
+}
+
+.rc-nama {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+.rc-bagian {
+  position: absolute;
+  top: calc(16px + var(--safe-top));
+  right: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255,255,255,0.15);
+  padding: 4px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  z-index: 1;
+}
+
+.rc-period {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+  position: relative;
+  z-index: 1;
+}
+
+.rc-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rc-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.06);
+  border: 1px solid rgba(26, 86, 219, 0.08);
+}
+
+.rc-section-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: #7B8DB0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rc-section-title i {
+  font-size: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: #E0EAFF;
+  color: #1A56DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rc-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #F2F5FA;
+}
+
+.rc-item:last-child {
+  border-bottom: none;
+}
+
+.rc-item-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.rc-item-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1A2340;
+  line-height: 1.3;
+}
+
+.rc-item-meta {
+  font-size: 11px;
+  color: #7B8DB0;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.rc-item-right {
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.rc-item-qty {
+  font-size: 11px;
+  color: #7B8DB0;
+  font-weight: 600;
+}
+
+.rc-item-harga {
+  font-size: 11px;
+  color: #7B8DB0;
+  font-weight: 500;
+}
+
+.rc-item-jumlah {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1A2340;
+  margin-top: 2px;
+}
+
+.rc-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 2px solid #E8EEF5;
+}
+
+.rc-subtotal-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #2C3A5A;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.rc-subtotal-val {
+  font-size: 16px;
+  font-weight: 900;
+  color: #1A56DB;
+}
+
+.rc-tambahan .rc-section-title i {
+  background: #D1FAE5;
+  color: #059669;
+}
+
+.rc-tambahan .rc-item-jumlah {
+  color: #059669;
+}
+
+.rc-tambahan .rc-subtotal-val {
+  color: #059669;
+}
+
+.rc-potongan .rc-section-title i {
+  background: #FEE2E2;
+  color: #EF4444;
+}
+
+.rc-potongan .rc-item-jumlah {
+  color: #EF4444;
+}
+
+.rc-potongan .rc-subtotal-val {
+  color: #EF4444;
+}
+
+.rc-total-card {
+  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rc-total-card::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+
+.rc-total-card::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: -10px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+
+.rc-total-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.rc-total-val {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+.rc-total-detail {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+  margin-top: 8px;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+}
+
+.rc-tambah-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.rc-tambah-btn:active {
+  background: rgba(255,255,255,0.3);
+  transform: scale(0.95);
+}
+
+.rc-footer {
+  padding: 12px 16px;
+  padding-bottom: calc(12px + var(--safe-bottom));
+  background: #fff;
+  border-top: 1px solid #E8EEF5;
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.rc-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s;
+  border: none;
+}
+
+.rc-btn-tutup {
+  background: #F2F5FA;
+  color: #7B8DB0;
+  border: 1.5px solid #DDE4F0;
+}
+
+.rc-btn-tutup:active {
+  background: #E8EEF5;
+}
+
+.rc-btn-download {
+  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
+}
+
+.rc-btn-download:active {
+  transform: scale(0.97);
+}
+
+.rc-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #7B8DB0;
+}
+
+.rc-empty i {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.3;
+  display: block;
+}
+
+.rc-empty-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 390px) {
+  .rc-nama { font-size: 28px; }
+  .rc-total-val { font-size: 28px; }
+  .rc-section { padding: 12px; }
+  .rc-item-name { font-size: 12px; }
+  .rc-btn { padding: 12px; font-size: 13px; }
+}
+
+@media (max-height: 700px) {
+  .rc-card { max-height: 96vh; max-height: 96dvh; }
+  .rc-head { padding: 16px 20px 24px; }
+}
     /* FORM */
     .form-group label {
       display:block; font-size:11px; font-weight:700;
@@ -1381,86 +1793,100 @@
       background:var(--card2); border-bottom:1px solid var(--muted);
     }
     .rc-body { flex:1; overflow-y:auto }
-    .rc-tabel { width:100%; border-collapse:collapse }
-    .rc-tabel thead tr { background:var(--primaryDim) }
-    .rc-tabel th {
-      padding:10px 8px; font-size:10px; font-weight:800;
-      letter-spacing:.07em; text-transform:uppercase;
-      color:var(--primary3); text-align:center;
-      position:static; background:transparent;
-    }
-    .rc-tabel td {
-      padding:11px 8px; border-bottom:1px solid var(--bg2);
-      text-align:center; font-size:12px; color:var(--text);
-    }
-    .rc-tabel .row-tot {
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-    }
-    .rc-tabel .row-tot td { color:#fff; font-weight:900; font-size:18px; border-bottom:none; padding-top:14px; padding-bottom:14px }
-    .rc-tabel .row-tot .tfoot-label { color:rgba(255,255,255,.8); font-size:13px; border-bottom:none }
-    .rc-tabel .row-tot .tfoot-val { color:#fff; border-bottom:none }
-    .rc-footer {
-      padding:14px 16px;
-      padding-bottom:calc(14px + var(--safe-bottom));
-      background:var(--card2);
-    }
-    .rc-close {
-      width:100%; background:var(--card);
-      color:var(--muted); border:1.5px solid var(--muted);
-      border-radius:12px; padding:13px;
-      font-size:13px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-    }
+    
+    /* ===== SLIP GAJI A6 - ULTRA KOMPAK ===== */
+.slip-popup { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; justify-content: center; align-items: flex-end; z-index: 9999999; padding: 0; }
+.slip-popup.active { display: flex; }
 
-    /* SLIP POPUP */
-    .slip-popup {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.50);
-      display:none; justify-content:center; align-items:center;
-      z-index:9999999; padding:16px;
-    }
-    .slip-popup.active { display:flex; animation:fadeIn .2s }
-    .slip-box {
-      background:var(--card);
-      border-radius:24px; width:100%; max-width:370px;
-      box-shadow:var(--shadow2);
-      display:flex; flex-direction:column;
-      max-height:88vh; max-height:88dvh; overflow:hidden;
-    }
-    .slip-print-area { padding:20px; overflow-y:auto; flex:1 }
-    .slip-header {
-      display:flex; justify-content:space-between; align-items:flex-start;
-      margin-bottom:10px; gap:8px;
-    }
-    .slip-co { font-size:10px; color:var(--muted); font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:3px }
-    .slip-nama { font-size:32px; font-weight:900; color:var(--text); line-height:1; letter-spacing:-.02em }
-    .slip-bagian { text-align:right; font-size:10px; font-weight:700; color:var(--primary3); line-height:1.6 }
-    .slip-period { font-size:10px; color:var(--muted); font-weight:600; margin-bottom:12px; text-transform:uppercase; letter-spacing:.06em }
-    .slip-table { width:100%; border-collapse:collapse; margin-bottom:10px }
-    .slip-table thead tr { background:var(--primaryDim) }
-    .slip-table th { padding:7px 4px; font-size:9px; font-weight:800; text-align:center; letter-spacing:.06em; color:var(--primary3) }
-    .slip-table td { padding:8px 4px; border-bottom:1px solid var(--bg2); text-align:center; font-size:10px; color:var(--text) }
-    .slip-line { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:11px; font-weight:600; color:var(--muted) }
-    .slip-line.potongan { color:var(--red) }
-    .slip-line.tambahan { color:var(--green); font-size:10px; font-weight:600 }
-    .slip-line.total { color:var(--primary3); font-size:17px; font-weight:800; border-top:2px solid var(--primary); margin-top:6px; padding-top:10px }
-    .slip-actions {
-      display:flex; gap:10px; padding:14px 20px;
-      background:var(--card2); flex-shrink:0;
-      position:sticky; bottom:0; z-index:2;
-    }
-    .slip-print-btn {
-      flex:2; background:linear-gradient(135deg, var(--primary3), var(--primary));
-      color:#fff; border:none; border-radius:50px; padding:13px;
-      font-size:13px; font-weight:700; cursor:pointer;
-      font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px;
-      box-shadow:0 4px 16px rgba(0,180,216,.28);
-    }
-    .slip-close-btn {
-      flex:1; background:var(--card); color:var(--muted);
-      border:1.5px solid var(--muted); border-radius:50px; padding:13px;
-      font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
-    }
+.slip-box {
+  width: 100%;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+  max-height: 75vh;
+  max-height: 75dvh;
+}
+
+/* Header */
+.slip-hd {
+  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 100%);
+  padding: 8px 12px 10px;
+  position: relative;
+  flex-shrink: 0;
+}
+.slip-hd::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0; right: 0;
+  height: 12px;
+  background: #fff;
+  border-radius: 12px 12px 0 0;
+}
+.slip-hd-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; position: relative; z-index: 1; }
+.slip-co { font-size: 7px; font-weight: 800; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .12em; }
+.slip-badge { font-size: 7px; font-weight: 700; color: rgba(255,255,255,.9); background: rgba(255,255,255,.15); padding: 2px 8px; border-radius: 4px; letter-spacing: .05em; }
+.slip-nm { font-size: 22px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -.02em; position: relative; z-index: 1; }
+.slip-info { display: flex; justify-content: space-between; align-items: center; margin-top: 3px; position: relative; z-index: 1; }
+.slip-dept { font-size: 8px; font-weight: 700; color: rgba(255,255,255,.85); text-transform: uppercase; letter-spacing: .06em; background: rgba(255,255,255,.12); padding: 2px 8px; border-radius: 4px; }
+.slip-period { font-size: 7px; font-weight: 600; color: rgba(255,255,255,.8); letter-spacing: .03em; }
+
+/* Body */
+.slip-body { flex: 1; padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+
+/* Section */
+.slip-sec { background: #fff; border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; }
+.slip-sec-hd { display: flex; align-items: center; gap: 5px; padding: 5px 8px; background: linear-gradient(90deg, #F1F5F9, #fff); border-bottom: 1px solid #E2E8F0; }
+.slip-sec-icon { width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; flex-shrink: 0; }
+.slip-sec-icon.b { background: #E0EAFF; color: #1A2A8C; }
+.slip-sec-icon.g { background: #D1FAE5; color: #059669; }
+.slip-sec-icon.r { background: #FEE2E2; color: #DC2626; }
+.slip-sec-title { font-size: 7px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+.slip-sec-title.b { color: #1A2A8C; }
+.slip-sec-title.g { color: #059669; }
+.slip-sec-title.r { color: #DC2626; }
+
+/* Item */
+.slip-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 8px; border-bottom: 1px solid #F1F5F9; }
+.slip-item:last-child { border-bottom: none; }
+.slip-item-left { flex: 1; min-width: 0; }
+.slip-item-name { font-size: 9px; font-weight: 700; color: #1A2340; line-height: 1.2; word-break: break-word; }
+.slip-item-meta { font-size: 7px; color: #7B8DB0; font-weight: 600; margin-top: 1px; line-height: 1.3; }
+.slip-item-right { text-align: right; flex-shrink: 0; margin-left: 8px; }
+.slip-item-amt { font-size: 10px; font-weight: 800; color: #1A2340; line-height: 1.1; }
+.slip-item-amt.g { color: #059669; }
+.slip-item-amt.r { color: #DC2626; }
+
+/* Subtotal */
+.slip-sub { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #F8FAFC; border-top: 1.5px solid #E2E8F0; }
+.slip-sub-label { font-size: 8px; font-weight: 800; color: #4A5568; text-transform: uppercase; letter-spacing: .06em; }
+.slip-sub-val { font-size: 11px; font-weight: 900; color: #1A2A8C; }
+.slip-sub-val.g { color: #059669; }
+.slip-sub-val.r { color: #DC2626; }
+
+/* Total Card */
+.slip-total { background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 100%); border-radius: 8px; padding: 8px 10px; margin-top: 2px; position: relative; overflow: hidden; flex-shrink: 0; }
+.slip-total::before { content: ''; position: absolute; top: -15px; right: -15px; width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,.06); }
+.slip-total-label { font-size: 7px; font-weight: 800; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing: .1em; position: relative; z-index: 1; }
+.slip-total-val { font-size: 20px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -.02em; margin-top: 2px; position: relative; z-index: 1; }
+.slip-total-detail { font-size: 7px; color: rgba(255,255,255,.7); font-weight: 600; margin-top: 3px; line-height: 1.4; position: relative; z-index: 1; }
+
+/* Footer */
+.slip-footer { padding: 6px 10px 8px; text-align: center; border-top: 1px solid #E2E8F0; flex-shrink: 0; }
+.slip-footer-txt { font-size: 6px; color: #7B8DB0; font-weight: 600; letter-spacing: .05em; }
+.slip-footer-date { font-size: 7px; color: #4A5568; font-weight: 700; margin-top: 2px; }
+
+/* Print */
+@media print {
+  @page { size: A6; margin: 0; }
+  html, body { background: #fff !important; width: 105mm; height: 148mm; overflow: hidden; }
+  .slip-popup { position: static; background: none; padding: 0; display: block !important; }
+  .slip-box { margin: 0 !important; box-shadow: none !important; width: 105mm !important; height: 148mm !important; max-height: 148mm !important; }
+  .slip-actions { display: none !important; }
+}
 
     /* DATE PICKER */
     .date-picker-popup {
@@ -2061,144 +2487,6 @@
   .pin-header-bg { padding: 14px 14px 20px; }
 }
 
-/* ===== BAYAR PINJAMAN — VARIASI WARNA ===== */
-
-.bayar-sheet .pin-header-bg {
-  background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%);
-}
-
-.bayar-sheet .pin-btn-primary {
-  background: linear-gradient(135deg, #059669, #10B981);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.28);
-}
-
-/* Toggle Luar Gaji */
-#lgTrack.lg-active {
-  background: #EF4444 !important;
-}
-
-#lgThumb.lg-active {
-  left: 26px !important;
-}
-
-/* Pinjaman Item Card */
-.bayar-pinj-item {
-  background: var(--card2);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-}
-
-.bayar-pinj-header {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--primary3);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.bayar-pinj-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  align-items: end;
-  margin-bottom: 8px;
-}
-
-.bayar-pinj-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-
-.bayar-pinj-sisa {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg2);
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 700;
-  color: var(--text);
-  outline: none;
-}
-
-.bayar-pinj-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  background: var(--card2);
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 700;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.bayar-pinj-input:focus {
-  border-color: var(--primary);
-}
-
-.bayar-pinj-lunas {
-  width: 100%;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, var(--primary3), var(--primary));
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.bayar-pinj-info {
-  display: none;
-  margin-top: 6px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: var(--card);
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bayar-pinj-info.show {
-  display: flex;
-}
-
-.bayar-pinj-info-text {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.bayar-pinj-info-val {
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.bayar-pinj-info-val.lunas {
-  color: var(--green);
-}
-
-.bayar-pinj-info-val.warning {
-  color: var(--red);
-}
-
 /* ===== BAYAR PINJAMAN — VARIASI ===== */
 
 .bayar-sheet .popup-header-bg {
@@ -2326,6 +2614,502 @@
 
 .bayar-pinj-info-val.lunas { color: var(--green); }
 .bayar-pinj-info-val.warning { color: var(--red); }
+
+/* ===== EDIT BAYAR POPUP ===== */
+
+#editBayarPopup .popup-header-bg {
+  background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #FCD34D 100%) !important;
+}
+
+#editNominalBayarPopup .popup-header-bg {
+  background: linear-gradient(135deg, #1A56DB 0%, #4B8EF8 50%, #6BA3FF 100%) !important;
+}
+
+/* Edit Bayar Item */
+.edit-bayar-item {
+  background: var(--card2);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+
+.edit-bayar-item:active {
+  transform: scale(0.99);
+}
+
+.edit-bayar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.edit-bayar-jenis {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--primary3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.edit-bayar-tanggal {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.edit-bayar-nominal {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--green);
+  line-height: 1;
+}
+
+.edit-bayar-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.edit-bayar-btn {
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.edit-bayar-btn-edit {
+  border: 1.5px solid var(--primary);
+  background: var(--primaryDim);
+  color: var(--primary3);
+}
+
+.edit-bayar-btn-edit:active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.edit-bayar-btn-hapus {
+  border: 1.5px solid var(--red);
+  background: #FEE2E2;
+  color: var(--red);
+}
+
+.edit-bayar-btn-hapus:active {
+  background: var(--red);
+  color: #fff;
+}
+
+/* Empty state */
+.edit-bayar-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+}
+
+.edit-bayar-empty i {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.3;
+}
+
+.edit-bayar-empty-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Sisa info */
+.edit-bayar-sisa-info {
+  background: linear-gradient(135deg, var(--primary3), var(--primary));
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.edit-bayar-sisa-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.edit-bayar-sisa-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 390px) {
+  .edit-bayar-item { padding: 12px 14px; }
+  .edit-bayar-nominal { font-size: 16px; }
+  .edit-bayar-btn { font-size: 11px; padding: 8px; }
+}
+
+/* ===== RINCIAN POPUP REDESIGN ===== */
+
+/* Overlay backdrop */
+.rc-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 43, 110, 0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 999999;
+  padding: 0;
+}
+
+.rc-overlay.active {
+  display: flex;
+}
+
+/* Card utama */
+.rc-card {
+  width: 100%;
+  max-width: 480px;
+  background: #F2F5FA;
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+  max-height: 92dvh;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -8px 40px rgba(13, 43, 110, 0.25);
+}
+
+/* Header */
+.rc-head {
+  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
+  padding: 20px 24px 28px;
+  padding-top: calc(16px + var(--safe-top));
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.rc-head::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: #F2F5FA;
+  border-radius: 20px 20px 0 0;
+}
+
+.rc-nama {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.rc-bagian {
+  position: absolute;
+  top: calc(16px + var(--safe-top));
+  right: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255,255,255,0.15);
+  padding: 4px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+
+.rc-period {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+}
+
+/* Body scrollable */
+.rc-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 16px;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Section Card */
+.rc-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.06);
+  border: 1px solid rgba(26, 86, 219, 0.08);
+}
+
+.rc-section-title {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rc-section-title i {
+  font-size: 10px;
+  color: var(--primary);
+}
+
+/* Item row */
+.rc-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 4px 0;
+  border-bottom: 1px solid #F2F5FA;
+}
+
+.rc-item:last-child {
+  border-bottom: none;
+}
+
+.rc-item-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.rc-item-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.rc-item-meta {
+  font-size: 9px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.rc-item-right {
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.rc-item-qty {
+  font-size: 9px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.rc-item-harga {
+  font-size: 9px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.rc-item-jumlah {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+  margin-top: 1px;
+}
+
+/* Subtotal dalam section */
+.rc-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  margin-top: 2px;
+  border-top: 1.5px solid #E8EEF5;
+}
+
+.rc-subtotal-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rc-subtotal-val {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--primary3);
+}
+
+/* Tambahan section */
+.rc-tambahan .rc-item-jumlah {
+  color: var(--green);
+}
+
+.rc-tambahan .rc-section-title {
+  color: var(--green);
+}
+
+.rc-tambahan .rc-section-title i {
+  color: var(--green);
+}
+
+/* Potongan section */
+.rc-potongan .rc-item-jumlah {
+  color: var(--red);
+}
+
+.rc-potongan .rc-section-title {
+  color: var(--red);
+}
+
+.rc-potongan .rc-section-title i {
+  color: var(--red);
+}
+
+/* Total Bersih — Card khusus */
+.rc-total-card {
+  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rc-total-card::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+
+.rc-total-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+
+.rc-total-val {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.rc-total-detail {
+  font-size: 9px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+/* Footer */
+.rc-footer {
+  padding: 12px 16px;
+  padding-bottom: calc(12px + var(--safe-bottom));
+  background: #fff;
+  border-top: 1px solid #E8EEF5;
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.rc-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s;
+}
+
+.rc-btn-tutup {
+  background: #F2F5FA;
+  color: var(--muted);
+  border: 1.5px solid #DDE4F0;
+}
+
+.rc-btn-tutup:active {
+  background: #E8EEF5;
+}
+
+.rc-btn-download {
+  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
+}
+
+.rc-btn-download:active {
+  transform: scale(0.97);
+}
+
+/* Tombol + (tambahan) */
+.rc-tambah-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.rc-tambah-btn:active {
+  background: rgba(255,255,255,0.3);
+  transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 390px) {
+  .rc-nama { font-size: 28px; }
+  .rc-total-val { font-size: 28px; }
+  .rc-section { padding: 12px; }
+  .rc-item-name { font-size: 12px; }
+}
 
     ::-webkit-scrollbar { width:4px; height:4px }
     ::-webkit-scrollbar-track { background:transparent }
@@ -3054,7 +3838,7 @@
   </div>
 </div>
 
-  <!-- ===== POPUP BAYAR PINJAMAN (DARI BAWAH) ===== -->
+ <!-- ===== POPUP BAYAR PINJAMAN (DARI BAWAH) ===== -->
 <div class="popup" id="bayarPopup">
   <div class="popup-sheet bayar-sheet entering">
     
@@ -3152,6 +3936,106 @@
   </div>
 </div>
 
+<!-- ===== POPUP EDIT BAYAR ===== -->
+<div class="popup" id="editBayarPopup">
+  <div class="popup-sheet entering">
+    
+    <div class="popup-header">
+      <div class="popup-header-bg" style="background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #FCD34D 100%);">
+        <div class="popup-header-content">
+          <div class="popup-header-icon" style="background: rgba(255,255,255,0.2);">
+            <i class="fa-solid fa-file-pen"></i>
+          </div>
+          <div class="popup-header-text">
+            <div class="popup-header-title">Edit Pembayaran</div>
+            <div class="popup-header-subtitle" id="editBayarNama">-</div>
+          </div>
+        </div>
+        <button class="popup-header-close" onclick="tutupPopup('editBayarPopup')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="popup-header-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
+          <path d="M0,30L48,35C96,40,192,50,288,45C384,40,480,20,576,18C672,15,768,20,864,28C960,35,1056,45,1152,42C1248,40,1344,25,1392,18L1440,10L1440,60L1392,60C1344,60,1248,60,1152,60C1056,60,960,60,864,60C768,60,672,60,576,60C480,60,384,60,288,60C192,60,96,60,48,60L0,60Z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="popup-body" id="editBayarBody">
+      <!-- Content di-generate via JS -->
+    </div>
+
+    <div class="popup-footer">
+      <button class="popup-btn-ghost" onclick="tutupPopup('editBayarPopup')">Tutup</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== POPUP EDIT NOMINAL BAYAR (Inline) ===== -->
+<div class="popup" id="editNominalBayarPopup">
+  <div class="popup-sheet entering">
+    
+    <div class="popup-header">
+      <div class="popup-header-bg" style="background: linear-gradient(135deg, #1A56DB 0%, #4B8EF8 50%, #6BA3FF 100%);">
+        <div class="popup-header-content">
+          <div class="popup-header-icon" style="background: rgba(255,255,255,0.2);">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div class="popup-header-text">
+            <div class="popup-header-title">Edit Nominal</div>
+            <div class="popup-header-subtitle" id="editNominalSubtitle">Ubah jumlah bayar</div>
+          </div>
+        </div>
+        <button class="popup-header-close" onclick="tutupPopup('editNominalBayarPopup')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="popup-header-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
+          <path d="M0,30L48,35C96,40,192,50,288,45C384,40,480,20,576,18C672,15,768,20,864,28C960,35,1056,45,1152,42C1248,40,1344,25,1392,18L1440,10L1440,60L1392,60C1344,60,1248,60,1152,60C1056,60,960,60,864,60C768,60,672,60,576,60C480,60,384,60,288,60C192,60,96,60,48,60L0,60Z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="popup-body">
+      <div class="popup-info popup-info-blue" style="margin-bottom: 16px;">
+        <div class="popup-info-icon popup-info-icon-blue">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <div class="popup-info-text popup-info-text-blue">
+          <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px;">Sisa Pinjaman Sebelumnya</div>
+          <div style="font-size: 18px; font-weight: 900; line-height: 1;">Rp <span id="editNominalSisa">0</span></div>
+        </div>
+      </div>
+
+      <div class="popup-form-group">
+        <label class="popup-label">
+          <i class="fa-solid fa-money-bill-wave"></i>
+          Nominal Bayar Baru
+        </label>
+        <div class="popup-input-wrap">
+          <span class="popup-input-prefix">Rp</span>
+          <input type="number" id="editNominalInput" placeholder="0" min="0" 
+            inputmode="numeric" pattern="[0-9]*" 
+            autocomplete="off" autocorrect="off" class="popup-input">
+        </div>
+        <div class="popup-hint" id="editNominalHint">Masukkan nominal baru</div>
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <button class="popup-btn-primary popup-btn-primary-blue" id="btnSimpanEditNominal" onclick="simpanEditNominalBayar()">
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span>Simpan Perubahan</span>
+      </button>
+      <button class="popup-btn-ghost" onclick="tutupPopup('editNominalBayarPopup')">Batal</button>
+    </div>
+
+  </div>
+</div>
+
   <!-- ===== LIST POPUP ===== -->
   <div class="list-popup" id="listPopup">
     <div class="list-popup-content">
@@ -3174,39 +4058,6 @@
       <div class="dp-btns">
         <button class="dp-ok" onclick="konfirmasiDatePicker()">OK</button>
         <button class="dp-cancel" onclick="tutupDatePicker()">Batal</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== RINCIAN OVERLAY ===== -->
-  <div class="rc-overlay" id="rcOverlay">
-    <div class="rc-card">
-      <div class="rc-head">
-        <div class="rc-nama" id="rcNama">-</div>
-        <div class="rc-bagian" id="rcBagian">-</div>
-      </div>
-      <div class="rc-period" id="rcPeriod">-</div>
-      <div class="rc-body">
-        <table class="rc-tabel">
-          <thead><tr><th style="font-size:10px;">Tgl</th><th>Jenis</th><th>Qty</th><th>Harga</th><th>Jumlah</th></tr></thead>
-          <tbody id="rcTbody"></tbody>
-          <tbody id="rcSummaryRows"><tr class="row-sub"><td colspan="4" class="tfoot-label">SUBTOTAL</td><td class="tfoot-val" id="rcSubtotal">0</td></tr></tbody>
-          <tbody id="rcTambahanRows"></tbody>
-          <tbody id="rcPinjamanRows"></tbody>
-          <tbody id="rcTotalRow">
-            <tr class="row-tot">
-              <td colspan="3" class="tfoot-label" style="text-align:left;padding-left:16px;">
-                <button id="rcTambahBtn" onclick="bukaTambahanPopup()" style="width:34px;height:34px;border-radius:50%;border:2.5px solid rgba(255,255,255,.7);background:rgba(255,255,255,.15);color:#fff;font-size:18px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;">+</button>
-              </td>
-              <td class="tfoot-label" style="text-align:right;">TOTAL BERSIH</td>
-              <td class="tfoot-val" id="rcTotal">0</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="rc-footer">
-        <button class="rc-close" onclick="tutupRincian()">Tutup</button>
-        <button class="rc-close" onclick="downloadSlipGaji(document.getElementById('rcNama').textContent)" style="margin-top:10px;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;font-weight:800;border:none;"><i class="fa-solid fa-download" style="margin-right:6px;"></i>Download Slip</button>
       </div>
     </div>
   </div>
@@ -3241,36 +4092,87 @@
     </div>
   </div>
 
-  <!-- ===== SLIP POPUP ===== -->
   <div class="slip-popup" id="slipPopup">
-    <div class="slip-box">
-      <div class="slip-print-area" id="slipPrintArea">
-        <div class="slip-header">
-          <div>
-            <div class="slip-co">Radja Production</div>
-            <div class="slip-nama" id="slipNama">-</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-            <img id="slipLogoImg" src="" alt="Logo" style="max-width:110px;max-height:44px;width:auto;height:auto;object-fit:contain;display:block;" onerror="this.style.display='none'">
-            <div class="slip-bagian" id="slipBagian">-</div>
-          </div>
-        </div>
-        <div class="slip-period" id="slipPeriode">-</div>
-        <table class="slip-table">
-          <thead><tr><th>Pekerjaan</th><th>Qty</th><th>Harga</th><th>Jumlah</th></tr></thead>
-          <tbody id="slipTbody"></tbody>
-        </table>
-        <div class="slip-line"><span>Subtotal</span><span id="slipSubtotal">0</span></div>
-        <div id="slipTambahanList"></div>
-        <div id="slipPinjamanList"></div>
-        <div class="slip-line total"><span>Total Bersih</span><span id="slipTotal">0</span></div>
+  <div style="width:100%;max-width:480px;display:flex;flex-direction:column;max-height:90vh;max-height:90dvh;">
+  <div class="slip-box" id="slipBox">
+  <div class="slip-hd">
+    <div class="slip-hd-top">
+      <span class="slip-co">Radja Production</span>
+      <span class="slip-badge">SLIP GAJI</span>
+    </div>
+    <div class="slip-nm" id="slipNama">-</div>
+    <div class="slip-info">
+      <span class="slip-dept" id="slipBagian">-</span>
+      <span class="slip-period" id="slipPeriode">-</span>
+    </div>
+  </div>
+  <div class="slip-body" id="slipBody">
+    <!-- Pekerjaan -->
+    <div class="slip-sec" id="slipSecPekerjaan">
+      <div class="slip-sec-hd">
+        <div class="slip-sec-icon b">📋</div>
+        <span class="slip-sec-title b">Pekerjaan</span>
       </div>
-      <div class="slip-actions">
-        <button class="slip-print-btn" onclick="cetakSlip()"><i class="fa-solid fa-print"></i> Cetak</button>
-        <button class="slip-print-btn" onclick="downloadSlipGaji(document.getElementById('slipNama').textContent)" style="background:var(--text2);flex:1;"><i class="fa-solid fa-download"></i> Download</button>
-        <button class="slip-close-btn" onclick="tutupSlip()">Tutup</button>
+      <div id="slipPekerjaanList"></div>
+      <div class="slip-sub">
+        <span class="slip-sub-label">Subtotal</span>
+        <span class="slip-sub-val" id="slipSubPekerjaan">Rp 0</span>
       </div>
     </div>
+    <!-- Tambahan -->
+    <div class="slip-sec" id="slipSecTambahan" style="display:none">
+      <div class="slip-sec-hd">
+        <div class="slip-sec-icon g">➕</div>
+        <span class="slip-sec-title g">Tambahan</span>
+      </div>
+      <div id="slipTambahanList"></div>
+      <div class="slip-sub">
+        <span class="slip-sub-label">Total</span>
+        <span class="slip-sub-val g" id="slipSubTambahan">+ Rp 0</span>
+      </div>
+    </div>
+    <!-- Subtotal Kotor (Pekerjaan + Tambahan) -->
+    <div class="slip-sub" id="slipSubKotorWrap" style="background:#EEF2FF;border-radius:8px;border:1px solid #C7D2FE;display:none;">
+      <span class="slip-sub-label" style="color:#1A2A8C;">Subtotal (Pekerjaan + Tambahan)</span>
+      <span class="slip-sub-val" id="slipSubKotor" style="color:#1A2A8C;">Rp 0</span>
+    </div>
+    <!-- Potongan -->
+    <div class="slip-sec" id="slipSecPotongan" style="display:none">
+      <div class="slip-sec-hd">
+        <div class="slip-sec-icon r">➖</div>
+        <span class="slip-sec-title r">Potongan</span>
+      </div>
+      <div id="slipPotonganList"></div>
+      <div class="slip-sub">
+        <span class="slip-sub-label">Total</span>
+        <span class="slip-sub-val r" id="slipSubPotongan">- Rp 0</span>
+      </div>
+    </div>
+    <!-- Total Bersih -->
+    <div class="slip-total">
+      <div class="slip-total-label">Total Bersih</div>
+      <div class="slip-total-val" id="slipTotalBersih">Rp 0</div>
+      <div class="slip-total-detail" id="slipTotalDetail">-</div>
+    </div>
+  </div>
+  <div class="slip-footer">
+    <div class="slip-footer-txt">Dokumen ini digenerate otomatis oleh sistem</div>
+    <div class="slip-footer-date" id="slipFooterDate">-</div>
+  </div>
+</div>
+  <!-- ACTION BUTTONS SLIP POPUP -->
+<div style="display:flex;gap:10px;padding:14px 16px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #EEF2FF;border-radius:0 0 20px 20px;flex-shrink:0;">
+  <button onclick="tutupSlip()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:#fff;border:1.5px solid #CBD5E1;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:#7B8DB0;cursor:pointer;font-family:inherit;">
+    <i class="fa-solid fa-xmark"></i> Tutup
+  </button>
+  <button onclick="cetakSlip()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,#059669,#10B981);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(16,185,129,.25);">
+    <i class="fa-solid fa-print"></i> Cetak
+  </button>
+  <button onclick="downloadSlipGaji(document.getElementById('slipNama').textContent)" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,#1A56DB,#4B8EF8);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(26,86,219,.25);">
+    <i class="fa-solid fa-download"></i> Download
+  </button>
+</div>
+  </div>
   </div>
 
   <!-- ===== EDIT QTY ===== -->
@@ -3619,7 +4521,6 @@
           MASTER.pegawai.slice().sort((a,b)=>String(a).localeCompare(String(b),'id')).forEach(p => dd.innerHTML += `<option value="${p}">${p}</option>`);
           if(namaTerpilih && MASTER.pegawai.includes(namaTerpilih)) { dd.value = namaTerpilih; } else { dd.value = ''; $('set_peg_bagian_ro').textContent = '—'; $('pegRowHapusSave').style.display = 'none'; }
         }
-        if($('rcOverlay').classList.contains('active')) { const namaAktif = $('rcNama').textContent; if (namaAktif && namaAktif !== '-') { bukaRincian(namaAktif); } }
         if($('inputPage').classList.contains('active')) { refreshQuickStats(); }
       }, 300);
     }
@@ -3893,50 +4794,49 @@ window.bukaPinjaman = () => {
   $('pin_nominal').disabled = true;
   $('pin_nominal').value = '';
   $('pinNominalHint').textContent = 'Masukkan jumlah pinjaman';
-  $('pinNominalHint').style.color = 'var(--muted)';
+  $('pinNominalHint').style.color = '#7B8DB0';
   setDis('btnSimpanPin', true);
   
-  // Hide semua kecuali nama — INSTANT (no animation)
-  $('pinJenisGroup').className = 'pin-form-group hidden';
-  $('pinNominalGroup').className = 'pin-form-group hidden';
-  $('pinQuickAmounts').className = 'pin-quick-amounts hidden';
+  // Hide field
+  $('pinJenisGroup').className = 'popup-form-group hidden';
+  $('pinNominalGroup').className = 'popup-form-group hidden';
+  $('pinQuickAmounts').className = 'popup-quick hidden';
   
-  // Reset popup position
-  const sheet = document.querySelector('.pinjaman-sheet');
-  if (sheet) {
-    sheet.classList.add('entering');
-    sheet.style.transform = '';
+  // Show popup
+  const popup = $('pinjamanPopup');
+  if (!popup) {
+    console.error('pinjamanPopup not found!');
+    return;
   }
   
-  // Show popup — INSTANT
-  const popup = $('pinjamanPopup');
   popup.style.display = 'flex';
   
-  // Trigger reflow untuk animasi slide
-  requestAnimationFrame(() => {
-    if (sheet) sheet.classList.remove('entering');
-  });
+  const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) {
+    sheet.classList.add('entering');
+    requestAnimationFrame(() => sheet.classList.remove('entering'));
+  }
   
-  // Init keyboard handler
-  _initPinKeyboardPush();
+  // Init keyboard
+  _initKeyboardHandler();
 };
 
 window.tutupPopup = (id) => {
-  const popup = $(id);
+  const popup = document.getElementById(id);
   if (!popup) return;
   
-  const sheet = popup.querySelector('.pinjaman-sheet');
+  const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
-    // Slide down animation
     sheet.style.transform = 'translateY(100%)';
     setTimeout(() => {
       popup.style.display = 'none';
       sheet.style.transform = '';
-      _removePinKeyboardHandler();
+      sheet.classList.add('entering');
+      _removeKeyboardHandler();
     }, 200);
   } else {
     popup.style.display = 'none';
-    _removePinKeyboardHandler();
+    _removeKeyboardHandler();
   }
 };
 
@@ -4134,6 +5034,8 @@ window.simpanPinjaman = async () => {
 
 // ===== BAYAR PINJAMAN — FIX =====
 
+// ===== BAYAR PINJAMAN — FIX =====
+
 window.bukaBayar = () => {
   const data = getRekapPinjamanLocal();
   _sisaPerNama = {};
@@ -4152,20 +5054,24 @@ window.bukaBayar = () => {
     return;
   }
   
-  // Reset
+  // Reset form
   resetSelect('bayar_nama', list, '-- Pilih Pegawai --');
   $('bayar_nilai').value = '-';
   $('bayar_jenis_list').innerHTML = '';
   setDis('btnSimpanBayar', true);
   
+  // Reset toggle
   _bayarLuarGaji = false;
   const lgTrack = $('lgTrack');
-  if (lgTrack) lgTrack.classList.remove('active');
+  const lgThumb = $('lgThumb');
+  if (lgTrack) lgTrack.classList.remove('lg-active');
+  if (lgThumb) lgThumb.style.left = '2px';
   
+  // Hide info & total
   $('bayarPendapatanCard').style.display = 'none';
   $('bayarTotalGroup').style.display = 'none';
   
-  // Show popup
+  // Show popup dari BAWAH
   const popup = $('bayarPopup');
   popup.style.display = 'flex';
   
@@ -4175,13 +5081,14 @@ window.bukaBayar = () => {
     requestAnimationFrame(() => sheet.classList.remove('entering'));
   }
   
+  // Init keyboard
   _initKeyboardHandler();
 };
 
 window.toggleLuarGaji = () => {
   _bayarLuarGaji = !_bayarLuarGaji;
   const lgTrack = $('lgTrack');
-  if (lgTrack) lgTrack.classList.toggle('active');
+  if (lgTrack) lgTrack.classList.toggle('lg-active');
   
   _bayarJenisData.forEach((p, i) => onBayarJenisInput(i, p.sisa));
   cekSimpanBayar();
@@ -4199,6 +5106,7 @@ window.onBayarNama = () => {
     return;
   }
   
+  // Show info & total
   $('bayarPendapatanCard').style.display = 'flex';
   $('bayarTotalGroup').style.display = 'block';
   
@@ -4232,31 +5140,33 @@ window.onBayarNama = () => {
   const container = $('bayar_jenis_list');
   
   container.innerHTML = _bayarJenisData.map((p, i) => `
-    <div class="popup-pinj-item">
-      <div class="popup-pinj-header">${p.jenis}</div>
-      <div class="popup-pinj-row">
+    <div class="bayar-pinj-item">
+      <div class="bayar-pinj-header">${p.jenis}</div>
+      <div class="bayar-pinj-row">
         <div>
-          <div class="popup-pinj-label">Sisa Pinjaman</div>
-          <input type="text" id="bayar_sisa_${i}" value="Rp ${fmt(p.sisa)}" readonly class="popup-pinj-sisa">
+          <div class="bayar-pinj-label">Sisa Pinjaman</div>
+          <input type="text" id="bayar_sisa_${i}" value="Rp ${fmt(p.sisa)}" readonly class="bayar-pinj-sisa">
         </div>
         <div>
-          <div class="popup-pinj-label">Bayar</div>
+          <div class="bayar-pinj-label">Bayar</div>
           <input type="number" id="bayar_input_${i}" placeholder="0" min="0" inputmode="numeric" 
-            oninput="onBayarJenisInput(${i}, ${p.sisa})" class="popup-pinj-input">
+            oninput="onBayarJenisInput(${i}, ${p.sisa})" class="bayar-pinj-input">
         </div>
       </div>
-      <button onclick="pelunasanPenuh(${i}, ${p.sisa})" class="popup-pinj-lunas">
+      <button onclick="pelunasanPenuh(${i}, ${p.sisa})" class="bayar-pinj-lunas">
         <i class="fa-solid fa-circle-check"></i> Pelunasan Penuh
       </button>
-      <div class="popup-pinj-info" id="bayar_info_${i}">
-        <span class="popup-pinj-info-text">Sisa setelah bayar</span>
-        <span class="popup-pinj-info-val" id="bayar_sisa_hasil_${i}">-</span>
+      <div class="bayar-pinj-info" id="bayar_info_${i}">
+        <span class="bayar-pinj-info-text">Sisa setelah bayar</span>
+        <span class="bayar-pinj-info-val" id="bayar_sisa_hasil_${i}">-</span>
       </div>
     </div>
   `).join('');
   
   cekSimpanBayar();
 };
+
+// ... rest functions sama (pelunasanPenuh, onBayarJenisInput, cekSimpanBayar, simpanBayar)
 
 // ... rest functions sama
 
@@ -5054,7 +5964,7 @@ window.simpanBayar = async () => {
           <td style="color:var(--red);font-weight:600">${r.potongan>0?fmt(r.potongan):'-'}</td>
           <td style="text-align:center;">${tamCell}</td>
           <td><span class="kotor-label">@ ${fmt(r.total)}</span><span class="bersih-val">${fmt(bersihFinal)}</span><div style="margin-top:2px;">${pinCell}</div></td>
-          <td style="white-space:nowrap;vertical-align:middle;"><div style="display:flex;gap:5px;align-items:center;justify-content:center;"><button class="print-icon-btn" onclick="bukaRincian('${q(r.nama)}')"><i class="fa-solid fa-list"></i></button><button class="print-icon-btn" onclick="bukaSlipGaji('${q(r.nama)}')"><i class="fa-solid fa-print"></i></button></div></td>
+          <td style="white-space:nowrap;vertical-align:middle;"><div style="display:flex;gap:5px;align-items:center;justify-content:center;"><button class="print-icon-btn" onclick="bukaTambahanPopup('${q(r.nama)}')" title="Tambah Tambahan"><i class="fa-solid fa-circle-plus"></i></button><button class="print-icon-btn" onclick="bukaSlipGaji('${q(r.nama)}')"><i class="fa-solid fa-print"></i></button></div></td>
         </tr>`;
       }).join('');
       const cb=$('checkAllRekap'); if(cb) cb.checked=false;
@@ -5066,60 +5976,306 @@ window.simpanBayar = async () => {
     }
 
     function renderTabelPinjaman(filter='') {
-      const tbody=$('tbodyPinjaman');
-      const rows = filter ? rekapPinRows.filter(r=>r.nama.toLowerCase().includes(filter.toLowerCase())) : rekapPinRows;
-      if(!rows.length){ tbody.innerHTML=`<tr><td colspan="6" style="color:var(--muted);padding:20px;font-size:13px">Tidak ada pinjaman aktif</td></tr>`; return; }
-      const q = s => String(s).replace(/'/g,"\\'");
-      tbody.innerHTML = rows.map(r=>`<tr>
-        <td class="nama-cell">${r.nama}</td>
-        <td>${r.jenis&&r.jenis!=='-'?r.jenis.split(', ').map(j=>`<span class="jenis-badge">${j}</span>`).join(' '):'-'}</td>
-        <td>${fmt(r.pinjaman)}</td>
-        <td>${r.bayar>0?fmt(r.bayar):'-'}</td>
-        <td style="color:var(--red);font-weight:700">${fmt(r.sisa)}</td>
-        <td style="text-align:center;"><button onclick="bukaEditPinjaman('${q(r.nama)}')" style="background:var(--primaryDim);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--primary3);font-size:13px;"><i class="fa-solid fa-pen-to-square"></i></button></td>
-      </tr>`).join('');
+  const tbody = $('tbodyPinjaman');
+  const rows = filter ? rekapPinRows.filter(r => r.nama.toLowerCase().includes(filter.toLowerCase())) : rekapPinRows;
+  
+  if(!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);padding:20px;font-size:13px">Tidak ada pinjaman aktif</td></tr>`;
+    return;
+  }
+  
+  const q = s => String(s).replace(/'/g,"\\'");
+  
+  tbody.innerHTML = rows.map(r => {
+    // Cek apakah ada bayar yang bisa diedit
+    const bayarList = _CACHE.bayar.filter(b => b.nama === r.nama && !b.luarGaji);
+    const adaBayar = bayarList.length > 0;
+    
+    return `<tr>
+      <td class="nama-cell" style="font-weight:700;">${r.nama}</td>
+      <td>${r.jenis && r.jenis !== '-' ? r.jenis.split(', ').map(j => `<span style="display:inline-block;background:var(--primaryDim);color:var(--primary3);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;margin:1px;">${j}</span>`).join(' ') : '-'}</td>
+      <td style="font-weight:600;">${fmt(r.pinjaman)}</td>
+      <td style="color:var(--green);font-weight:600;">${r.bayar > 0 ? fmt(r.bayar) : '-'}</td>
+      <td style="color:var(--red);font-weight:700;">${fmt(r.sisa)}</td>
+      <td style="text-align:center;white-space:nowrap;">
+        <button onclick="${adaBayar ? `bukaEditBayar('${q(r.nama)}')` : ''}" 
+          style="background:${adaBayar ? 'var(--primaryDim)' : '#E8EEF5'};border:none;border-radius:8px;padding:6px 12px;cursor:${adaBayar ? 'pointer' : 'not-allowed'};color:${adaBayar ? 'var(--primary3)' : '#7B8DB0'};font-size:12px;font-weight:700;"
+          ${!adaBayar ? 'disabled' : ''}>
+          <i class="fa-solid fa-pen-to-square"></i> Edit
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== EDIT BAYAR — POPUP LIST =====
+
+let _editBayarCurrentNama = '';
+let _editBayarCurrentId = '';
+
+window.bukaEditBayar = (nama) => {
+  const bayarList = _CACHE.bayar.filter(b => b.nama === nama && !b.luarGaji)
+    .sort((a, b) => b.tanggalISO.localeCompare(a.tanggalISO));
+  
+  if (!bayarList.length) {
+    showToast('ℹ Tidak ada pembayaran untuk diedit');
+    return;
+  }
+  
+  _editBayarCurrentNama = nama;
+  
+  $('editBayarNama').textContent = nama;
+  
+  const body = $('editBayarBody');
+  
+  // Hitung sisa pinjaman saat ini
+  const pinjamanData = getRekapPinjamanPerJenisLocal(nama);
+  const totalSisa = pinjamanData.reduce((sum, p) => sum + p.sisa, 0);
+  
+  let html = '';
+  
+  // Info sisa
+  html += `<div class="edit-bayar-sisa-info">
+    <span class="edit-bayar-sisa-label">Sisa Pinjaman Saat Ini</span>
+    <span class="edit-bayar-sisa-val">Rp ${fmt(totalSisa)}</span>
+  </div>`;
+  
+  // List pembayaran — HANYA Edit Nominal
+  html += bayarList.map((b, i) => `
+    <div class="edit-bayar-item">
+      <div class="edit-bayar-header">
+        <div>
+          <div class="edit-bayar-jenis">${b.jenisPinjaman || 'Pinjaman'}</div>
+          <div class="edit-bayar-tanggal">${b.tanggal || '-'} • ${b.tanggalISO || ''}</div>
+        </div>
+        <div class="edit-bayar-nominal">Rp ${fmt(b.bayar || 0)}</div>
+      </div>
+      <div class="edit-bayar-actions">
+        <button onclick="bukaEditNominalBayar('${b.id}', ${b.bayar || 0}, ${totalSisa + (b.bayar || 0)})" 
+          class="edit-bayar-btn edit-bayar-btn-edit" style="grid-column: 1 / -1;">
+          <i class="fa-solid fa-pen"></i> Edit Nominal
+        </button>
+      </div>
+    </div>
+  `).join('');
+  
+  // TIDAK ADA ZONA BERBAHAYA
+  
+  body.innerHTML = html;
+  
+  // Show popup
+  const popup = $('editBayarPopup');
+  popup.style.display = 'flex';
+  
+  const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) {
+    sheet.classList.add('entering');
+    requestAnimationFrame(() => sheet.classList.remove('entering'));
+  }
+  
+  _initKeyboardHandler();
+};
+
+window.hapusSemuaPinjaman = async (nama) => {
+  // Get detail pinjaman untuk confirm
+  const pinjamanData = getRekapPinjamanPerJenisLocal(nama);
+  const totalPinjaman = pinjamanData.reduce((s, p) => s + p.pinjaman, 0);
+  const totalBayar = pinjamanData.reduce((s, p) => s + p.bayar, 0);
+  const totalSisa = pinjamanData.reduce((s, p) => s + p.sisa, 0);
+  
+  bukaConfirm({
+    icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+    iconBg: '#FEE2E2', 
+    iconColor: '#EF4444',
+    title: 'Hapus Semua Pinjaman?',
+    msg: `<div style="text-align: left; line-height: 1.6;">
+      <b>${nama}</b> akan dihapus dari data pinjaman:<br><br>
+      ${pinjamanData.map(p => `• ${p.jenis}: <b>Rp ${fmt(p.pinjaman)}</b>`).join('<br>')}<br><br>
+      <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid #eee;">
+        <span>Total Pinjaman:</span>
+        <span style="color: #EF4444; font-weight: 800;">Rp ${fmt(totalPinjaman)}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+        <span>Sudah Dibayar:</span>
+        <span style="color: #10B981; font-weight: 800;">Rp ${fmt(totalBayar)}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 4px 0; border-top: 1px solid #eee;">
+        <span>Sisa:</span>
+        <span style="color: #EF4444; font-weight: 800;">Rp ${fmt(totalSisa)}</span>
+      </div>
+      <br><span style="color: #EF4444; font-size: 12px;">⚠ Tindakan ini tidak bisa dibatalkan!</span>
+    </div>`,
+    okLabel: 'Ya, Hapus Semua',
+    okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
+    callback: async () => {
+      showLoading('Menghapus pinjaman...');
+      try {
+        // Hapus semua pinjaman
+        const pinjamanDocs = _CACHE.pinjaman.filter(p => p.nama === nama);
+        for (const p of pinjamanDocs) {
+          await deleteDoc(doc(db, COL.pinjaman, p.id));
+        }
+        
+        // Hapus semua bayar
+        const bayarDocs = _CACHE.bayar.filter(b => b.nama === nama);
+        for (const b of bayarDocs) {
+          await deleteDoc(doc(db, COL.bayar, b.id));
+        }
+        
+        showToast('🗑 Pinjaman & pembayaran ' + nama + ' dihapus');
+        tutupPopup('editBayarPopup');
+        setTimeout(() => {
+          muatRekapPinjaman();
+          muatRekapPegawai();
+        }, 300);
+      } catch (e) {
+        showToast('❌ Gagal: ' + e.message);
+      } finally {
+        hideLoading();
+      }
     }
+  });
+};
+
+// ===== EDIT NOMINAL BAYAR — INLINE POPUP =====
+
+window.bukaEditNominalBayar = (id, currentBayar, sisaSebelumBayar) => {
+  _editBayarCurrentId = id;
+  
+  const sisa = sisaSebelumBayar - currentBayar;
+  
+  $('editNominalSubtitle').textContent = 'Ubah jumlah pembayaran';
+  $('editNominalSisa').textContent = fmt(sisa + currentBayar); // Sisa sebelum bayar ini
+  $('editNominalInput').value = currentBayar;
+  $('editNominalHint').innerHTML = `
+    Nominal saat ini: <b>Rp ${fmt(currentBayar)}</b><br>
+    <span style="color: var(--muted);">Ketik 0 untuk membatalkan pembayaran</span>
+  `;
+  
+  // Show popup
+  const popup = $('editNominalBayarPopup');
+  popup.style.display = 'flex';
+  
+  const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) {
+    sheet.classList.add('entering');
+    requestAnimationFrame(() => sheet.classList.remove('entering'));
+  }
+  
+  // Focus input
+  setTimeout(() => $('editNominalInput').focus(), 100);
+  
+  _initKeyboardHandler();
+};
+
+window.simpanEditNominalBayar = async () => {
+  const newNominal = parseInt($('editNominalInput').value);
+  
+  // Bisa 0 untuk hapus pembayaran
+  if (isNaN(newNominal) || newNominal < 0) {
+    showToast('⚠ Nominal tidak valid');
+    return;
+  }
+  
+  if (!_editBayarCurrentId) {
+    showToast('❌ ID tidak valid');
+    return;
+  }
+  
+  const btn = $('btnSimpanEditNominal');
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Menyimpan...</span>';
+  btn.disabled = true;
+  
+  showLoading('Menyimpan perubahan...');
+  
+  try {
+    if (newNominal === 0) {
+      // Kalau 0, hapus pembayaran
+      await deleteDoc(doc(db, COL.bayar, _editBayarCurrentId));
+      showToast('🗑 Pembayaran dibatalkan (nominal di 0 kan)');
+    } else {
+      // Kalau > 0, update nominal
+      await updateDoc(doc(db, COL.bayar, _editBayarCurrentId), { 
+        bayar: newNominal,
+        updatedAt: serverTimestamp()
+      });
+      showToast('✅ Pembayaran berhasil diupdate');
+    }
+    
+    tutupPopup('editNominalBayarPopup');
+    
+    // Refresh list
+    setTimeout(() => {
+      // Cek masih ada bayar?
+      const sisaBayar = _CACHE.bayar.filter(b => b.nama === _editBayarCurrentNama && !b.luarGaji);
+      if (sisaBayar.length === 0 && newNominal === 0) {
+        // Kalau semua bayar dihapus, tutup popup edit
+        tutupPopup('editBayarPopup');
+      } else {
+        bukaEditBayar(_editBayarCurrentNama);
+      }
+      muatRekapPinjaman();
+      muatRekapPegawai();
+    }, 300);
+    
+  } catch (e) {
+    showToast('❌ Gagal: ' + e.message);
+  } finally {
+    hideLoading();
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i><span>Simpan Perubahan</span>';
+    btn.disabled = false;
+  }
+};
+
+// ===== HAPUS BAYAR =====
+
+window.hapusBayar = async (id) => {
+  if (!id) {
+    showToast('❌ ID tidak valid');
+    return;
+  }
+  
+  if (!confirm('Hapus pembayaran ini?\n\nSisa pinjaman akan bertambah kembali.\nTindakan ini tidak bisa dibatalkan.')) {
+    return;
+  }
+  
+  showLoading('Menghapus...');
+  
+  try {
+    await deleteDoc(doc(db, COL.bayar, id));
+    
+    showToast('🗑 Pembayaran dihapus');
+    tutupPopup('editNominalBayarPopup');
+    
+    // Refresh list
+    setTimeout(() => {
+      // Cek masih ada bayar?
+      const sisaBayar = _CACHE.bayar.filter(b => b.nama === _editBayarCurrentNama && !b.luarGaji);
+      if (sisaBayar.length === 0) {
+        tutupPopup('editBayarPopup');
+      } else {
+        bukaEditBayar(_editBayarCurrentNama);
+      }
+      muatRekapPinjaman();
+      muatRekapPegawai();
+    }, 300);
+    
+  } catch (e) {
+    showToast('❌ Gagal: ' + e.message);
+  } finally {
+    hideLoading();
+  }
+};
 
     window.filterRekap = q => { if(currentTab==='pegawai') renderTabelRekap(q); else renderTabelPinjaman(q); };
     window.toggleCheckAllRekap = cb => document.querySelectorAll('.row-check-rekap').forEach(el => el.checked=cb.checked);
 
-    window.bukaRincian = nama => {
-      const dari=_getISO('rekapMulai'), sampai=_getISO('rekapAkhir');
-      const res = getRincianLocal(nama, dari, sampai);
-      $('rcNama').textContent = nama;
-      $('rcBagian').textContent = res.bagian;
-      $('rcPeriod').textContent = 'Periode: '+(_tgl.rekapMulai||'--')+' — '+(_tgl.rekapAkhir||'--');
-      const tbody=$('rcTbody');
-      if(!res.items.length) tbody.innerHTML=`<tr><td colspan="4" style="color:var(--muted);padding:20px;text-align:center;font-size:13px">Tidak ada data</td></tr>`;
-      else tbody.innerHTML = res.items.map(r=>{
-        const tgl = r.tanggalISO ? r.tanggalISO.split('-').reverse().join('/') : '-';
-        return `<tr><td style="white-space:nowrap;font-size:11px;color:var(--muted);font-weight:600;padding-right:4px;">${tgl}</td><td>${r.jenis||'-'}</td><td style="color:var(--primary3);font-weight:900;cursor:pointer;text-decoration:underline;" onclick="bukaEditQty('${r.id}', ${r.qty}, ${r.harga})">${r.qty||0}</td><td>${fmt(r.harga)}</td><td>${fmt(r.jumlah)}</td></tr>`;
-      }).join('');
-      $('rcSubtotal').textContent = fmt(res.subtotal||0);
-      const pinRows = $('rcPinjamanRows');
-      const _dariRc = dari, _sampaiRc = sampai;
-      const allBayarRc = _CACHE.bayar.filter(b => { if(b.nama!==nama) return false; if(b.luarGaji) return false; if(_dariRc && b.tanggalISO < _dariRc) return false; if(_sampaiRc && b.tanggalISO > _sampaiRc) return false; return true; });
-      if(allBayarRc.length > 0) {
-        const pinjamanMapRc = {};
-        allBayarRc.forEach(b => { const j = b.jenisPinjaman || 'Pinjaman'; if(!pinjamanMapRc[j]) pinjamanMapRc[j] = 0; pinjamanMapRc[j] += (b.bayar || 0); });
-        let pinHTML = `<tr class="rc-section-header sh-potongan"><td class="sh-spacer"></td><td class="sh-spacer"></td><td class="sh-spacer"></td><td class="sh-spacer"></td><td class="sh-label">− Potongan</td></tr>`;
-        Object.entries(pinjamanMapRc).forEach(([jenis, jumlah]) => {
-          pinHTML += `<tr style="background:#FFF5F5;"><td colspan="4" style="padding:6px 8px 6px 20px;text-align:right;font-size:11px;font-weight:600;color:var(--red);">↳ ${jenis}</td><td style="padding:6px 16px 6px 8px;text-align:right;font-size:11px;font-weight:700;color:var(--red);border-bottom:1px solid #FEE2E2;">- ${fmt(jumlah)}</td></tr>`;
-        });
-        pinRows.innerHTML = pinHTML;
-      } else { pinRows.innerHTML = ''; }
+    window.bukaTambahanPopup = (nama) => {
+      nama = nama || _rcNamaAktif;
+      if(!nama){ showToast('Nama pegawai tidak ditemukan!'); return; }
       _rcNamaAktif = nama;
-      $('rcOverlay').classList.add('active');
-      _renderTambahanDiRincian(nama);
-    };
-
-    window.tutupRincian = () => $('rcOverlay').classList.remove('active');
-
-    window.bukaTambahanPopup = () => {
-      const nama = $('rcNama').textContent;
-      if(!nama || nama === '-'){ showToast('Buka Rincian pegawai terlebih dahulu!'); return; }
-      _rcNamaAktif = nama;
-      const bagian = ($('rcBagian').textContent || '').trim();
+      const peg = MASTER.pegawaiData[nama] || { bagian: '' };
+      const bagian = (peg.bagian || '').trim();
       $('tamNama').textContent = nama;
       $('tamBagian').textContent = bagian;
       const allItems = MASTER.tambahanItemList || [];
@@ -5165,8 +6321,8 @@ window.simpanBayar = async () => {
     };
 
     window.simpanTambahanRincian = async () => {
-      const nama = _rcNamaAktif || $('rcNama').textContent;
-      if(!nama || nama === '-'){ showToast('Error: nama pegawai tidak ditemukan'); return; }
+      const nama = _rcNamaAktif;
+      if(!nama){ showToast('Error: nama pegawai tidak ditemukan'); return; }
       const saveBtn = document.querySelector('#tambahanPopup button[onclick="simpanTambahanRincian()"]');
       if(saveBtn && saveBtn.disabled) return;
       if(saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '0.5'; }
@@ -5197,7 +6353,6 @@ window.simpanBayar = async () => {
       }
       if(saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = ''; }
       $('tambahanPopup').classList.remove('active');
-      _renderTambahanDiRincian(nama);
       renderTabelRekap();
       loadDashboardDana();
     };
@@ -5224,254 +6379,416 @@ window.simpanBayar = async () => {
       } catch(e) { console.error('❌ Gagal simpan tambahan:', e); showToast('⚠️ Gagal simpan ke database: ' + e.message); return false; }
     }
 
-    function _renderTambahanDiRincian(nama) {
-      const _dariRend = _getISO('rekapMulai');
-      const _sampaiRend = _getISO('rekapAkhir');
-      const tam = _rcTambahan[nama];
-      const tamTglRend = tam?._tanggalISO || '';
-      const tamValidRend = tam && (!_dariRend || tamTglRend >= _dariRend) && (!_sampaiRend || tamTglRend <= _sampaiRend);
-      const tbody = $('rcTambahanRows');
-      if(!tamValidRend || tam.total === 0) { tbody.innerHTML = ''; _recalcRcTotal(nama); return; }
-      const _tamRow = (label, jumlah) => `<tr style="background:#F0FDF4;"><td colspan="4" style="padding:6px 8px 6px 20px;text-align:right;font-size:11px;font-weight:600;color:var(--green);">↳ ${label}</td><td style="padding:6px 16px 6px 8px;text-align:right;font-size:11px;font-weight:700;color:var(--green);border-bottom:1px solid #DCFCE7;">+ ${fmt(jumlah)}</td></tr>`;
-      let rows = `<tr class="rc-section-header sh-tambahan"><td class="sh-spacer"></td><td class="sh-spacer"></td><td class="sh-spacer"></td><td class="sh-spacer"></td><td class="sh-label">＋ Tambahan</td></tr>`;
-      if(tam.items) {
-        Object.values(tam.items).forEach(it => { if(it.jumlah > 0) rows += _tamRow(`${it.jenis} (${it.qty} hari)`, it.jumlah); });
-      } else {
-        if(tam.makan && tam.makan.jumlah > 0) rows += _tamRow(`Uang Makan (${tam.makan.hari} hari)`, tam.makan.jumlah);
-        if(tam.makanMinggu && tam.makanMinggu.jumlah > 0) rows += _tamRow(`Uang Makan Minggu (${tam.makanMinggu.hari} hari)`, tam.makanMinggu.jumlah);
-        if(tam.lembur && tam.lembur.jumlah > 0) rows += _tamRow(`Lembur (${tam.lembur.hari} hari)`, tam.lembur.jumlah);
-        if(tam.bonus && tam.bonus.jumlah > 0) rows += _tamRow(`Bonus (${tam.bonus.hari} hari)`, tam.bonus.jumlah);
-      }
-      tbody.innerHTML = rows;
-      _recalcRcTotal(nama);
-    }
+    window.bukaSlipGaji = (nama) => {
+  const dari = _getISO('rekapMulai');
+  const sampai = _getISO('rekapAkhir');
+  const data = getRincianLocal(nama, dari, sampai);
+  
+  if (!data.items.length && data.potongan === 0) {
+    showToast('Tidak ada data untuk dicetak!');
+    return;
+  }
 
-    function _recalcRcTotal(nama) {
-      const dari = _getISO('rekapMulai'), sampai = _getISO('rekapAkhir');
-      const res = getRincianLocal(nama, dari, sampai);
-      const subtotal = res.subtotal || 0;
-      const allBayar = _CACHE.bayar.filter(b => { if(b.nama!==nama) return false; if(b.luarGaji) return false; if(dari && b.tanggalISO < dari) return false; if(sampai && b.tanggalISO > sampai) return false; return true; });
-      const potongan = allBayar.reduce((s,b) => s+(b.bayar||0), 0);
-      const tam = _rcTambahan[nama] || { total: 0 };
-      const tamTgl = tam._tanggalISO || '';
-      const tamOk = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
-      const total = subtotal + (tamOk ? (tam.total || 0) : 0) - potongan;
-      $('rcTotal').textContent = fmt(total);
-    }
+  // Header
+  $('slipNama').textContent = nama;
+  $('slipBagian').textContent = data.bagian || '-';
+  $('slipPeriode').textContent = 'Periode: ' + (_tgl.rekapMulai || '--') + ' — ' + (_tgl.rekapAkhir || '--');
 
-    window.bukaSlipGaji = nama => {
-      const dari=_getISO('rekapMulai'), sampai=_getISO('rekapAkhir');
-      const data = getRincianLocal(nama, dari, sampai);
-      if(!data.items.length && data.potongan===0){ showToast('Tidak ada data untuk dicetak!'); return; }
-      $('slipNama').textContent = nama;
-      $('slipBagian').textContent = data.bagian||'-';
-      $('slipPeriode').textContent = 'Periode: '+(_tgl.rekapMulai||'--')+' — '+(_tgl.rekapAkhir||'--');
-      const _slipMerge = {};
-      data.items.forEach(r => {
-        const key = (r.jenis||'') + '||' + (r.harga||0);
-        if(!_slipMerge[key]) _slipMerge[key] = { jenis:r.jenis, qty:0, harga:r.harga, jumlah:0 };
-        _slipMerge[key].qty += (r.qty||0);
-        _slipMerge[key].jumlah += (r.jumlah||0);
+  let totalPekerjaan = 0;
+  let totalTambahan = 0;
+  let totalPotongan = 0;
+
+  // === PEKERJAAN ===
+  const pekerjaanContainer = $('slipPekerjaanList');
+  pekerjaanContainer.innerHTML = '';
+  
+  if (data.items.length > 0) {
+    // Merge same jenis+harga
+    const merged = {};
+    data.items.forEach(r => {
+      const key = (r.jenis || '-') + '||' + (r.harga || 0);
+      if (!merged[key]) merged[key] = { jenis: r.jenis, harga: r.harga, qty: 0, jumlah: 0, tanggals: [] };
+      merged[key].qty += (r.qty || 0);
+      merged[key].jumlah += (r.jumlah || 0);
+      if (r.tanggalISO) merged[key].tanggals.push(r.tanggalISO);
+    });
+
+    Object.values(merged).forEach(p => {
+      totalPekerjaan += p.jumlah;
+      const tgl = p.tanggals.length > 0 ? p.tanggals[0].split('-').reverse().join('/') : '';
+      const row = document.createElement('div');
+      row.className = 'slip-item';
+      row.innerHTML = `
+        <div class="slip-item-left">
+          <div class="slip-item-name">${p.jenis || '-'}</div>
+          <div class="slip-item-meta">${p.qty} pcs × Rp ${fmt(p.harga)}${tgl ? ' • ' + tgl : ''}</div>
+        </div>
+        <div class="slip-item-right">
+          <div class="slip-item-amt">Rp ${fmt(p.jumlah)}</div>
+        </div>
+      `;
+      pekerjaanContainer.appendChild(row);
+    });
+  }
+
+  $('slipSubPekerjaan').textContent = 'Rp ' + fmt(totalPekerjaan);
+
+  // === TAMBAHAN ===
+  const tam = _rcTambahan[nama];
+  const tamTgl = tam?._tanggalISO || '';
+  const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
+  const secTambahan = $('slipSecTambahan');
+  
+  if (tam && tam.total > 0 && tamDalamRange) {
+    secTambahan.style.display = '';
+    const tambahanContainer = $('slipTambahanList');
+    tambahanContainer.innerHTML = '';
+    
+    if (tam.items) {
+      Object.values(tam.items).forEach(it => {
+        if (it.jumlah > 0) {
+          totalTambahan += it.jumlah;
+          const row = document.createElement('div');
+          row.className = 'slip-item';
+          row.innerHTML = `
+            <div class="slip-item-left">
+              <div class="slip-item-name">${it.jenis}</div>
+              <div class="slip-item-meta">${it.qty} hari × Rp ${fmt(it.harga)}</div>
+            </div>
+            <div class="slip-item-right">
+              <div class="slip-item-amt g">+ Rp ${fmt(it.jumlah)}</div>
+            </div>
+          `;
+          tambahanContainer.appendChild(row);
+        }
       });
-      $('slipTbody').innerHTML = Object.values(_slipMerge).map(r=>`<tr><td>${r.jenis||'-'}</td><td>${r.qty||0}</td><td>${fmt(r.harga)}</td><td>${fmt(r.jumlah)}</td></tr>`).join('');
-      $('slipSubtotal').textContent = fmt(data.subtotal||0);
-      const tambahanListEl = $('slipTambahanList');
-      const tam = _rcTambahan[nama];
-      const tamTglS = tam?._tanggalISO || '';
-      const tamOkS = tam && (!dari || tamTglS >= dari) && (!sampai || tamTglS <= sampai);
-      let tamTotal = 0;
-      if(tambahanListEl) {
-        if(tamOkS && tam && tam.total > 0) {
-          tamTotal = tam.total;
-          let tamHTML = '';
-          if(tam.items) {
-            Object.values(tam.items).forEach(it => { if(it.jumlah > 0) { tamHTML += `<div class="slip-line tambahan"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(it.jumlah)}</span></div>`; } });
-          } else {
-            if(tam.makan && tam.makan.jumlah > 0) tamHTML += `<div class="slip-line tambahan"><span>↳ Uang Makan (${tam.makan.hari} hari)</span><span>+ ${fmt(tam.makan.jumlah)}</span></div>`;
-            if(tam.makanMinggu && tam.makanMinggu.jumlah > 0) tamHTML += `<div class="slip-line tambahan"><span>↳ Uang Makan Minggu (${tam.makanMinggu.hari} hari)</span><span>+ ${fmt(tam.makanMinggu.jumlah)}</span></div>`;
-            if(tam.lembur && tam.lembur.jumlah > 0) tamHTML += `<div class="slip-line tambahan"><span>↳ Lembur (${tam.lembur.hari} hari)</span><span>+ ${fmt(tam.lembur.jumlah)}</span></div>`;
-            if(tam.bonus && tam.bonus.jumlah > 0) tamHTML += `<div class="slip-line tambahan"><span>↳ Bonus (${tam.bonus.hari} hari)</span><span>+ ${fmt(tam.bonus.jumlah)}</span></div>`;
-          }
-          if(!tamHTML) tamHTML = `<div class="slip-line tambahan"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
-          tambahanListEl.innerHTML = tamHTML;
-        } else { tambahanListEl.innerHTML = ''; }
-      }
-      const pinList = $('slipPinjamanList');
-      const _dariSlip = _getISO('rekapMulai'), _sampaiSlip = _getISO('rekapAkhir');
-      const allBayarItems = _CACHE.bayar.filter(b => { if(b.nama!==nama) return false; if(b.luarGaji) return false; if(_dariSlip && b.tanggalISO < _dariSlip) return false; if(_sampaiSlip && b.tanggalISO > _sampaiSlip) return false; return true; });
-      if(allBayarItems.length > 0) {
-        const pinjamanMap = {};
-        allBayarItems.forEach(b => { const jenis = b.jenisPinjaman || 'Pinjaman'; if(!pinjamanMap[jenis]) pinjamanMap[jenis] = 0; pinjamanMap[jenis] += (b.bayar || 0); });
-        let pinHTML = '';
-        Object.entries(pinjamanMap).forEach(([jenis, jumlah]) => { pinHTML += `<div class="slip-line potongan"><span>↳ ${jenis}</span><span>- ${fmt(jumlah)}</span></div>`; });
-        pinList.innerHTML = pinHTML;
-      } else { pinList.innerHTML = ''; }
-      const _totalPotonganSlip = allBayarItems.reduce((s,b) => s+(b.bayar||0), 0);
-      $('slipTotal').textContent = fmt(data.subtotal + tamTotal - _totalPotonganSlip);
-      $('slipPopup').classList.add('active');
-    };
+    }
+    $('slipSubTambahan').textContent = '+ Rp ' + fmt(totalTambahan);
+  } else {
+    secTambahan.style.display = 'none';
+  }
+
+  // === SUBTOTAL KOTOR (Pekerjaan + Tambahan, sebelum Potongan) ===
+  const totalKotorSementara = totalPekerjaan + totalTambahan;
+  const subKotorWrap = $('slipSubKotorWrap');
+
+  // === POTONGAN ===
+  const allBayar = _CACHE.bayar.filter(b => {
+    if (b.nama !== nama) return false;
+    if (b.luarGaji) return false;
+    if (dari && b.tanggalISO < dari) return false;
+    if (sampai && b.tanggalISO > sampai) return false;
+    return true;
+  });
+
+  const secPotongan = $('slipSecPotongan');
+  if (allBayar.length > 0) {
+    secPotongan.style.display = '';
+    subKotorWrap.style.display = '';
+    $('slipSubKotor').textContent = 'Rp ' + fmt(totalKotorSementara);
+    const potonganContainer = $('slipPotonganList');
+    potonganContainer.innerHTML = '';
+    
+    const pinjamanMap = {};
+    allBayar.forEach(b => {
+      const jenis = b.jenisPinjaman || 'Pinjaman';
+      if (!pinjamanMap[jenis]) pinjamanMap[jenis] = 0;
+      pinjamanMap[jenis] += (b.bayar || 0);
+    });
+
+    Object.entries(pinjamanMap).forEach(([jenis, jumlah]) => {
+      totalPotongan += jumlah;
+      const row = document.createElement('div');
+      row.className = 'slip-item';
+      row.innerHTML = `
+        <div class="slip-item-left">
+          <div class="slip-item-name">${jenis}</div>
+        </div>
+        <div class="slip-item-right">
+          <div class="slip-item-amt r">- Rp ${fmt(jumlah)}</div>
+        </div>
+      `;
+      potonganContainer.appendChild(row);
+    });
+    $('slipSubPotongan').textContent = '- Rp ' + fmt(totalPotongan);
+  } else {
+    secPotongan.style.display = 'none';
+    subKotorWrap.style.display = 'none';
+  }
+
+  // === TOTAL BERSIH ===
+  // SISTEM AKUMULASI: Total Pekerjaan + Tambahan - Potongan
+  const totalKotor = totalPekerjaan + totalTambahan;
+  const totalBersih = totalKotor - totalPotongan;
+
+  $('slipTotalBersih').textContent = 'Rp ' + fmt(totalBersih);
+
+  let detailParts = [];
+  if (totalPekerjaan > 0) detailParts.push('Pekerjaan Rp ' + fmt(totalPekerjaan));
+  if (totalTambahan > 0) detailParts.push('+ Tambahan Rp ' + fmt(totalTambahan));
+  if (totalPotongan > 0) detailParts.push('- Potongan Rp ' + fmt(totalPotongan));
+  $('slipTotalDetail').textContent = detailParts.join(' • ');
+
+  // Footer date
+  const now = new Date();
+  $('slipFooterDate').textContent = 'Dicetak: ' + fmtTgl(now) + ' ' + 
+    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  $('slipPopup').classList.add('active');
+};
 
     window.tutupSlip = () => $('slipPopup').classList.remove('active');
 
     window.cetakSlip = () => {
-      const nama = $('slipNama').textContent, bagian = $('slipBagian').textContent, periode = $('slipPeriode').textContent;
-      const subtot = $('slipSubtotal').textContent, total = $('slipTotal').textContent;
-      const rows = $('slipTbody').innerHTML;
-      const pinjDetailHTML = $('slipPinjamanList').innerHTML;
-      const tam = _rcTambahan[nama];
-      let tamHTMLCetak = '';
-      if(tam && tam.total > 0) {
-        if(tam.items) {
-          Object.values(tam.items).forEach(it => { if(it.jumlah > 0) { tamHTMLCetak += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(it.jumlah)}</span></div>`; } });
-        } else {
-          if(tam.makan && tam.makan.jumlah > 0) tamHTMLCetak += `<div class="ln grn"><span>↳ Uang Makan (${tam.makan.hari} hari)</span><span>+ ${fmt(tam.makan.jumlah)}</span></div>`;
-          if(tam.makanMinggu && tam.makanMinggu.jumlah > 0) tamHTMLCetak += `<div class="ln grn"><span>↳ Uang Makan Minggu (${tam.makanMinggu.hari} hari)</span><span>+ ${fmt(tam.makanMinggu.jumlah)}</span></div>`;
-          if(tam.lembur && tam.lembur.jumlah > 0) tamHTMLCetak += `<div class="ln grn"><span>↳ Lembur (${tam.lembur.hari} hari)</span><span>+ ${fmt(tam.lembur.jumlah)}</span></div>`;
-          if(tam.bonus && tam.bonus.jumlah > 0) tamHTMLCetak += `<div class="ln grn"><span>↳ Bonus (${tam.bonus.hari} hari)</span><span>+ ${fmt(tam.bonus.jumlah)}</span></div>`;
-        }
-        if(!tamHTMLCetak) tamHTMLCetak = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tam.total)}</span></div>`;
-      }
-      let pinjHTMLCetak = '';
-      if(pinjDetailHTML) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = pinjDetailHTML;
-        const lines = tempDiv.querySelectorAll('.slip-line.potongan');
-        lines.forEach(line => {
-          const spans = line.querySelectorAll('span');
-          if(spans.length === 2) {
-            const jenis = spans[0].textContent.trim();
-            const jumlah = spans[1].textContent.trim();
-            pinjHTMLCetak += `<div class="pt-detail"><span>${jenis}</span><span>${jumlah}</span></div>`;
-          }
-        });
-      }
-      const html = _buatHtmlSlip(nama, bagian, periode, rows, subtot, '', total, '', tamHTMLCetak, pinjHTMLCetak);
-      _cetakSlipInPage(html);
-    };
+  const nama = $('slipNama').textContent;
+  const bagian = $('slipBagian').textContent;
+  const periode = $('slipPeriode').textContent;
+  
+  // Ambil data dari elemen slip popup yang baru
+  const dari = _getISO('rekapMulai');
+  const sampai = _getISO('rekapAkhir');
+  const data = getRincianLocal(nama, dari, sampai);
+  
+  // Build rows HTML dari slip popup yang sudah di-render
+  const pekerjaanList = $('slipPekerjaanList');
+  const rows = pekerjaanList ? pekerjaanList.innerHTML : '';
+  
+  const subtot = $('slipSubPekerjaan').textContent;
+  const totalBersih = $('slipTotalBersih').textContent;
+  
+  // Ambil tambahan
+  const tam = _rcTambahan[nama];
+  let tamHTMLCetak = '';
+  let tamTotal = 0;
+  if(tam && tam.total > 0) {
+    tamTotal = tam.total;
+    if(tam.items) {
+      Object.values(tam.items).forEach(it => { 
+        if(it.jumlah > 0) { 
+          tamHTMLCetak += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(it.jumlah)}</span></div>`; 
+        } 
+      });
+    }
+    if(!tamHTMLCetak) tamHTMLCetak = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
+  }
+  
+  // Ambil potongan
+  const allBayar = _CACHE.bayar.filter(b => {
+    if(b.nama !== nama) return false;
+    if(b.luarGaji) return false;
+    if(dari && b.tanggalISO < dari) return false;
+    if(sampai && b.tanggalISO > sampai) return false;
+    return true;
+  });
+  
+  let pinjHTMLCetak = '';
+  const pinjamanMap = {};
+  allBayar.forEach(b => { 
+    const jenis = b.jenisPinjaman || 'Pinjaman'; 
+    if(!pinjamanMap[jenis]) pinjamanMap[jenis] = 0; 
+    pinjamanMap[jenis] += (b.bayar || 0); 
+  });
+  Object.entries(pinjamanMap).forEach(([jenis, jumlah]) => { 
+    pinjHTMLCetak += `<div class="pt-detail"><span>${jenis}</span><span>- ${fmt(jumlah)}</span></div>`; 
+  });
+  
+  const totalPotongan = allBayar.reduce((s,b) => s+(b.bayar||0), 0);
+  const totalKotor = data.subtotal + tamTotal;
+  const totalBersihVal = totalKotor - totalPotongan;
+  const subKotorHTML = totalPotongan > 0 ? `<div class="ln sub" style="background:#EEF2FF;border-top:none;margin-top:2px;padding:5px 4px;border-radius:4px;"><span>Subtotal (Sebelum Potongan)</span><span>${fmt(totalKotor)}</span></div>` : '';
+  
+  const html = _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTMLCetak, 'Rp ' + fmt(totalBersihVal), tamHTMLCetak, tamTotal, pinjHTMLCetak, subKotorHTML);
+  _cetakSlipInPage(html);
+};
 
     window.cetakMassal = () => {
-      const _oldSlipStyle = document.getElementById('_printSlipStyle');
-      if(_oldSlipStyle) _oldSlipStyle.remove();
-      const _oldSlipOverlay = document.getElementById('_printSlipOverlay');
-      if(_oldSlipOverlay) _oldSlipOverlay.remove();
-      const checkboxes = document.querySelectorAll('.row-check-rekap:checked');
-      if(!checkboxes.length){ showToast('Pilih minimal satu pegawai!'); return; }
-      const dari=_getISO('rekapMulai'), sampai=_getISO('rekapAkhir');
-      let htmlGabungan='';
-      for(const cb of checkboxes) {
-        const nama=cb.value;
-        if(!nama || nama==='-' || nama.trim()==='') continue;
-        const data=getRincianLocal(nama, dari, sampai);
-        const _cekBayar = _CACHE.bayar.some(b => b.nama===nama && (!dari||b.tanggalISO>=dari) && (!sampai||b.tanggalISO<=sampai));
-        const _cekTam = _rcTambahan[nama] && (_rcTambahan[nama].total||0) > 0;
-        if(!data.items.length && !_cekBayar && !_cekTam) continue;
-        const rows=_mergeItemsForPrint(data.items).map(r=>`<tr><td>${r.jenis||'-'}</td><td>${r.qty||0}</td><td>${fmt(r.harga)}</td><td>${fmt(r.jumlah)}</td></tr>`).join('');
-        const tam = _rcTambahan[nama];
-        let tamTotal = 0;
-        let tamHTMLMassal = '';
-        if(tam && tam.total > 0) {
-          tamTotal = tam.total;
-          if(tam.items) {
-            Object.values(tam.items).forEach(it => { if(it.jumlah > 0) { tamHTMLMassal += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(it.jumlah)}</span></div>`; } });
-          } else {
-            if(tam.makan && tam.makan.jumlah > 0) tamHTMLMassal += `<div class="ln grn"><span>↳ Uang Makan (${tam.makan.hari} hari)</span><span>+ ${fmt(tam.makan.jumlah)}</span></div>`;
-            if(tam.makanMinggu && tam.makanMinggu.jumlah > 0) tamHTMLMassal += `<div class="ln grn"><span>↳ Uang Makan Minggu (${tam.makanMinggu.hari} hari)</span><span>+ ${fmt(tam.makanMinggu.jumlah)}</span></div>`;
-            if(tam.lembur && tam.lembur.jumlah > 0) tamHTMLMassal += `<div class="ln grn"><span>↳ Lembur (${tam.lembur.hari} hari)</span><span>+ ${fmt(tam.lembur.jumlah)}</span></div>`;
-            if(tam.bonus && tam.bonus.jumlah > 0) tamHTMLMassal += `<div class="ln grn"><span>↳ Bonus (${tam.bonus.hari} hari)</span><span>+ ${fmt(tam.bonus.jumlah)}</span></div>`;
-          }
-          if(!tamHTMLMassal) tamHTMLMassal = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
-        }
-        const bayarItems = _CACHE.bayar.filter(b => { if(b.nama!==nama) return false; if(dari && b.tanggalISO < dari) return false; if(sampai && b.tanggalISO > sampai) return false; return true; });
-        const pinjamanMap = {};
-        bayarItems.forEach(b => { const jenis = b.jenisPinjaman || 'Pinjaman'; if(!pinjamanMap[jenis]) pinjamanMap[jenis] = 0; pinjamanMap[jenis] += (b.bayar || 0); });
-        let pinjDetailHTML = '';
-        Object.entries(pinjamanMap).forEach(([jenis, jumlah]) => { pinjDetailHTML += `<div class="ln pt-detail"><span>↳ ${jenis}</span><span>- ${fmt(jumlah)}</span></div>`; });
-        const _totalPotonganMassal = bayarItems.reduce((s,b) => s+(b.bayar||0), 0);
-        const totalBersih = data.subtotal + tamTotal - _totalPotonganMassal;
-        htmlGabungan += `<div class="slip-page"><div id="root-${nama.replace(/[^a-zA-Z0-9]/g,'_')}" class="slip-inner">
-          <div class="hd"><div class="hd-left"><div class="co">Slip Gaji</div><div class="nm">${nama}</div></div><div class="hd-right"><img src="LOGORD.png" class="hd-logo" alt="Radja Production" onerror="this.style.display='none'"><div class="bg">${data.bagian||'-'}</div></div></div>
-          <hr class="divider"><div class="pr">Periode: ${_tgl.rekapMulai||'--'} — ${_tgl.rekapAkhir||'--'}</div>
-          <table><thead><tr><th>PEKERJAAN</th><th>QTY</th><th>HARGA</th><th>JUMLAH</th></tr></thead><tbody>${rows}</tbody></table>
-          <div class="ln sub"><span>Pendapatan Kotor</span><span>${fmt(data.subtotal)}</span></div>
-          ${tamHTMLMassal}${pinjDetailHTML}
-          <div class="ln tot"><span>Total Bersih</span><span>${fmt(totalBersih)}</span></div>
-        </div></div>`;
-      }
-      if(!htmlGabungan){ showToast('Tidak ada data untuk dicetak!'); return; }
-      const _massalCSS = [
-        '* { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }',
-        "body { font-family:'Plus Jakarta Sans',sans-serif; background:#f0f0f0; color:#1A1A1A; }",
-        '.slip-page { width:97mm; max-width:calc(100vw - 32px); margin:6mm auto; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,.15); overflow:hidden; position:relative; break-inside:avoid; page-break-inside:avoid; }',
-        '.slip-inner { width:97mm; max-width:calc(100vw - 32px); padding:5mm 4mm 4mm; box-sizing:border-box; transform-origin:top left; background:#ffffff; overflow:hidden; }',
-        '.hd { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:6px; }',
-        '.hd-left { flex:1; min-width:0; }',
-        '.hd-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; max-width:90px; }',
-        '.hd-logo { height:22px; width:auto; object-fit:contain; display:block; }',
-        '.co { font-size:7px; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }',
-        '.nm { font-size:19px; font-weight:900; line-height:1; letter-spacing:-.02em; color:#111; }',
-        '.bg { text-align:right; font-size:7.5px; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:.05em; line-height:1.4; }',
-        '.divider { border:none; border-top:1.5px solid var(--primary); margin:5px 0; opacity:.6; }',
-        '.pr { font-size:6.5px; color:#888; margin-bottom:7px; text-transform:uppercase; font-weight:600; letter-spacing:.05em; }',
-        'table { width:100%; border-collapse:collapse; margin-bottom:6px; }',
-        'thead tr { background:var(--primary) !important; }',
-        'th { padding:4px 3px; font-size:6px; font-weight:800; text-align:center; color:#fff !important; letter-spacing:.06em; text-transform:uppercase; }',
-        'td { padding:4px 3px; border-bottom:1px solid #e5e5e5; text-align:center; font-size:7px; color:#222; }',
-        '.ln { display:flex; justify-content:space-between; padding:3px 0; font-size:7.5px; font-weight:600; color:#555; }',
-        '.pt { color:#DC2626; }',
-        '.pt-detail { color:#DC2626; font-weight:600; font-size:7px; display:flex; justify-content:space-between; padding:2px 0 2px 8px; }',
-        '.grn { color:#059669; font-size:7px; padding:2px 0 2px 8px; }',
-        '.sub { color:#1A1A1A; font-weight:800; border-top:1px solid #ddd; padding-top:5px; margin-top:3px; font-size:8px; }',
-        '.tot { color:var(--primary) !important; font-size:11px; font-weight:900; border-top:2px solid var(--primary) !important; margin-top:5px; padding-top:7px; }',
-        '.print-btn-bar { text-align:center; padding:14px 20px; background:#1A1A1A; position:sticky; bottom:0; z-index:999; box-shadow:0 -2px 12px rgba(0,0,0,.5); width:100%; display:flex; justify-content:center; gap:10px; }',
-        ".print-btn-bar button { background:var(--primary); color:#fff; border:none; border-radius:12px; padding:12px 32px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; }"
-      ].join('\n');
-      const overlayId = '_printMassalOverlay';
-      let overlay = document.getElementById(overlayId);
-      if(overlay) overlay.remove();
-      const printStyleId = '_printMassalStyle';
-      let existingPrintStyle = document.getElementById(printStyleId);
-      if(existingPrintStyle) existingPrintStyle.remove();
-      const printStyleEl = document.createElement('style');
-      printStyleEl.id = printStyleId;
-      printStyleEl.textContent = _massalCSS + '\n#_printMassalOverlay { font-family:"Plus Jakarta Sans",sans-serif; }\n@media print {\n html, body { background:white!important; overflow:visible!important; height:auto!important; margin:0!important; padding:0!important; }\n body > * { display:none!important; }\n body > #_printMassalOverlay { display:block!important; position:static!important; overflow:visible!important; height:auto!important; width:100%!important; background:white!important; z-index:auto!important; margin:0!important; padding:0!important; }\n .print-btn-bar, ._pm-bar { display:none!important; }\n .slip-page { box-shadow:none!important; margin:0 auto!important; padding:0!important; page-break-after:always!important; break-after:page!important; page-break-inside:avoid!important; break-inside:avoid!important; width:100%!important; max-width:100%!important; overflow:visible!important; }\n .slip-inner { width:100%!important; max-width:100%!important; overflow:visible!important; }\n .slip-page[data-last-slip], #_lastSlipPage { page-break-after:avoid!important; break-after:avoid!important; }\n #_printMassalOverlay > div { margin:0!important; padding:0!important; }\n @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }\n}';
-      document.head.appendChild(printStyleEl);
-      overlay = document.createElement('div');
-      overlay.id = overlayId;
-      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:#F0F8FF;display:flex;flex-direction:column;';
-      const bar = document.createElement('div');
-      bar.className = '_pm-bar print-btn-bar';
-      const btnCetak = document.createElement('button');
-      btnCetak.textContent = '🖨 Cetak Semua';
-      btnCetak.addEventListener('click', function() { window.print(); });
-      const btnTutup = document.createElement('button');
-      btnTutup.textContent = '✕ Tutup';
-      btnTutup.style.cssText = 'margin-left:12px;background:#333333;';
-      btnTutup.addEventListener('click', function() { overlay.remove(); const ps = document.getElementById('_printMassalStyle'); if(ps) ps.remove(); });
-      bar.appendChild(btnCetak);
-      bar.appendChild(btnTutup);
-      const slipContainer = document.createElement('div');
-      slipContainer.style.cssText = 'flex:1;overflow-y:auto;padding:16px;width:100%;display:flex;flex-direction:column;align-items:center;';
-      slipContainer.innerHTML = htmlGabungan;
-      overlay.appendChild(slipContainer);
-      overlay.appendChild(bar);
-      const _allSlips = overlay.querySelectorAll('.slip-page');
-      if(_allSlips.length > 0) { _allSlips[_allSlips.length - 1].id = '_lastSlipPage'; }
-      document.body.appendChild(overlay);
-      const _bpM = () => { if(bar.parentNode) bar.parentNode.removeChild(bar); const lastSlip = document.getElementById('_lastSlipPage'); if(lastSlip) { lastSlip.style.pageBreakAfter = 'avoid'; lastSlip.style.breakAfter = 'avoid'; } };
-      const _apM = () => { if(!overlay.contains(bar)) overlay.appendChild(bar); const lastSlip = document.getElementById('_lastSlipPage'); if(lastSlip) { lastSlip.style.pageBreakAfter = ''; lastSlip.style.breakAfter = ''; } };
-      window.addEventListener('beforeprint', _bpM);
-      window.addEventListener('afterprint', _apM);
-      requestAnimationFrame(() => {
-        const maxH = 140;
-        overlay.querySelectorAll('.slip-page .slip-inner').forEach(el => {
-          const hMM = el.offsetHeight * 25.4 / 96;
-          if(hMM > maxH){ const s = maxH / hMM; el.style.transform = 'scale(' + s + ')'; el.style.transformOrigin = 'top left'; el.parentElement.style.height = (el.offsetHeight * s) + 'px'; }
-        });
+  const _oldSlipStyle = document.getElementById('_printSlipStyle');
+  if(_oldSlipStyle) _oldSlipStyle.remove();
+  const _oldSlipOverlay = document.getElementById('_printSlipOverlay');
+  if(_oldSlipOverlay) _oldSlipOverlay.remove();
+  
+  const checkboxes = document.querySelectorAll('.row-check-rekap:checked');
+  if(!checkboxes.length){ showToast('Pilih minimal satu pegawai!'); return; }
+  
+  const dari=_getISO('rekapMulai'), sampai=_getISO('rekapAkhir');
+  let htmlGabungan='';
+  
+  for(const cb of checkboxes) {
+    const nama=cb.value;
+    if(!nama || nama==='-' || nama.trim()==='') continue;
+    
+    const data=getRincianLocal(nama, dari, sampai);
+    const _cekBayar = _CACHE.bayar.some(b => b.nama===nama && (!dari||b.tanggalISO>=dari) && (!sampai||b.tanggalISO<=sampai));
+    const _cekTam = _rcTambahan[nama] && (_rcTambahan[nama].total||0) > 0;
+    
+    if(!data.items.length && !_cekBayar && !_cekTam) continue;
+    
+    // Build rows dengan format baru (sama seperti bukaSlipGaji)
+    let rowsHTML = '';
+    if(data.items.length > 0) {
+      const merged = {};
+      data.items.forEach(r => {
+        const key = (r.jenis || '-') + '||' + (r.harga || 0);
+        if(!merged[key]) merged[key] = { jenis: r.jenis, harga: r.harga, qty: 0, jumlah: 0 };
+        merged[key].qty += (r.qty || 0);
+        merged[key].jumlah += (r.jumlah || 0);
       });
-    };
+      rowsHTML = Object.values(merged).map(r => 
+        `<tr><td style="text-align:left;padding-left:4px;">${r.jenis||'-'}</td><td>${r.qty||0}</td><td>${fmt(r.harga)}</td><td>${fmt(r.jumlah)}</td></tr>`
+      ).join('');
+    }
+    
+    const tam = _rcTambahan[nama];
+    let tamTotal = 0;
+    let tamHTMLMassal = '';
+    if(tam && tam.total > 0) {
+      tamTotal = tam.total;
+      if(tam.items) {
+        Object.values(tam.items).forEach(it => { 
+          if(it.jumlah > 0) { 
+            tamHTMLMassal += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(it.jumlah)}</span></div>`; 
+          } 
+        });
+      }
+      if(!tamHTMLMassal) tamHTMLMassal = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
+    }
+    
+    const bayarItems = _CACHE.bayar.filter(b => { 
+      if(b.nama!==nama) return false; 
+      if(dari && b.tanggalISO < dari) return false; 
+      if(sampai && b.tanggalISO > sampai) return false; 
+      return true; 
+    });
+    
+    const pinjamanMap = {};
+    bayarItems.forEach(b => { 
+      const jenis = b.jenisPinjaman || 'Pinjaman'; 
+      if(!pinjamanMap[jenis]) pinjamanMap[jenis] = 0; 
+      pinjamanMap[jenis] += (b.bayar || 0); 
+    });
+    
+    let pinjDetailHTML = '';
+    Object.entries(pinjamanMap).forEach(([jenis, jumlah]) => { 
+      pinjDetailHTML += `<div class="ln pt-detail"><span>↳ ${jenis}</span><span>- ${fmt(jumlah)}</span></div>`; 
+    });
+    
+    const _totalPotonganMassal = bayarItems.reduce((s,b) => s+(b.bayar||0), 0);
+    const totalKotorMassal = data.subtotal + tamTotal;
+    const totalBersih = totalKotorMassal - _totalPotonganMassal;
+    const subKotorHTMLMassal = _totalPotonganMassal > 0 ? `<div class="ln sub" style="background:#EEF2FF;border-top:none;margin-top:2px;padding:5px 4px;border-radius:4px;"><span>Subtotal (Sebelum Potongan)</span><span>${fmt(totalKotorMassal)}</span></div>` : '';
+    
+    htmlGabungan += `<div class="slip-page"><div id="root-${nama.replace(/[^a-zA-Z0-9]/g,'_')}" class="slip-inner">
+      <div class="hd"><div class="hd-left"><div class="co">Slip Gaji</div><div class="nm">${nama}</div></div><div class="hd-right"><div class="bg">${data.bagian||'-'}</div></div></div>
+      <hr class="divider"><div class="pr">Periode: ${_tgl.rekapMulai||'--'} — ${_tgl.rekapAkhir||'--'}</div>
+      <table><thead><tr><th>PEKERJAAN</th><th>QTY</th><th>HARGA</th><th>JUMLAH</th></tr></thead><tbody>${rowsHTML}</tbody></table>
+      <div class="ln sub"><span>Pendapatan Kotor</span><span>${fmt(data.subtotal)}</span></div>
+      ${tamHTMLMassal}${subKotorHTMLMassal}${pinjDetailHTML}
+      <div class="ln tot"><span>Total Bersih</span><span>${fmt(totalBersih)}</span></div>
+    </div></div>`;
+  }
+  
+  if(!htmlGabungan){ showToast('Tidak ada data untuk dicetak!'); return; }
+  
+  // CSS untuk cetak massal
+  const _massalCSS = [
+    '* { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }',
+    "body { font-family:'Plus Jakarta Sans',sans-serif; background:#f0f0f0; color:#1A1A1A; }",
+    '.slip-page { width:97mm; max-width:calc(100vw - 32px); margin:6mm auto; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,.15); overflow:hidden; position:relative; break-inside:avoid; page-break-inside:avoid; }',
+    '.slip-inner { width:97mm; max-width:calc(100vw - 32px); padding:5mm 4mm 4mm; box-sizing:border-box; transform-origin:top left; background:#ffffff; overflow:hidden; }',
+    '.hd { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:6px; }',
+    '.hd-left { flex:1; min-width:0; }',
+    '.hd-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; max-width:90px; }',
+    '.co { font-size:7px; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }',
+    '.nm { font-size:19px; font-weight:900; line-height:1; letter-spacing:-.02em; color:#111; }',
+    '.bg { text-align:right; font-size:7.5px; font-weight:800; color:#1A2A8C; text-transform:uppercase; letter-spacing:.05em; line-height:1.4; }',
+    '.divider { border:none; border-top:1.5px solid #1A2A8C; margin:5px 0; opacity:.6; }',
+    '.pr { font-size:6.5px; color:#888; margin-bottom:7px; text-transform:uppercase; font-weight:600; letter-spacing:.05em; }',
+    'table { width:100%; border-collapse:collapse; margin-bottom:6px; }',
+    'thead tr { background:#1A2A8C !important; }',
+    'th { padding:4px 3px; font-size:6px; font-weight:800; text-align:center; color:#fff !important; letter-spacing:.06em; text-transform:uppercase; }',
+    'td { padding:4px 3px; border-bottom:1px solid #e5e5e5; text-align:center; font-size:7px; color:#222; }',
+    'td:first-child { text-align:left; padding-left:4px; }',
+    '.ln { display:flex; justify-content:space-between; padding:3px 0; font-size:7.5px; font-weight:600; color:#555; }',
+    '.pt-detail { color:#DC2626; font-weight:600; font-size:7px; display:flex; justify-content:space-between; padding:2px 0 2px 8px; }',
+    '.grn { color:#059669; font-size:7px; padding:2px 0 2px 8px; }',
+    '.sub { color:#1A1A1A; font-weight:800; border-top:1px solid #ddd; padding-top:5px; margin-top:3px; font-size:8px; }',
+    '.tot { color:#1A2A8C !important; font-size:11px; font-weight:900; border-top:2px solid #1A2A8C !important; margin-top:5px; padding-top:7px; }',
+    '.print-btn-bar { text-align:center; padding:14px 20px; background:#1A1A1A; position:sticky; bottom:0; z-index:999; box-shadow:0 -2px 12px rgba(0,0,0,.5); width:100%; display:flex; justify-content:center; gap:10px; }',
+    ".print-btn-bar button { background:#1A2A8C; color:#fff; border:none; border-radius:12px; padding:12px 32px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; }"
+  ].join('\n');
+  
+  const overlayId = '_printMassalOverlay';
+  let overlay = document.getElementById(overlayId);
+  if(overlay) overlay.remove();
+  
+  const printStyleId = '_printMassalStyle';
+  let existingPrintStyle = document.getElementById(printStyleId);
+  if(existingPrintStyle) existingPrintStyle.remove();
+  
+  const printStyleEl = document.createElement('style');
+  printStyleEl.id = printStyleId;
+  printStyleEl.textContent = _massalCSS + '\n#_printMassalOverlay { font-family:"Plus Jakarta Sans",sans-serif; }\n@media print {\n html, body { background:white!important; overflow:visible!important; height:auto!important; margin:0!important; padding:0!important; }\n body > * { display:none!important; }\n body > #_printMassalOverlay { display:block!important; position:static!important; overflow:visible!important; height:auto!important; width:100%!important; background:white!important; z-index:auto!important; margin:0!important; padding:0!important; }\n .print-btn-bar, ._pm-bar { display:none!important; }\n .slip-page { box-shadow:none!important; margin:0 auto!important; padding:0!important; page-break-after:always!important; break-after:page!important; page-break-inside:avoid!important; break-inside:avoid!important; width:100%!important; max-width:100%!important; overflow:visible!important; }\n .slip-inner { width:100%!important; max-width:100%!important; overflow:visible!important; }\n .slip-page[data-last-slip], #_lastSlipPage { page-break-after:avoid!important; break-after:avoid!important; }\n #_printMassalOverlay > div { margin:0!important; padding:0!important; }\n @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }\n}';
+  document.head.appendChild(printStyleEl);
+  
+  overlay = document.createElement('div');
+  overlay.id = overlayId;
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:#F0F8FF;display:flex;flex-direction:column;';
+  
+  const bar = document.createElement('div');
+  bar.className = '_pm-bar print-btn-bar';
+  
+  const btnCetak = document.createElement('button');
+  btnCetak.textContent = '🖨 Cetak Semua';
+  btnCetak.addEventListener('click', function() { window.print(); });
+  
+  const btnTutup = document.createElement('button');
+  btnTutup.textContent = '✕ Tutup';
+  btnTutup.style.cssText = 'margin-left:12px;background:#333333;';
+  btnTutup.addEventListener('click', function() { 
+    overlay.remove(); 
+    const ps = document.getElementById('_printMassalStyle'); 
+    if(ps) ps.remove(); 
+  });
+  
+  bar.appendChild(btnCetak);
+  bar.appendChild(btnTutup);
+  
+  const slipContainer = document.createElement('div');
+  slipContainer.style.cssText = 'flex:1;overflow-y:auto;padding:16px;width:100%;display:flex;flex-direction:column;align-items:center;';
+  slipContainer.innerHTML = htmlGabungan;
+  
+  overlay.appendChild(slipContainer);
+  overlay.appendChild(bar);
+  
+  const _allSlips = overlay.querySelectorAll('.slip-page');
+  if(_allSlips.length > 0) { 
+    _allSlips[_allSlips.length - 1].id = '_lastSlipPage'; 
+  }
+  
+  document.body.appendChild(overlay);
+  
+  const _bpM = () => { if(bar.parentNode) bar.parentNode.removeChild(bar); };
+  const _apM = () => { if(!overlay.contains(bar)) overlay.appendChild(bar); };
+  window.addEventListener('beforeprint', _bpM);
+  window.addEventListener('afterprint', _apM);
+  
+  requestAnimationFrame(() => {
+    const maxH = 140;
+    overlay.querySelectorAll('.slip-page .slip-inner').forEach(el => {
+      const hMM = el.offsetHeight * 25.4 / 96;
+      if(hMM > maxH){ 
+        const s = maxH / hMM; 
+        el.style.transform = 'scale(' + s + ')'; 
+        el.style.transformOrigin = 'top left'; 
+        el.parentElement.style.height = (el.offsetHeight * s) + 'px'; 
+      }
+    });
+  });
+};
 
-    function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tambahanHTML, tamTotal, pinjDetail) {
+    function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tambahanHTML, tamTotal, pinjDetail, subKotorHTML) {
       let pinjDetailHTML = pinjDetail || '';
+      let subKotorLn = subKotorHTML || '';
       return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Slip - ${nama}</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -5503,7 +6820,7 @@ window.simpanBayar = async () => {
   .tot { color:var(--primary) !important; font-size:11px; font-weight:900; border-top:2px solid var(--primary) !important; margin-top:5px; padding-top:7px; }
   @media print { @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; } html, body { width:100%; background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; } #slip-root { width:100%!important; max-width:100%!important; margin:0 auto; display:block; overflow:visible!important; } thead tr { background:var(--primary) !important; } th { color:#fff !important; } .tot { color:var(--primary) !important; border-top-color:var(--primary) !important; } }
 </style></head>
-<body><div id="slip-root"><div class="hd"><div class="hd-left"><div class="co">Slip Gaji</div><div class="nm">${nama}</div></div><div class="hd-right"><img src="LOGORD.png" class="hd-logo" alt="Radja Production" onerror="this.style.display='none'"><div class="bg">${bagian}</div></div></div><hr class="divider"><div class="pr">${periode}</div><table><thead><tr><th>PEKERJAAN</th><th>QTY</th><th>HARGA</th><th>JUMLAH</th></tr></thead><tbody>${rows}</tbody></table><div class="ln sub"><span>Pendapatan Kotor</span><span>${subtot}</span></div>${tamTotal}${pinjDetailHTML}<div class="ln tot"><span>Total Bersih</span><span>${total}</span></div></div>${_slipAutoShrinkScript}</body></html>`;
+<body><div id="slip-root"><div class="hd"><div class="hd-left"><div class="co">Slip Gaji</div><div class="nm">${nama}</div></div><div class="hd-right"><img src="LOGORD.png" class="hd-logo" alt="Radja Production" onerror="this.style.display='none'"><div class="bg">${bagian}</div></div></div><hr class="divider"><div class="pr">${periode}</div><table><thead><tr><th>PEKERJAAN</th><th>QTY</th><th>HARGA</th><th>JUMLAH</th></tr></thead><tbody>${rows}</tbody></table><div class="ln sub"><span>Pendapatan Kotor</span><span>${subtot}</span></div>${tamTotal}${subKotorLn}${pinjDetailHTML}<div class="ln tot"><span>Total Bersih</span><span>${total}</span></div></div>${_slipAutoShrinkScript}</body></html>`;
     }
 
     const _slipAutoShrinkScript = `<script>window.addEventListener('load',function(){var maxH=140,root=document.getElementById('slip-root');if(!root)return;var hMM=root.offsetHeight*25.4/96;if(hMM>maxH){var s=maxH/hMM;root.style.transform='scale('+s+')';root.style.transformOrigin='top left';document.body.style.height=(root.offsetHeight*s)+'px';}});<\/script>`;
@@ -5879,36 +7196,49 @@ window.simpanBayar = async () => {
       finally { hideLoading(); }
     };
 
-    // ===== DOWNLOAD SLIP =====
     window.downloadSlipGaji = async (nama) => {
-      const dari = _getISO('rekapMulai');
-      const sampai = _getISO('rekapAkhir');
-      const data = getRincianLocal(nama, dari, sampai);
-      if(!data.items.length && data.potongan === 0) { showToast('Tidak ada data!'); return; }
-      const rcOverlay = $('rcOverlay');
-      const namaDiRc = $('rcNama').textContent;
-      if(!rcOverlay.classList.contains('active') || namaDiRc !== nama) {
-        bukaRincian(nama);
-        await new Promise(r => setTimeout(r, 80));
-      }
-      const rcCard = rcOverlay.querySelector('.rc-card');
-      if(!rcCard) { showToast('Gagal: popup rincian tidak ditemukan'); return; }
-      const rcFooter = rcCard.querySelector('.rc-footer');
-      const rcTambahBtn = rcCard.querySelector('#rcTambahBtn');
-      if(rcFooter) rcFooter.style.display = 'none';
-      if(rcTambahBtn) rcTambahBtn.style.visibility = 'hidden';
-      showLoading('Generating JPEG...');
-      try {
-        const canvas = await html2canvas(rcCard, { scale: 3, useCORS: true, backgroundColor: "#FFFFFF", logging: false });
-        const link = document.createElement('a');
-        const tglLabel = (_tgl.rekapMulai || 'slip').replace(/\//g,'-');
-        link.download = `Slip_${nama}_${tglLabel}.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.92);
-        link.click();
-        showToast('✅ Download Berhasil!');
-      } catch(e) { showToast('Gagal Download: ' + e.message); }
-      finally { if(rcFooter) rcFooter.style.display = ''; if(rcTambahBtn) rcTambahBtn.style.visibility = ''; hideLoading(); }
-    };
+  const slipBox = $('slipBox');
+  if (!slipBox) { showToast('Gagal: elemen slip tidak ditemukan'); return; }
+
+  showLoading('Generating JPEG...');
+
+  // Clone offscreen dengan ukuran A6 fixed agar hasil konsisten
+  const W = 397; // 105mm @ 96dpi
+  const H = 559; // 148mm @ 96dpi
+  const clone = slipBox.cloneNode(true);
+  clone.style.cssText = `
+    position:fixed; left:-9999px; top:0;
+    width:${W}px; height:${H}px; max-height:${H}px;
+    border-radius:0; overflow:hidden;
+    background:#fff; z-index:-1;
+    display:flex; flex-direction:column;
+  `;
+  document.body.appendChild(clone);
+  await new Promise(r => setTimeout(r, 80));
+
+  try {
+    const canvas = await html2canvas(clone, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: '#FFFFFF',
+      logging: false,
+      width: W,
+      height: H
+    });
+
+    const link = document.createElement('a');
+    const tglLabel = (_tgl.rekapMulai || 'slip').replace(/\//g, '-');
+    link.download = `Slip_${nama}_${tglLabel}.jpg`;
+    link.href = canvas.toDataURL('image/jpeg', 0.92);
+    link.click();
+    showToast('✅ Download Berhasil!');
+  } catch (e) {
+    showToast('Gagal Download: ' + e.message);
+  } finally {
+    document.body.removeChild(clone);
+    hideLoading();
+  }
+};
 
     // ===== PRINT MARGIN =====
     const _PM_KEY = 'radja_print_margins';
@@ -6012,6 +7342,13 @@ window.simpanBayar = async () => {
       initDataListeners();
       history.replaceState({ page: 'home' }, '');
     })();
+
+    // Tambahkan di akhir script
+window.addEventListener('load', () => {
+  console.log('Popup Pinjaman:', $('pinjamanPopup'));
+  console.log('Popup Bayar:', $('bayarPopup'));
+  console.log('Button Pinjaman:', document.querySelector('.card-pinjaman'));
+});
 
   </script>
 
