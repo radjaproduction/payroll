@@ -67,7 +67,7 @@
     .loading-overlay.active { display:flex }
     .spin-ring {
       width:44px; height:44px;
-      border:4px solid var(--border);
+      border:4px solid var(--muted);
       border-top-color: var(--primary);
       border-radius:50%;
       animation:spin .7s linear infinite;
@@ -342,7 +342,7 @@
       box-shadow:var(--shadow);
       display:flex; align-items:center; justify-content:center;
       gap:8px; transition:color .2s;
-      border:1.5px solid var(--border);
+      border:1.5px solid var(--muted);
     }
     .exit-btn:active { color:var(--red) }
 
@@ -370,7 +370,7 @@
     }
     .sheet-handle {
       width:36px; height:4px;
-      background:var(--border); border-radius:2px;
+      background:var(--muted); border-radius:2px;
       margin:0 auto 18px;
     }
     .popup-title { font-size:22px; font-weight:900; color:var(--text); margin-bottom:18px; letter-spacing:-.01em }
@@ -391,7 +391,7 @@
     }
     .form-group select, .form-group input {
       width:100%; padding:16px 14px;
-      border:1.5px solid var(--border);
+      border:1.5px solid var(--muted);
       border-radius:12px;
       background:var(--card2);
       outline:none;
@@ -424,7 +424,7 @@
       color:#fff;
       box-shadow:0 4px 16px rgba(0,180,216,.28);
     }
-    .btn-ghost { background:var(--card2); color:var(--muted); border:1.5px solid var(--border); }
+    .btn-ghost { background:var(--card2); color:var(--muted); border:1.5px solid var(--muted); }
     .btn:disabled { opacity:.35; cursor:not-allowed }
 
     /* ===== PAGE ===== */
@@ -465,7 +465,7 @@
       padding:10px 16px;
       padding-bottom:calc(10px + var(--safe-bottom));
       background:#fff;
-      border-top:1px solid var(--border);
+      border-top:1px solid var(--muted);
       box-shadow:0 -4px 20px rgba(26,86,219,.10);
       flex-shrink:0;
     }
@@ -499,7 +499,7 @@
       margin-bottom:8px; cursor:pointer;
       box-shadow:var(--shadow);
       transition:transform .1s;
-      border:1px solid var(--border);
+      border:1px solid var(--muted);
     }
     .setting-row:active { transform:scale(.99) }
     .setting-row-label {
@@ -519,7 +519,7 @@
       border-radius:16px; padding:16px;
       margin-bottom:12px;
       box-shadow:var(--shadow);
-      border:1px solid var(--border);
+      border:1px solid var(--muted);
     }
 
     .save-big-btn {
@@ -534,7 +534,7 @@
     }
     .save-big-btn:disabled {
       opacity:.35; cursor:not-allowed;
-      background:var(--border); color:var(--muted);
+      background:var(--muted); color:var(--muted);
       box-shadow:none;
     }
 
@@ -563,7 +563,7 @@
       border-radius:12px; padding:12px 14px;
       margin-bottom:8px;
       display:flex; align-items:center; justify-content:space-between;
-      border:1px solid var(--border);
+      border:1px solid var(--muted);
     }
     .list-item-name { font-size:13px; font-weight:600; color:var(--text) }
     .list-item-del {
@@ -578,7 +578,7 @@
     }
     .list-add-row input {
       flex:1; background:var(--card2);
-      border:1.5px solid var(--border);
+      border:1.5px solid var(--muted);
       border-radius:10px; padding:10px 12px;
       color:var(--text); font-size:13px; font-family:inherit;
       outline:none;
@@ -594,7 +594,7 @@
     .list-close-btn {
       width:100%; margin-top:12px;
       background:var(--card2); color:var(--muted);
-      border:1.5px solid var(--border);
+      border:1.5px solid var(--muted);
       border-radius:12px; padding:12px;
       font-size:13px; font-weight:700;
       cursor:pointer; font-family:inherit;
@@ -612,7 +612,7 @@
       background:var(--card);
       border-radius:50px; padding:5px;
       box-shadow:var(--shadow);
-      border:1px solid var(--border);
+      border:1px solid var(--muted);
     }
     .tab-btn {
       flex:1; border:none; padding:10px;
@@ -638,7 +638,7 @@
       color:var(--text); cursor:pointer;
       box-shadow:var(--shadow);
       transition:transform .1s;
-      border:1px solid var(--border);
+      border:1px solid var(--muted);
     }
     .date-chip:active { transform:scale(.98) }
     .date-chip small {
@@ -654,7 +654,7 @@
     .search-bar input {
       flex:0 0 130px; min-width:0;
       background:var(--card);
-      border:1px solid var(--border);
+      border:1px solid var(--muted);
       border-radius:12px;
       padding:12px 16px;
       color:var(--text);
@@ -674,7 +674,7 @@
       overflow:auto;
       flex:1;
       box-shadow:var(--shadow);
-      border:1px solid var(--border);
+      border:1px solid var(--muted);
     }
     table { width:100%; border-collapse:collapse }
     th {
@@ -770,7 +770,7 @@
       padding:10px 20px; font-size:10px;
       color:var(--muted); font-weight:600;
       letter-spacing:.07em; text-transform:uppercase;
-      background:var(--card2); border-bottom:1px solid var(--border);
+      background:var(--card2); border-bottom:1px solid var(--muted);
     }
     .rc-body { flex:1; overflow-y:auto }
     .rc-tabel { width:100%; border-collapse:collapse }
@@ -798,7 +798,7 @@
     }
     .rc-close {
       width:100%; background:var(--card);
-      color:var(--muted); border:1.5px solid var(--border);
+      color:var(--muted); border:1.5px solid var(--muted);
       border-radius:12px; padding:13px;
       font-size:13px; font-weight:700;
       cursor:pointer; font-family:inherit;
@@ -850,7 +850,7 @@
     }
     .slip-close-btn {
       flex:1; background:var(--card); color:var(--muted);
-      border:1.5px solid var(--border); border-radius:50px; padding:13px;
+      border:1.5px solid var(--muted); border-radius:50px; padding:13px;
       font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
     }
 
@@ -873,7 +873,7 @@
     .dp-title { font-size:20px; font-weight:900; color:var(--text); margin-bottom:14px }
     .date-picker-content input[type=date] {
       width:100%; padding:13px 14px;
-      border:1.5px solid var(--border);
+      border:1.5px solid var(--muted);
       border-radius:12px;
       background:var(--card2);
       color:var(--text); font-size:14px;
@@ -889,7 +889,7 @@
       cursor:pointer; font-family:inherit;
     }
     .dp-ok { background:linear-gradient(135deg, var(--primary3), var(--primary)); color:#fff; box-shadow:0 4px 16px rgba(0,180,216,.28); }
-    .dp-cancel { background:var(--card2); color:var(--muted); border:1.5px solid var(--border); }
+    .dp-cancel { background:var(--card2); color:var(--muted); border:1.5px solid var(--muted); }
 
     /* CONFIRM */
     .confirm-overlay {
@@ -920,7 +920,7 @@
     .confirm-msg { font-size:13px; color:var(--muted); font-weight:500; text-align:center; margin-bottom:22px; line-height:1.5 }
     .confirm-btns { display:flex; gap:10px }
     .confirm-btn-cancel {
-      flex:1; border:1.5px solid var(--border);
+      flex:1; border:1.5px solid var(--muted);
       background:var(--card2); color:var(--muted);
       border-radius:14px; padding:14px;
       font-size:14px; font-weight:700;
@@ -977,7 +977,7 @@
     .check-all, .row-check { width:16px; height:16px; cursor:pointer; accent-color:var(--primary) }
 
     input:focus, select:focus, textarea:focus {
-      border-color:var(--primary) !important;
+      border-color:var(--text2) !important;
       box-shadow:0 0 0 3px rgba(75,142,248,.12) !important;
       outline:none !important;
     }
@@ -1147,96 +1147,74 @@
       <div class="page-title">INPUT DATA</div>
     </div>
     <div class="page-body" style="padding:12px 14px;">
-      <div style="background:linear-gradient(135deg, #1A2A8C, #2347D8, #3B7BF8, #22C55E);background-size:200% 200%;border-radius:14px;padding:13px 16px;text-align:center;box-shadow:0 4px 16px rgba(26,86,219,.30);margin-bottom:10px;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-10px;right:-10px;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.08);"></div>
-        <div style="position:absolute;bottom:-8px;left:-8px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);"></div>
-        <span style="color:#fff;font-weight:900;font-size:16px;letter-spacing:.14em;position:relative;z-index:1;">RADJA PRODUCTION</span>
+      <div style="background:linear-gradient(135deg, var(--primary3), var(--primary));border-radius:14px;padding:13px 16px;text-align:center;box-shadow:0 4px 16px rgba(0,180,216,.30);margin-bottom:10px;">
+        <span style="color:#fff;font-weight:900;font-size:16px;letter-spacing:.14em;">RADJA PRODUCTION</span>
       </div>
 
-      <!-- FORM INPUT - Warna-warni Variasi -->
-      <div style="background:linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 50%, #FFF8F0 100%);border-radius:22px;padding:18px 16px;box-shadow:0 4px 20px rgba(26,86,219,.08), 0 2px 8px rgba(245,158,11,.06);border:1.5px solid rgba(26,86,219,.08);margin-bottom:10px;position:relative;overflow:hidden;">
-        <!-- Decorative colorful dots -->
-        <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(236,72,153,.06));filter:blur(20px);"></div>
-        <div style="position:absolute;bottom:-30px;left:-30px;width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,rgba(34,197,94,.06),rgba(59,130,246,.08));filter:blur(25px);"></div>
+      <!-- FORM INPUT - Layout sesuai Sketch Gambar 2 -->
+      <div style="background:var(--card);border-radius:22px;padding:18px 16px;box-shadow:0 4px 18px rgba(26,86,219,.10);border:1.5px solid var(--muted);margin-bottom:10px;">
 
         <!-- NAMA PEGAWAI + BAGIAN (2 kolom) -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:1;">
-          <div style="background:linear-gradient(135deg, #EFF6FF, #F0F9FF);border-radius:16px;padding:12px;border:1.5px solid rgba(59,130,246,.15);">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#3B82F6;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1D4ED8);display:inline-block;box-shadow:0 2px 6px rgba(59,130,246,.3);"></span>
-              Nama Pegawai
-            </div>
-            <select id="inp_nama" onchange="onInpNama()" style="width:100%;padding:14px 12px;border:1.5px solid rgba(59,130,246,.2);border-radius:12px;background:#FFFFFF;font-size:16px;font-family:inherit;font-weight:700;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;transition:all .2s;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Nama Pegawai</div>
+            <select id="inp_nama" onchange="onInpNama()" style="width:100%;padding:17px 14px;border:1.5px solid var(--muted);border-radius:13px;background:var(--card2);font-size:16px;font-family:inherit;font-weight:600;color:#7B8DB0;appearance:none;-webkit-appearance:none;outline:none;">
               <option value="" style="color:var(--muted);font-weight:400;">input nama pegawai...</option>
             </select>
           </div>
-          <div style="background:linear-gradient(135deg, #EFF6FF, #F0F9FF);border-radius:16px;padding:12px;border:1.5px solid rgba(16,185,129,.15);">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#10B981;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#10B981,#059669);display:inline-block;box-shadow:0 2px 6px rgba(16,185,129,.3);"></span>
-              Bagian
-            </div>
-            <input type="text" id="inp_bagian" readonly placeholder="pilih bagian..." style="width:100%;padding:14px 12px;border:1.5px solid rgba(16,185,129,.2);border-radius:12px;background:#FFFFFF;font-size:16px;font-family:inherit;font-weight:700;color:var(--text2);outline:none;">
+          <div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Bagian</div>
+            <input type="text" id="inp_bagian" readonly placeholder="pilih bagian..." style="width:100%;padding:17px 14px;border:1.5px solid var(--muted);border-radius:13px;background:var(--card2);font-size:16px;font-family:inherit;font-weight:600;color:#7B8DB0;outline:none;">
           </div>
         </div>
 
         <!-- BRAND (full width) -->
-        <div style="margin-top:12px;position:relative;z-index:1;">
-          <div style="background:linear-gradient(135deg, #EFF6FF, #F0F9FF);border-radius:16px;padding:12px;border:1.5px solid rgba(245,158,11,.15);">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#D97706;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#D97706);display:inline-block;box-shadow:0 2px 6px rgba(245,158,11,.3);"></span>
-              Brand
-            </div>
-            <select id="inp_brand" disabled onchange="onInpBrand()" style="width:100%;padding:14px 12px;border:1.5px solid rgba(245,158,11,.2);border-radius:12px;background:#FFFFFF;font-size:15px;font-family:inherit;font-weight:600;color:var(--muted);appearance:none;-webkit-appearance:none;outline:none;transition:all .2s;">
-              <option value="" style="color:var(--muted);font-weight:400;">pilih brand...</option>
-            </select>
-          </div>
+        <div style="margin-top:14px;">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Brand</div>
+          <select id="inp_brand" disabled onchange="onInpBrand()" style="width:100%;padding:17px 14px;border:1.5px solid var(--muted);border-radius:13px;background:var(--bg2);font-size:16px;font-family:inherit;font-weight:600;color:#7B8DB0;appearance:none;-webkit-appearance:none;outline:none;">
+            <option value="" style="color:var(--muted);font-weight:400;">pilih brand...</option>
+          </select>
         </div>
 
         <!-- PEKERJAAN + QTY (2 kolom) -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;position:relative;z-index:1;">
-          <div style="background:linear-gradient(135deg, #EFF6FF, #F0F9FF);border-radius:16px;padding:12px;border:1.5px solid rgba(139,92,246,.15);">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7C3AED;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);display:inline-block;box-shadow:0 2px 6px rgba(139,92,246,.3);"></span>
-              Pekerjaan
-            </div>
-            <select id="inp_jenis" disabled onchange="onInpJenis()" style="width:100%;padding:14px 12px;border:1.5px solid rgba(139,92,246,.2);border-radius:12px;background:#FFFFFF;font-size:15px;font-family:inherit;font-weight:700;color:var(--muted);appearance:none;-webkit-appearance:none;outline:none;transition:all .2s;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+          <div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Pekerjaan</div>
+            <select id="inp_jenis" disabled onchange="onInpJenis()" style="width:100%;padding:17px 14px;border:1.5px solid var(--muted);border-radius:13px;background:var(--bg2);font-size:16px;font-family:inherit;font-weight:600;color:#7B8DB0;appearance:none;-webkit-appearance:none;outline:none;">
               <option value="" style="color:var(--muted);font-weight:400;">pilih pekerjaan...</option>
             </select>
           </div>
-          <div style="background:linear-gradient(135deg, #EFF6FF, #F0F9FF);border-radius:16px;padding:12px;border:1.5px solid rgba(236,72,153,.15);">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#DB2777;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#EC4899,#DB2777);display:inline-block;box-shadow:0 2px 6px rgba(236,72,153,.3);"></span>
-              Qty
-            </div>
-            <input type="number" id="inp_qty" placeholder="input qty..." min="1" disabled oninput="onInpQty()" inputmode="numeric" style="width:100%;padding:14px 12px;border:1.5px solid rgba(236,72,153,.2);border-radius:12px;background:#FFFFFF;font-size:15px;font-family:inherit;font-weight:500;color:var(--text);outline:none;text-align:left;transition:all .2s;">
+          <div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Qty</div>
+            <input type="number" id="inp_qty" placeholder="input qty..." min="1" disabled oninput="onInpQty()" inputmode="numeric" style="width:100%;padding:17px 14px;border:1.5px solid var(--muted);border-radius:13px;background:var(--card2);font-size:16px;font-family:inherit;font-weight:600;color:#7B8DB0;outline:none;text-align:left;">
           </div>
         </div>
 
       </div>
 
       <!-- TOMBOL + TAMBAH (di bawah form, sebelum tabel) -->
-      <button id="btnTambahInput" disabled onclick="tambahKeStaging()" style="width:100%;margin:0 0 10px 0;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:var(--border);color:var(--muted);border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">+ TAMBAH</button>
+      <button id="btnTambahInput" disabled onclick="tambahKeStaging()" style="width:100%;margin:0 0 10px 0;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:#E8EEF5;color:#7B8DB0;border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">+ TAMBAH</button>
 
       <!-- STAGING TABLE - SELALU MUNCUL DARI AWAL -->
-      <div id="stagingSection" style="background:var(--card);border-radius:18px;box-shadow:0 4px 18px rgba(26,86,219,.10);border:1.5px solid var(--border);overflow:hidden;margin-bottom:10px;">
-        <div style="padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid rgba(139,92,246,.15);background:linear-gradient(135deg, #F5F3FF, #EDE9FE);">
-          <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7C3AED;display:flex;align-items:center;gap:6px;">
-            <i class="fa-solid fa-list-check" style="font-size:12px;color:#8B5CF6;"></i>
+      <div id="stagingSection" style="background:var(--card);border-radius:18px;box-shadow:0 4px 18px rgba(26,86,219,.10);border:1.5px solid var(--muted);overflow:hidden;margin-bottom:10px;">
+        <div style="padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--muted);">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--primary3);display:flex;align-items:center;gap:6px;">
+            <i class="fa-solid fa-list-check" style="font-size:12px;"></i>
             <span>DAFTAR ITEM</span>
-            <span id="stagingCount" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;box-shadow:0 2px 6px rgba(139,92,246,.3);">0</span>
+            <span id="stagingCount" style="background:var(--primary3);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;">0</span>
           </div>
-          <div id="stagingTotal" style="font-size:13px;font-weight:900;color:#059669;">Rp 0</div>
+          <div id="stagingTotal" style="font-size:12px;font-weight:800;color:var(--green);">Rp 0</div>
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead>
-              <tr style="background:linear-gradient(135deg, #F5F3FF, #EDE9FE);">
-                <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7C3AED;background:transparent;">BRAND</th>
-                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7C3AED;background:transparent;">PEKERJAAN</th>
-                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7C3AED;background:transparent;">QTY</th>
-                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7C3AED;background:transparent;">HARGA</th>
-                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7C3AED;background:transparent;">JUMLAH</th>
-                <th style="padding:8px 8px 8px 4px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7C3AED;background:transparent;"></th>
+              <tr style="background:#E8EEF5;">
+                <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">BRAND</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">PEKERJAAN</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">QTY</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">HARGA</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;">JUMLAH</th>
+                <th style="padding:8px 8px 8px 4px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#E8EEF5;"></th>
               </tr>
             </thead>
             <tbody id="stagingTbody">
@@ -1247,7 +1225,7 @@
 
       <!-- TOMBOL SIMPAN (Full width, style kuning/emas) - SELALU MUNCUL -->
       <div style="padding:0;margin-bottom:10px;">
-        <button id="btnSimpanInput" disabled onclick="simpanInputData()" style="width:100%;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:var(--border);color:var(--muted);border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">SIMPAN</button>
+        <button id="btnSimpanInput" disabled onclick="simpanInputData()" style="width:100%;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:#E8EEF5;color:#7B8DB0;border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">SIMPAN</button>
       </div>
 
       <!-- STATISTIK HARI INI -->
@@ -1310,7 +1288,7 @@
         <div class="setting-row-label"><i class="fa-solid fa-tags"></i> Jenis Pinjaman</div>
         <button class="list-btn" onclick="event.stopPropagation();bukaList('jenisPinjaman')">LIST</button>
       </div>
-      <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+      <div style="height:1px;background:var(--muted);margin:16px 0;"></div>
       <div class="setting-form-box">
         <div style="background:linear-gradient(135deg, var(--primary3), var(--primary));border-radius:10px;padding:10px 14px;margin-bottom:14px;">
           <span style="color:#fff;font-weight:800;font-size:12px;letter-spacing:.08em;">TAMBAHAN PEGAWAI</span>
@@ -1323,7 +1301,7 @@
             </select>
             <input type="text" id="set_peg_nama" placeholder="Nama baru..." style="flex:1;font-size:13px;text-transform:uppercase;display:none;" oninput="cekSimpanPegawai()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
             <button id="btnTambahPeg" onclick="modeTambahPeg()" style="width:46px;height:46px;border-radius:12px;border:2px solid var(--primary);background:var(--primaryDim);color:var(--primary3);font-size:20px;font-weight:800;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-plus"></i></button>
-            <button id="btnBatalTambahPeg" onclick="modeSelectPeg()" style="width:46px;height:46px;border-radius:12px;border:2px solid var(--border);background:var(--card2);color:var(--muted);font-size:18px;cursor:pointer;flex-shrink:0;display:none;align-items:center;justify-content:center;"><i class="fa-solid fa-xmark"></i></button>
+            <button id="btnBatalTambahPeg" onclick="modeSelectPeg()" style="width:46px;height:46px;border-radius:12px;border:2px solid var(--muted);background:var(--card2);color:var(--muted);font-size:18px;cursor:pointer;flex-shrink:0;display:none;align-items:center;justify-content:center;"><i class="fa-solid fa-xmark"></i></button>
           </div>
         </div>
         <div class="form-group">
@@ -1340,11 +1318,11 @@
           <button class="save-big-btn" id="btnSimpanPegawai" disabled onclick="simpanPegawai()" style="margin:0;padding:13px;">SAVE</button>
         </div>
         <button class="save-big-btn" id="btnSimpanPegawaiBaru" disabled onclick="simpanPegawai()" style="display:none;padding:13px;">SAVE</button>
-        <button onclick="clearFormPegawai()" style="width:100%;margin-top:8px;padding:11px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;">CLEAR</button>
+        <button onclick="clearFormPegawai()" style="width:100%;margin-top:8px;padding:11px;border-radius:14px;border:1.5px solid var(--muted);background:transparent;color:var(--muted);font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;">CLEAR</button>
       </div>
 
       <!-- CETAK -->
-      <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+      <div style="height:1px;background:var(--muted);margin:16px 0;"></div>
       <div class="setting-section">Pengaturan Cetak</div>
       <div class="setting-form-box">
         <div style="background:linear-gradient(135deg, #D4F4FF, #B8E8F5);border-radius:10px;padding:10px 14px;margin-bottom:14px;border:1px solid rgba(0,180,216,.25);">
@@ -1382,7 +1360,7 @@
           <input type="range" id="pm_right" min="0" max="30" step="1" value="8" oninput="updatePrintMarginLabel('right',this.value)" style="width:100%;accent-color:var(--primary);height:6px;border-radius:3px;">
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <button onclick="resetPrintMargins()" style="padding:13px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em;">↺ Reset</button>
+          <button onclick="resetPrintMargins()" style="padding:13px;border-radius:14px;border:1.5px solid var(--muted);background:transparent;color:var(--muted);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em;">↺ Reset</button>
           <button onclick="simpanPrintMargins()" style="padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.04em;">💾 Simpan</button>
         </div>
       </div>
@@ -1399,7 +1377,7 @@
       <div class="page-title">Harga</div>
     </div>
     <div class="page-body" style="padding:14px 14px;padding-bottom:calc(90px + var(--safe-bottom));">
-      <div style="background:var(--card);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);">
+      <div style="background:var(--card);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--muted);">
         <div style="background:linear-gradient(135deg, var(--primary3), var(--primary));padding:13px 16px;text-align:right;">
           <span style="color:#fff;font-weight:900;font-size:13px;letter-spacing:.12em;">HARGA</span>
         </div>
@@ -1407,25 +1385,25 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
             <div>
               <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Brand</div>
-              <select id="hrg_brand" onchange="onHrgBrand()" style="width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;">
+              <select id="hrg_brand" onchange="onHrgBrand()" style="width:100%;padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;">
                 <option value="">--- PILIH ---</option>
               </select>
             </div>
             <div>
               <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Bagian</div>
-              <select id="hrg_bagian" disabled onchange="onHrgBagian()" style="width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;">
+              <select id="hrg_bagian" disabled onchange="onHrgBagian()" style="width:100%;padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;">
                 <option value="">--- PILIH ---</option>
               </select>
             </div>
           </div>
           <div id="hrg_rows_container">
             <div class="hrg-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;">
-              <input type="text" class="hrg-pekerjaan-inp" placeholder="Nama pekerjaan..." oninput="this.value=this.value.toUpperCase();cekSimpanHargaBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;text-transform:uppercase;">
-              <input type="number" class="hrg-harga-inp" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanHargaBaru()" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;">
-              <button onclick="hapusHrgRow(this)" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
+              <input type="text" class="hrg-pekerjaan-inp" placeholder="Nama pekerjaan..." oninput="this.value=this.value.toUpperCase();cekSimpanHargaBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;text-transform:uppercase;">
+              <input type="number" class="hrg-harga-inp" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanHargaBaru()" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;">
+              <button onclick="hapusHrgRow(this)" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--muted);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
             </div>
           </div>
-          <button onclick="tambahHrgRow()" style="width:100%;padding:10px;border:1.5px dashed var(--border);border-radius:12px;background:transparent;color:var(--muted);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:14px;letter-spacing:.04em;">+ Tambah Pekerjaan Lain</button>
+          <button onclick="tambahHrgRow()" style="width:100%;padding:10px;border:1.5px dashed var(--muted);border-radius:12px;background:transparent;color:var(--muted);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:14px;letter-spacing:.04em;">+ Tambah Pekerjaan Lain</button>
           <button id="btnSimpanSemuaHarga" onclick="simpanSemuaHarga()" disabled style="width:100%;padding:14px;background:linear-gradient(135deg, var(--primary3), var(--primary));border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(0,180,216,.28);"><i class="fa-solid fa-floppy-disk"></i> Simpan Semua Harga</button>
           <div style="margin-top:12px;">
             <button onclick="toggleDaftarHarga()" style="width:100%;padding:10px 14px;background:transparent;border:none;color:var(--primary3);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:8px;letter-spacing:.02em;">
@@ -1436,14 +1414,14 @@
         </div>
       </div>
 
-      <div style="background:var(--card);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);">
+      <div style="background:var(--card);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--muted);">
         <div style="background:linear-gradient(135deg, var(--primary3), var(--primary));padding:13px 16px;text-align:right;">
           <span style="color:#fff;font-weight:900;font-size:13px;letter-spacing:.12em;">TAMBAHAN</span>
         </div>
         <div style="padding:16px;border-top:none;">
           <div style="margin-bottom:14px;">
             <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Bagian</div>
-            <select id="tam_bagian_sel" onchange="onTamBagianChange()" style="width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;">
+            <select id="tam_bagian_sel" onchange="onTamBagianChange()" style="width:100%;padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;">
               <option value="">--- PILIH BAGIAN ---</option>
             </select>
           </div>
@@ -1451,12 +1429,12 @@
           <div id="tam_form_baru" style="display:none;">
             <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Tambah Item Baru</div>
             <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:10px;">
-              <input type="text" id="tam_new_nama" placeholder="Nama (cth: LEMBUR)" oninput="this.value=this.value.toUpperCase();cekSimpanTambahanBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-transform:uppercase;">
-              <input type="number" id="tam_new_harga" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanTambahanBaru()" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;">
+              <input type="text" id="tam_new_nama" placeholder="Nama (cth: LEMBUR)" oninput="this.value=this.value.toUpperCase();cekSimpanTambahanBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-transform:uppercase;">
+              <input type="number" id="tam_new_harga" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanTambahanBaru()" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;">
               <button onclick="simpanTambahanBaru()" id="btnTamSimpanBaru" disabled style="width:38px;height:42px;border-radius:12px;border:none;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-check"></i></button>
             </div>
           </div>
-          <button id="btnTamTambahItem" onclick="toggleTamFormBaru()" style="width:100%;padding:10px;border:1.5px dashed var(--border);border-radius:12px;background:transparent;color:var(--muted);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:4px;letter-spacing:.04em;display:none;">+ Tambah Item Lain</button>
+          <button id="btnTamTambahItem" onclick="toggleTamFormBaru()" style="width:100%;padding:10px;border:1.5px dashed var(--muted);border-radius:12px;background:transparent;color:var(--muted);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:4px;letter-spacing:.04em;display:none;">+ Tambah Item Lain</button>
           <div style="margin-top:12px;">
             <button onclick="toggleDaftarTambahan()" style="width:100%;padding:10px 14px;background:transparent;border:none;color:var(--primary3);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:8px;letter-spacing:.02em;">
               <i class="fa-solid fa-list" style="font-size:12px;"></i> Lihat semua daftar <i class="fa-solid fa-chevron-down" id="daftarTamChevron" style="font-size:10px;margin-left:auto;transition:.2s;"></i>
@@ -1525,7 +1503,7 @@
           </table>
         </div>
       </div>
-      <div class="back-bar" style="position:relative;box-shadow:none;border-top:1px solid var(--border);">
+      <div class="back-bar" style="position:relative;box-shadow:none;border-top:1px solid var(--muted);">
         <button class="back-bar-btn" onclick="tutupRekap()"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
       </div>
     </div>
@@ -1562,7 +1540,7 @@
       </div>
       <div class="form-group"><label>Nama Pegawai</label><select id="bayar_nama" onchange="onBayarNama()"><option value="">-- Pilih Pegawai --</option></select></div>
       <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:13px;">
-        <div class="form-group" style="flex:1;margin-bottom:0;"><label>Total Pinjaman</label><input type="text" id="bayar_nilai" placeholder="-" readonly style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:14px;font-family:inherit;font-weight:500;color:var(--text);"></div>
+        <div class="form-group" style="flex:1;margin-bottom:0;"><label>Total Pinjaman</label><input type="text" id="bayar_nilai" placeholder="-" readonly style="width:100%;padding:13px 14px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:14px;font-family:inherit;font-weight:500;color:var(--text);"></div>
         <div id="bayar_luar_gaji_box" style="display:none;flex-shrink:0;">
           <div onclick="toggleLuarGaji()" title="Bayar di Luar Gaji" style="cursor:pointer;user-select:none;-webkit-user-select:none;" id="luar_gaji_btn">
             <div id="luar_gaji_toggle_track" style="width:64px;height:32px;border-radius:16px;background:#D4E4ED;position:relative;transition:background .25s;display:flex;align-items:center;padding:3px;">
@@ -1666,7 +1644,7 @@
       </div>
       <div style="padding:14px 20px;padding-bottom:calc(14px + var(--safe-bottom));background:var(--card2);">
         <button onclick="simpanTambahanRincian()" style="width:100%;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(0,180,216,.28);">SAVE</button>
-        <button onclick="document.getElementById('tambahanPopup').classList.remove('active')" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:14px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;">Tutup</button>
+        <button onclick="document.getElementById('tambahanPopup').classList.remove('active')" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:14px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;">Tutup</button>
       </div>
     </div>
   </div>
@@ -1909,7 +1887,7 @@
       const el=$(id); if(!el)return;
       el.innerHTML = `<option value="">${ph}</option>`;
       (items||[]).slice().sort((a,b)=>String(a).localeCompare(String(b),'id')).forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
-      el.value=''; el.disabled=dis;
+      el.value=''; el.disabled=dis; el.style.color='#7B8DB0'; el.style.fontWeight='600';
     };
     const _getISO = (key) => {
       const v = _tgl[key]||'';
@@ -2137,11 +2115,11 @@
     window.tutupInputData = () => { $('inputPage').classList.remove('active'); if (history.state && history.state.page === 'inputPage') history.back(); };
 
     window.onInpNama = () => {
-      const nama = $('inp_nama').value;
+      const nama = $('inp_nama').value; $('inp_nama').style.color = nama ? '#1A2340' : '#7B8DB0';
       const peg = MASTER.pegawaiData[nama] || { bagian:'', subbagian:'' };
       const bagianEl = $('inp_bagian');
       bagianEl.value = peg.bagian;
-      bagianEl.style.color = peg.bagian ? 'var(--text)' : '#7A6D55';
+      bagianEl.style.color = peg.bagian ? '#1A2340' : '#7B8DB0';
       const brandsForBagian = [...new Set(MASTER.hargaList.filter(h => (!peg.bagian || !h.bagian || h.bagian === peg.bagian)).map(h => h.brand))].filter(Boolean).sort();
       resetSelect('inp_brand', brandsForBagian, '-- Pilih Brand --', !nama || !brandsForBagian.length);
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
@@ -2150,7 +2128,7 @@
     };
 
     window.onInpBrand = () => {
-      const brand = $('inp_brand').value;
+      const brand = $('inp_brand').value; $('inp_brand').style.color = brand ? '#1A2340' : '#7B8DB0';
       const bagian = $('inp_bagian').value;
       const pekerjaanList = [...new Set(MASTER.hargaList.filter(h => h.brand === brand && (!bagian || !h.bagian || h.bagian === bagian) && h.pekerjaan).map(h => h.pekerjaan))].sort();
       resetSelect('inp_jenis', pekerjaanList, '-- Pilih Pekerjaan --', !brand || !pekerjaanList.length);
@@ -2160,7 +2138,7 @@
 
     window.onInpJenis = () => {
       const brand = $('inp_brand').value;
-      const jenis = $('inp_jenis').value;
+      const jenis = $('inp_jenis').value; $('inp_jenis').style.color = jenis ? '#1A2340' : '#7B8DB0';
       $('inp_qty').value = '';
       $('inp_qty').disabled = true;
       setDis('btnTambahInput', true); 
@@ -2168,7 +2146,7 @@
       if(brand && jenis) {
         const key = brand + '|' + jenis;
         const hargaVal = MASTER.harga[key] || 0;
-        if(hargaVal) { $('inp_qty').disabled = false; }
+        if(hargaVal) { $('inp_qty').disabled = false; $('inp_qty').style.color = '#7B8DB0'; }
       }
     };
 
@@ -2177,7 +2155,7 @@
       const jenis = $('inp_jenis').value;
       const key = brand + '|' + jenis;
       const harga = MASTER.harga[key] || 0;
-      const qty = parseInt($('inp_qty').value) || 0;
+      const qty = parseInt($('inp_qty').value) || 0; $('inp_qty').style.color = qty > 0 ? '#1A2340' : '#7B8DB0';
       if(qty < 1 && $('inp_qty').value !== '') { showToast('⚠ QTY minimal 1!'); setDis('btnTambahInput', true); _styleBtnTambah(false); return; }
       if(qty > 0 && harga > 0) { setDis('btnTambahInput', false); _styleBtnTambah(true); }
       else { setDis('btnTambahInput', true); _styleBtnTambah(false); }
@@ -2190,15 +2168,13 @@
       if(!btn) return;
       if(aktif) {
         btn.style.background = 'linear-gradient(135deg, #F59E0B, #FBBF24)';
-        btn.style.color = '#fff';
+        btn.style.color = '#1A1A1A';
         btn.style.boxShadow = '0 4px 14px rgba(245, 158, 11, .35)';
         btn.style.cursor = 'pointer';
-        btn.style.opacity = '1';
       } else {
-        btn.style.background = 'linear-gradient(135deg, #F59E0B, #FBBF24)';
-        btn.style.color = '#fff';
-        btn.style.boxShadow = '0 4px 14px rgba(245, 158, 11, .35)';
-        btn.style.opacity = '0.4';
+        btn.style.background = '#E8EEF5';
+        btn.style.color = '#7B8DB0';
+        btn.style.boxShadow = 'none';
         btn.style.cursor = 'not-allowed';
       }
     }
@@ -2220,11 +2196,10 @@
         setDis('btnSimpanInput', true);
         const btnSimpan = $('btnSimpanInput');
         if(btnSimpan) {
-          btnSimpan.style.background = 'linear-gradient(135deg, #10B981, #34D399)';
-          btnSimpan.style.color = '#fff';
+          btnSimpan.style.background = '#E8EEF5';
+          btnSimpan.style.color = '#7B8DB0';
           btnSimpan.style.cursor = 'not-allowed';
-          btnSimpan.style.boxShadow = '0 4px 14px rgba(16, 185, 129, .35)';
-          btnSimpan.style.opacity = '0.4';
+          btnSimpan.style.boxShadow = 'none';
         }
         return;
       }
@@ -2232,7 +2207,7 @@
       const grandTotal = _stagingList.reduce((s, i) => s + i.jumlah, 0);
       totalEl.textContent = 'Rp ' + fmt(grandTotal);
       tbody.innerHTML = _stagingList.map((item, idx) => `
-        <tr style="border-top:1px solid var(--border);${idx % 2 === 1 ? 'background:var(--bg2);' : ''}">
+        <tr style="border-top:1px solid var(--muted);${idx % 2 === 1 ? 'background:var(--bg2);' : ''}">
           <td style="padding:9px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${item.brand}</td>
           <td style="padding:9px 6px;font-size:11px;color:var(--text2);max-width:90px;overflow:hidden;text-overflow:ellipsis;">${item.jenis}</td>
           <td style="padding:9px 6px;font-size:13px;font-weight:800;color:var(--primary3);text-align:center;">${item.qty}</td>
@@ -2277,7 +2252,7 @@
       resetSelect('inp_brand', [...new Set(MASTER.hargaList.filter(h => (!bagian || !h.bagian || h.bagian === bagian) && h.brand).map(h => h.brand))].sort(), '-- Pilih Brand --', false);
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
       $('inp_qty').value = '';
-      $('inp_qty').disabled = true;
+      $('inp_qty').disabled = true; $('inp_qty').style.color = '#7B8DB0';
       setDis('btnTambahInput', true);
       _styleBtnTambah(false);
       showToast('✅ Item ditambahkan!');
@@ -2301,10 +2276,10 @@
         btn.textContent = 'SIMPAN';
         // Reset semua
         resetSelect('inp_nama', MASTER.pegawai, 'Nama Pegawai....');
-        const bagianEl = $('inp_bagian'); bagianEl.value = ''; bagianEl.style.color = '#7A6D55';
+        const bagianEl = $('inp_bagian'); bagianEl.value = ''; bagianEl.style.color = '#7B8DB0';
         resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
         resetSelect('inp_brand', [], '-- Pilih Brand --', true);
-        $('inp_qty').value = ''; $('inp_qty').disabled = true;
+        $('inp_qty').value = ''; $('inp_qty').disabled = true; $('inp_qty').style.color = '#7B8DB0';
         setDis('btnTambahInput', true); _styleBtnTambah(false);
         _qsNeedsRefresh = true;
       } catch(e) { showToast('❌ Gagal: '+e.message); btn.textContent = 'SIMPAN'; btn.disabled = false; }
@@ -2409,16 +2384,16 @@
       _bayarJenisData = getRekapPinjamanPerJenisLocal(nama);
       const container = $('bayar_jenis_list');
       container.innerHTML = _bayarJenisData.map((p, i) => `
-        <div style="margin-bottom:12px;background:var(--card2);border-radius:14px;padding:12px 14px;border:1px solid var(--border);">
+        <div style="margin-bottom:12px;background:var(--card2);border-radius:14px;padding:12px 14px;border:1px solid var(--muted);">
           <div style="font-size:10px;font-weight:800;color:var(--primary3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">${p.jenis}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;">
             <div class="form-group" style="margin-bottom:0">
               <label>SISA PINJAMAN</label>
-              <input type="text" id="bayar_sisa_${i}" value="${fmt(p.sisa)}" readonly style="background:var(--bg2);font-size:13px;width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;color:var(--text);font-weight:700;">
+              <input type="text" id="bayar_sisa_${i}" value="${fmt(p.sisa)}" readonly style="background:var(--bg2);font-size:13px;width:100%;padding:13px 14px;border:1.5px solid var(--muted);border-radius:12px;font-family:inherit;color:var(--text);font-weight:700;">
             </div>
             <div class="form-group" style="margin-bottom:0">
               <label>BAYAR</label>
-              <input type="number" id="bayar_input_${i}" placeholder="bayar..." min="0" inputmode="numeric" oninput="onBayarJenisInput(${i}, ${p.sisa})" style="font-size:13px;width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-family:inherit;color:var(--text);outline:none;">
+              <input type="number" id="bayar_input_${i}" placeholder="bayar..." min="0" inputmode="numeric" oninput="onBayarJenisInput(${i}, ${p.sisa})" style="font-size:13px;width:100%;padding:13px 14px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-family:inherit;color:var(--text);outline:none;">
             </div>
           </div>
           <button onclick="pelunasanPenuh(${i}, ${p.sisa})" style="width:100%;margin-top:8px;padding:9px 14px;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:.04em;">
@@ -2683,9 +2658,9 @@
       if(selBag) { selBag.innerHTML = '<option value="">--- PILIH ---</option>'; selBag.disabled = true; selBag.value = ''; }
       const cont = $('hrg_rows_container');
       if(cont) cont.innerHTML = `<div class="hrg-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;">
-        <input type="text" class="hrg-pekerjaan-inp" placeholder="Nama pekerjaan..." oninput="this.value=this.value.toUpperCase();cekSimpanHargaBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;text-transform:uppercase;">
-        <input type="number" class="hrg-harga-inp" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanHargaBaru()" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;">
-        <button onclick="hapusHrgRow(this)" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
+        <input type="text" class="hrg-pekerjaan-inp" placeholder="Nama pekerjaan..." oninput="this.value=this.value.toUpperCase();cekSimpanHargaBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;text-transform:uppercase;">
+        <input type="number" class="hrg-harga-inp" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanHargaBaru()" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;">
+        <button onclick="hapusHrgRow(this)" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--muted);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
       </div>`;
       setDis('btnSimpanSemuaHarga', true);
       _populateTamBagianSelect();
@@ -2712,9 +2687,9 @@
       const cont = $('hrg_rows_container');
       const div = document.createElement('div');
       div.innerHTML = `<div class="hrg-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;">
-        <input type="text" class="hrg-pekerjaan-inp" placeholder="Nama pekerjaan..." oninput="this.value=this.value.toUpperCase();cekSimpanHargaBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;text-transform:uppercase;">
-        <input type="number" class="hrg-harga-inp" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanHargaBaru()" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;">
-        <button onclick="hapusHrgRow(this)" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
+        <input type="text" class="hrg-pekerjaan-inp" placeholder="Nama pekerjaan..." oninput="this.value=this.value.toUpperCase();cekSimpanHargaBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;text-transform:uppercase;">
+        <input type="number" class="hrg-harga-inp" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanHargaBaru()" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;">
+        <button onclick="hapusHrgRow(this)" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--muted);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
       </div>`;
       cont.appendChild(div.firstElementChild);
     };
@@ -2754,9 +2729,9 @@
         const selBag = $('hrg_bagian'); if(selBag) { selBag.innerHTML = '<option value="">--- PILIH ---</option>'; selBag.disabled = true; selBag.value = ''; }
         const cont = $('hrg_rows_container');
         if(cont) cont.innerHTML = `<div class="hrg-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;">
-          <input type="text" class="hrg-pekerjaan-inp" placeholder="Nama pekerjaan..." oninput="this.value=this.value.toUpperCase();cekSimpanHargaBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;text-transform:uppercase;">
-          <input type="number" class="hrg-harga-inp" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanHargaBaru()" style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;">
-          <button onclick="hapusHrgRow(this)" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
+          <input type="text" class="hrg-pekerjaan-inp" placeholder="Nama pekerjaan..." oninput="this.value=this.value.toUpperCase();cekSimpanHargaBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;text-transform:uppercase;">
+          <input type="number" class="hrg-harga-inp" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanHargaBaru()" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;">
+          <button onclick="hapusHrgRow(this)" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--muted);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
         </div>`;
         setDis('btnSimpanSemuaHarga', true);
         renderDaftarHarga();
@@ -2792,7 +2767,7 @@
         html += `<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--primary3);padding:6px 10px;background:var(--primaryDim);border-radius:8px;margin-bottom:6px;">${bag}</div>`;
         grouped[bag].forEach(h => {
           const hid = h.id, hpek = (h.pekerjaan||'-').replace(/`/g,"'"), hhrg = h.harga||0;
-          html += `<div id="hrgItem_${hid}" style="background:var(--card2);border-radius:12px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border);">
+          html += `<div id="hrgItem_${hid}" style="background:var(--card2);border-radius:12px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--muted);">
             <div style="display:flex;align-items:center;gap:6px;">
               <div class="hrgView_${hid}" style="flex:1;display:flex;justify-content:space-between;align-items:center;gap:6px;">
                 <div style="font-size:13px;font-weight:700;color:var(--text);flex:1;">${hpek}</div>
@@ -2885,15 +2860,15 @@
       let html = '';
       items.sort((a,b) => a.jenis.localeCompare(b.jenis)).forEach(t => {
         html += `<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:8px;" data-tam-id="${t.id||''}" data-tam-jenis="${t.jenis}">
-          <div style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:700;color:var(--text2);">${t.jenis}</div>
-          <input type="number" class="tam-edit-harga" value="${t.harga||''}" placeholder="Rp" inputmode="numeric" onchange="simpanEditTambahan(this, '${bagian}', '${t.jenis}')" style="width:110px;padding:11px 10px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:right;">
+          <div style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:700;color:var(--text2);">${t.jenis}</div>
+          <input type="number" class="tam-edit-harga" value="${t.harga||''}" placeholder="Rp" inputmode="numeric" onchange="simpanEditTambahan(this, '${bagian}', '${t.jenis}')" style="width:110px;padding:11px 10px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:right;">
           <button onclick="hapusTambahan('${bagian}','${t.jenis}')" style="width:38px;height:42px;border-radius:12px;border:1.5px solid var(--red);background:transparent;color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-trash"></i></button>
         </div>`;
       });
       defaultMissing.forEach(jenis => {
         html += `<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:8px;">
-          <div style="padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:700;color:var(--muted);">${jenis}</div>
-          <input type="number" class="tam-edit-harga" placeholder="Rp" inputmode="numeric" onchange="simpanEditTambahan(this, '${bagian}', '${jenis}')" style="width:110px;padding:11px 10px;border:1.5px dashed var(--border);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:right;">
+          <div style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:700;color:var(--muted);">${jenis}</div>
+          <input type="number" class="tam-edit-harga" placeholder="Rp" inputmode="numeric" onchange="simpanEditTambahan(this, '${bagian}', '${jenis}')" style="width:110px;padding:11px 10px;border:1.5px dashed var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:right;">
           <div style="width:38px;height:42px;"></div>
         </div>`;
       });
@@ -2992,7 +2967,7 @@
       Object.keys(grouped).sort().forEach(bag => {
         html += `<div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--primary3);padding:6px 10px;background:var(--primaryDim);border-radius:8px;margin-bottom:6px;">${bag}</div>`;
         grouped[bag].sort((a,b)=>a.jenis.localeCompare(b.jenis)).forEach(t => {
-          html += `<div style="background:var(--card2);border-radius:12px;padding:10px 14px;margin-bottom:6px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          html += `<div style="background:var(--card2);border-radius:12px;padding:10px 14px;margin-bottom:6px;border:1px solid var(--muted);display:flex;justify-content:space-between;align-items:center;">
             <div style="font-size:13px;font-weight:700;color:var(--text);">${t.jenis||'-'}</div>
             <div style="font-size:13px;font-weight:800;color:var(--text);">Rp ${fmt(t.harga)}</div>
           </div>`;
@@ -3252,7 +3227,7 @@
               <div style="font-size:${fs};font-weight:800;letter-spacing:.03em;line-height:1.2;">${t.jenis}</div>
               <div style="font-size:9px;font-weight:600;opacity:.8;margin-top:3px;">Rp ${fmt(harga)}/hari</div>
             </div>
-            <input type="number" id="tamItem_${i}" data-idx="${i}" placeholder="${ph}" min="0" inputmode="numeric" value="${qty}" oninput="hitungTotalTambahan()" style="padding:13px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--card2);font-size:14px;font-family:inherit;color:var(--text);outline:none;width:100%;appearance:none;-webkit-appearance:none;">
+            <input type="number" id="tamItem_${i}" data-idx="${i}" placeholder="${ph}" min="0" inputmode="numeric" value="${qty}" oninput="hitungTotalTambahan()" style="padding:13px 14px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:14px;font-family:inherit;color:var(--text);outline:none;width:100%;appearance:none;-webkit-appearance:none;">
           </div>`;
         }).join('');
       }
@@ -3920,7 +3895,7 @@
       else {
         window._pinEditList = pinDocs;
         const listHtml = pinDocs.map((p, i) =>
-          `<button onclick="window._bukaFormEditPinjaman(window._pinEditList[${i}])" style="width:100%;text-align:left;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;margin-bottom:8px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--text);display:flex;justify-content:space-between;align-items:center;">
+          `<button onclick="window._bukaFormEditPinjaman(window._pinEditList[${i}])" style="width:100%;text-align:left;background:var(--card2);border:1.5px solid var(--muted);border-radius:12px;padding:13px 16px;margin-bottom:8px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--text);display:flex;justify-content:space-between;align-items:center;">
             <span>${p.jenis||'(lainnya)'}</span>
             <span style="color:var(--primary3);font-weight:900;">${fmt(p.nominal||0)}</span>
           </button>`
@@ -3931,7 +3906,7 @@
         overlay.innerHTML = `<div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto;">
           <div style="font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Pilih Jenis Pinjaman — ${nama}</div>
           ${listHtml}
-          <button onclick="document.getElementById('pilihJenisPinjaman').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;">Batal</button>
+          <button onclick="document.getElementById('pilihJenisPinjaman').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;">Batal</button>
         </div>`;
         document.body.appendChild(overlay);
       }
