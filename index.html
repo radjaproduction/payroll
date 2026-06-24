@@ -17,27 +17,35 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* ===== ROOT VARIABLES – TURQUOISE THEME ===== */
+    /* ===== ROOT VARIABLES – DEEP BLUE THEME ===== */
     :root {
-      --bg: #F0F8FF;
-      --bg2: #E6F4FA;
+      --bg: #F2F5FA;
+      --bg2: #E8EEF5;
       --card: #FFFFFF;
-      --card2: #F5FBFE;
-      --primary: #00B4D8;
-      --primary2: #00D4FF;
-      --primary3: #0077B6;
-      --primaryDim: #D4F4FF;
-      --primaryDark: #023E8A;
-      --text: #1A2A3A;
-      --text2: #2C3E50;
-      --muted: #6B8A9E;
-      --border: #D4E4ED;
-      --shadow: 0 4px 16px rgba(0, 180, 216, 0.18);
-      --shadow2: 0 8px 32px rgba(0, 119, 182, 0.20);
+      --card2: #F7F9FC;
+      --primary: #4B8EF8;
+      --primary2: #6BA3FF;
+      --primary3: #1A56DB;
+      --primaryDim: #E0EAFF;
+      --primaryDark: #0D2B6E;
+      --text: #1A2340;
+      --text2: #2C3A5A;
+      --muted: #7B8DB0;
+      --border: #DDE4F0;
+      --shadow: 0 4px 20px rgba(26, 86, 219, 0.12);
+      --shadow2: 0 8px 36px rgba(26, 86, 219, 0.18);
       --red: #EF4444;
       --green: #10B981;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+      /* Home header gradient */
+      --header-grad: linear-gradient(160deg, #1A2A8C 0%, #2347D8 55%, #3B7BF8 100%);
+      /* Card accent colors */
+      --accent-green: #22C55E;
+      --accent-orange: #F59E0B;
+      --accent-purple: #8B5CF6;
+      --accent-teal: #14B8A6;
     }
 
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent }
@@ -52,7 +60,7 @@
     /* ===== LOADING ===== */
     .loading-overlay {
       position:fixed; inset:0;
-      background:rgba(240,248,255,.95);
+      background:rgba(242,245,250,.96);
       display:none; justify-content:center; align-items:center;
       z-index:9999999; flex-direction:column; gap:14px;
     }
@@ -86,122 +94,182 @@
     .home-page {
       width:100%; height:100vh; height:100dvh;
       display:flex; flex-direction:column;
-      padding:12px 14px;
-      padding-top:calc(12px + var(--safe-top));
-      padding-bottom:calc(10px + var(--safe-bottom));
-      gap:10px;
       background: var(--bg);
       overflow:hidden;
     }
 
-    /* BRAND */
+    /* HOME HEADER (blue gradient, like reference image) */
+    .home-header {
+      background: var(--header-grad);
+      padding: 0 18px 24px;
+      padding-top: calc(16px + var(--safe-top));
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      border-radius: 0 0 32px 32px;
+    }
+    .home-header::before {
+      content:'';
+      position:absolute; top:-40px; right:-40px;
+      width:180px; height:180px;
+      border-radius:50%;
+      background: rgba(255,255,255,.06);
+    }
+    .home-header::after {
+      content:'';
+      position:absolute; top:20px; right:30px;
+      width:100px; height:100px;
+      border-radius:50%;
+      background: rgba(255,255,255,.04);
+    }
+
+    /* BRAND ROW inside header */
     .home-brand {
-      background:linear-gradient(135deg, #D4F4FF, #B8E8F5);
-      border-radius:22px;
-      padding:16px 20px;
-      box-shadow:var(--shadow);
-      border:1px solid rgba(0,180,216,.25);
-      display:flex; align-items:center; gap:14px;
-      flex-shrink:0;
+      display:flex; align-items:center; gap:12px;
+      margin-bottom: 20px;
+      position: relative; z-index:1;
     }
     .brand-icon {
       width:46px; height:46px;
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
+      background:rgba(255,255,255,.20);
       border-radius:14px;
       display:flex; align-items:center; justify-content:center;
       color:#fff; font-size:20px; flex-shrink:0;
-      box-shadow:0 4px 12px rgba(0,180,216,.30);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.25);
     }
-    .brand-title { font-size:20px; font-weight:900; color:var(--text); line-height:1; }
-    .brand-sub { font-size:11px; color:var(--muted); font-weight:500; margin-top:2px; }
+    .brand-title { font-size:20px; font-weight:900; color:#fff; line-height:1; letter-spacing:-.01em }
+    .brand-sub { font-size:11px; color:rgba(255,255,255,.7); font-weight:500; margin-top:2px; }
     .brand-badge {
       display:flex; align-items:center; gap:4px;
-      font-size:9px; color:var(--primary3);
+      font-size:9px; color:rgba(255,255,255,.8);
       font-weight:700; letter-spacing:.06em; margin-top:4px;
     }
-    .brand-badge i { color:var(--primary); }
+    .brand-badge i { color:#22C55E; }
 
-    /* SUMMARY CARDS */
+    /* SUMMARY CARDS (inside blue header) */
     .summary-row {
-      display:grid; grid-template-columns:1fr 1fr; gap:11px;
-      flex-shrink:0;
+      display:grid; grid-template-columns:1fr 1fr; gap:12px;
+      position:relative; z-index:1;
     }
     .summary-card {
-      border-radius:18px; padding:16px;
-      box-shadow:var(--shadow);
-      display:flex; flex-direction:column; gap:10px;
+      border-radius:20px; padding:16px;
+      display:flex; flex-direction:column; gap:8px;
     }
     .summary-card.blue-card {
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.25);
       color:#fff;
+      position:relative; overflow:hidden;
+    }
+    .summary-card.blue-card::after {
+      content:'';
+      position:absolute;
+      bottom:-12px; right:-8px;
+      width:60px; height:60px;
+      background:rgba(255,255,255,.08);
+      border-radius:50%;
     }
     .summary-card.blue-card .sc-icon {
-      background:rgba(255,255,255,.20);
+      background:rgba(255,255,255,.25);
       color:#fff;
     }
-    .summary-card.yellow-card {
-      background:#fff;
-      color:var(--text2);
-      border:1.5px solid var(--border);
+    .summary-card.green-card {
+      background: linear-gradient(135deg, #1EAA6A, #22C55E);
+      color:#fff;
+      box-shadow: 0 6px 20px rgba(34,197,94,.30);
     }
-    .summary-card.yellow-card .sc-icon {
-      background:var(--primaryDim);
-      color:var(--primary3);
+    .summary-card.green-card .sc-icon {
+      background:rgba(255,255,255,.25);
+      color:#fff;
     }
     .sc-icon {
-      width:34px; height:34px; border-radius:50%;
+      width:36px; height:36px; border-radius:50%;
       display:flex; align-items:center; justify-content:center;
-      font-size:15px;
+      font-size:16px;
     }
     .sc-val { font-size:18px; font-weight:800; line-height:1.2; word-break:break-all; }
-    .sc-label { font-size:10px; font-weight:600; opacity:.9; letter-spacing:.02em; }
+    .sc-label { font-size:9px; font-weight:700; opacity:.85; letter-spacing:.04em; text-transform:uppercase; }
 
-    /* MENU GRID */
+    /* SCROLL BODY */
+    .home-body {
+      flex:1; overflow-y:auto; overflow-x:hidden;
+      padding: 16px 14px;
+      padding-bottom: calc(20px + var(--safe-bottom));
+      display:flex; flex-direction:column;
+      gap:10px;
+    }
+
+    /* MENU CARDS – full-width row style (like reference) */
+    .menu-section-title {
+      font-size:11px; font-weight:800; color:var(--muted);
+      letter-spacing:.08em; text-transform:uppercase;
+      margin-bottom:2px; padding-left:2px;
+    }
     .menu-grid {
-      display:flex; flex-direction:column; gap:8px;
-      min-height:0; overflow:hidden; flex:1;
+      display:flex; flex-direction:column; gap:10px;
     }
     .menu-grid-bottom {
-      display:grid; grid-template-columns:1fr 1fr; gap:8px;
-      flex-shrink:0;
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
     }
 
-    /* MENU CARD */
+    /* MENU CARD – row layout like reference image */
     .menu-card {
       background:#fff;
       border-radius:20px;
-      padding:14px 18px;
-      box-shadow:var(--shadow);
-      border:1.5px solid var(--border);
+      padding:16px 18px;
+      box-shadow: 0 2px 12px rgba(26,86,219,.08);
+      border:1px solid rgba(26,86,219,.06);
       display:flex; flex-direction:row; align-items:center;
       gap:16px; cursor:pointer;
       transition:transform .15s, box-shadow .15s;
-      position:relative; overflow:hidden; flex:1;
+      position:relative; overflow:hidden;
     }
     .menu-card:active { transform:scale(.98); box-shadow:none }
-    .menu-card::before {
-      content:''; position:absolute; bottom:-16px; right:-16px;
-      width:64px; height:64px;
-      background:var(--primary);
-      opacity:.07; border-radius:50%;
-    }
-    .menu-card .m-icon {
-      width:44px; height:44px;
-      background:var(--primaryDim);
-      border-radius:13px;
-      display:flex; align-items:center; justify-content:center;
-      color:var(--primary3);
-      font-size:20px; flex-shrink:0;
-    }
-    .menu-card .m-text { flex:1; min-width:0 }
-    .menu-card .m-label { font-size:14px; font-weight:800; color:var(--text); letter-spacing:.01em }
-    .menu-card .m-sub { font-size:11px; color:var(--muted); font-weight:500; margin-top:2px }
-    .menu-card .m-arrow { color:var(--muted); font-size:13px; flex-shrink:0 }
 
-    /* HIGHLIGHTED MENU CARD (REKAP) */
+    .menu-card .m-icon {
+      width:48px; height:48px;
+      border-radius:16px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; flex-shrink:0;
+    }
+    /* Per-card icon colors */
+    .menu-card.card-input .m-icon { background: #EEF3FF; color: var(--primary3); }
+    .menu-card.card-pinjaman .m-icon { background: #D1FAE5; color: #059669; }
+    .menu-card.card-bayar .m-icon { background: #FEF3C7; color: #D97706; }
+    .menu-card.card-rekap .m-icon { background: #EDE9FE; color: #7C3AED; }
+
+    /* Label color accent */
+    .menu-card.card-input .m-label { color: var(--primary3); }
+    .menu-card.card-pinjaman .m-label { color: #059669; }
+    .menu-card.card-bayar .m-label { color: #D97706; }
+    .menu-card.card-rekap .m-label { color: #7C3AED; }
+
+    .menu-card .m-text { flex:1; min-width:0 }
+    .menu-card .m-label { font-size:15px; font-weight:800; letter-spacing:.01em }
+    .menu-card .m-sub { font-size:11px; color:var(--muted); font-weight:500; margin-top:2px }
+    .menu-card .m-arrow {
+      width:32px; height:32px;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; flex-shrink:0;
+    }
+    .menu-card.card-input .m-arrow { background:#EEF3FF; color:var(--primary3); }
+    .menu-card.card-pinjaman .m-arrow { background:#D1FAE5; color:#059669; }
+    .menu-card.card-bayar .m-arrow { background:#FEF3C7; color:#D97706; }
+    .menu-card.card-rekap .m-arrow { background:#EDE9FE; color:#7C3AED; }
+
+    /* REKAP background decoration */
+    .menu-card.card-rekap {
+      background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
+      border-color: rgba(124,58,237,.12);
+    }
+
+    /* HIGHLIGHTED MENU CARD (old, keep for backward compat) */
     .menu-card.highlight {
       background:linear-gradient(135deg, var(--primary3), var(--primary)) !important;
-      box-shadow:0 6px 20px rgba(0,180,216,.35) !important;
+      box-shadow:0 6px 20px rgba(26,86,219,.30) !important;
       border-color:transparent !important;
     }
     .menu-card.highlight .m-icon {
@@ -210,32 +278,42 @@
     }
     .menu-card.highlight .m-label { color:#fff !important; }
     .menu-card.highlight .m-sub { color:rgba(255,255,255,.75) !important; }
-    .menu-card.highlight .m-arrow { color:rgba(255,255,255,.7) !important; }
 
-    /* SMALL MENU CARDS */
+    /* SMALL MENU CARDS (Setting & Harga) */
     .menu-card-sm {
       background:#fff;
       border-radius:20px;
-      padding:14px 14px;
-      box-shadow:var(--shadow);
-      border:1.5px solid var(--border);
+      padding:18px 16px;
+      box-shadow: 0 2px 12px rgba(26,86,219,.08);
+      border:1px solid rgba(26,86,219,.06);
       display:flex; flex-direction:column; align-items:flex-start;
-      gap:8px; cursor:pointer;
+      gap:6px; cursor:pointer;
       transition:transform .15s, box-shadow .15s;
       position:relative; overflow:hidden;
     }
     .menu-card-sm:active { transform:scale(.97); box-shadow:none }
+    .menu-card-sm.card-setting .m-icon { background:#FFE4F0; color:#E11D78; }
+    .menu-card-sm.card-harga .m-icon { background:#CCFBF1; color:#0D9488; }
     .menu-card-sm .m-icon {
-      width:36px; height:36px;
-      background:var(--primaryDim);
-      border-radius:11px;
+      width:42px; height:42px;
+      border-radius:14px;
       display:flex; align-items:center; justify-content:center;
-      color:var(--primary3);
-      font-size:15px;
+      font-size:18px;
     }
-    .menu-card-sm .m-label { font-size:12px; font-weight:800; color:var(--text); letter-spacing:.01em }
+    .menu-card-sm .m-label { font-size:13px; font-weight:800; color:var(--text); letter-spacing:.01em }
+    .menu-card-sm.card-setting .m-label { color:#E11D78; }
+    .menu-card-sm.card-harga .m-label { color:#0D9488; }
     .menu-card-sm .m-sub { font-size:10px; color:var(--muted); font-weight:500 }
+    .menu-card-sm .m-arrow-sm {
+      position:absolute; top:14px; right:14px;
+      width:26px; height:26px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:10px;
+    }
+    .menu-card-sm.card-setting .m-arrow-sm { background:#FFE4F0; color:#E11D78; }
+    .menu-card-sm.card-harga .m-arrow-sm { background:#CCFBF1; color:#0D9488; }
 
+    /* ===== BOTTOM NAVIGATION BAR ===== */
     /* EXIT ROW */
     .exit-row { display:flex; gap:10px; flex-shrink:0; min-height:52px }
     .exit-btn {
@@ -344,8 +422,8 @@
       padding:14px 16px;
       padding-top:calc(14px + var(--safe-top));
       display:flex; align-items:center; gap:12px;
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-      box-shadow:0 4px 20px rgba(0,119,182,.30);
+      background: var(--header-grad);
+      box-shadow:0 4px 20px rgba(26,86,219,.25);
       flex-shrink:0;
     }
     .page-back {
@@ -360,8 +438,35 @@
     .page-body {
       flex:1; overflow-y:auto;
       padding:14px 16px;
-      padding-bottom:calc(80px + var(--safe-bottom));
+      padding-bottom:calc(90px + var(--safe-bottom));
     }
+
+    /* BOTTOM BACK BAR */
+    .back-bar {
+      position:sticky; bottom:0; left:0; right:0;
+      padding:10px 16px;
+      padding-bottom:calc(10px + var(--safe-bottom));
+      background:#fff;
+      border-top:1px solid var(--border);
+      box-shadow:0 -4px 20px rgba(26,86,219,.10);
+      flex-shrink:0;
+    }
+    .back-bar-btn {
+      width:100%;
+      border:none;
+      background:linear-gradient(135deg, var(--primary3), var(--primary));
+      color:#fff;
+      border-radius:50px;
+      padding:14px;
+      font-size:14px; font-weight:800;
+      font-family:inherit;
+      cursor:pointer;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      box-shadow:0 4px 16px rgba(26,86,219,.28);
+      transition:opacity .15s, transform .1s;
+      letter-spacing:.02em;
+    }
+    .back-bar-btn:active { transform:scale(.98); opacity:.9; }
 
     /* SETTINGS */
     .setting-section {
@@ -478,6 +583,7 @@
     }
 
     /* ===== REKAP PAGE ===== */
+    /* ===== REKAP PAGE ===== */
     .rekap-inner {
       display:flex; flex-direction:column;
       height:calc(100vh - 68px - var(--safe-top));
@@ -500,7 +606,7 @@
     .tab-btn.active {
       background:linear-gradient(135deg, var(--primary3), var(--primary));
       color:#fff;
-      box-shadow:0 2px 10px rgba(0,180,216,.28);
+      box-shadow:0 2px 10px rgba(26,86,219,.28);
     }
 
     .date-bar {
@@ -611,20 +717,9 @@
     tr.row-has-pinjaman td:first-child { border-left:3px solid #EF4444; }
     tr.row-no-pinjaman td:first-child { border-left:3px solid transparent; }
 
-    .home-fab {
-      margin:12px 16px;
-      margin-bottom:calc(12px + var(--safe-bottom));
-      background:var(--card);
-      border-radius:50px;
-      height:50px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:18px; color:var(--primary);
-      cursor:pointer; flex-shrink:0;
-      box-shadow:var(--shadow);
-      border:1px solid var(--border);
-    }
+    .home-fab { display:none; }
 
-    /* RINCIAN (detail) */
+    /* REKAP PAGE INNER */
     .rc-overlay {
       position:fixed; inset:0;
       background:rgba(0,0,0,.50);
@@ -842,9 +937,9 @@
       .date-chip { font-size:12px; padding:9px 10px }
     }
     @media (max-width:360px) {
-      .home-page { padding:10px; gap:8px }
+      .home-body { padding:12px 10px; }
       .menu-grid { gap:8px }
-      .menu-card { padding:12px 10px }
+      .menu-card { padding:12px 14px }
       .exit-btn { font-size:12px; padding:12px }
     }
     .popup-sheet { max-height:88vh; max-height:88dvh }
@@ -853,25 +948,25 @@
       .rc-card { max-height:96vh; max-height:96dvh }
       .rc-nama { font-size:32px }
       .rekap-inner { height:calc(100vh - 60px - var(--safe-top)); height:calc(100dvh - 60px - var(--safe-top)) }
-      .home-page { gap:6px; padding:10px; padding-top:calc(10px + var(--safe-top)); padding-bottom:calc(10px + var(--safe-bottom)) }
-      .home-brand { padding:12px 14px }
+      .home-header { padding-bottom:18px; }
+      .home-body { padding:12px 12px; }
       .exit-btn { padding:12px }
     }
     @media (max-height:600px) {
-      .home-page { gap:6px }
+      .home-body { gap:8px }
     }
 
     .check-all, .row-check { width:16px; height:16px; cursor:pointer; accent-color:var(--primary) }
 
     input:focus, select:focus, textarea:focus {
       border-color:var(--primary) !important;
-      box-shadow:0 0 0 3px rgba(0,180,216,.10) !important;
+      box-shadow:0 0 0 3px rgba(75,142,248,.12) !important;
       outline:none !important;
     }
 
     ::-webkit-scrollbar { width:4px; height:4px }
     ::-webkit-scrollbar-track { background:transparent }
-    ::-webkit-scrollbar-thumb { background:rgba(0,180,216,.25); border-radius:4px }
+    ::-webkit-scrollbar-thumb { background:rgba(26,86,219,.20); border-radius:4px }
   </style>
 </head>
 <body>
@@ -898,88 +993,99 @@
 
   <!-- ===== HOME ===== -->
   <div class="home-page" id="homePage">
-    <div class="home-brand">
-      <div class="brand-icon"><i class="fa-solid fa-wallet"></i></div>
-      <div style="flex:1;min-width:0;">
-        <div class="brand-title">PENGGAJIAN</div>
-        <div class="brand-sub">Radja Production</div>
-        <div class="brand-badge"><i class="fa-solid fa-database"></i> Supabase Realtime</div>
+    <!-- Blue Gradient Header -->
+    <div class="home-header">
+      <div class="home-brand">
+        <div class="brand-icon"><i class="fa-solid fa-wallet"></i></div>
+        <div style="flex:1;min-width:0;">
+          <div class="brand-title">PENGGAJIAN</div>
+          <div class="brand-sub">Radja Production</div>
+          <div class="brand-badge"><i class="fa-solid fa-circle" style="font-size:7px;"></i> Supabase Realtime</div>
+        </div>
+        <div style="flex-shrink:0;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+          <div style="background:rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:3px 9px;font-size:10px;font-weight:800;letter-spacing:.06em;backdrop-filter:blur(6px);">v2.1.0</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.65);font-weight:600;letter-spacing:.04em;">MAY 2026</div>
+          <div style="font-size:8px;color:rgba(255,255,255,.8);font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:3px;"><i class="fa-solid fa-circle" style="font-size:6px;color:#22C55E;"></i> STABLE</div>
+          <button id="btnInstallApp" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,.25);color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.04em;margin-top:2px;"><i class="fa-solid fa-download"></i> INSTALL</button>
+        </div>
       </div>
-      <div style="flex-shrink:0;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        <div style="background:var(--primary);color:#fff;border-radius:8px;padding:3px 9px;font-size:10px;font-weight:800;letter-spacing:.06em;">v2.1.0</div>
-        <div style="font-size:9px;color:var(--muted);font-weight:600;letter-spacing:.04em;">MAY 2026</div>
-        <div style="font-size:8px;color:var(--primary3);font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:3px;"><i class="fa-solid fa-circle" style="font-size:6px;color:#10B981;"></i> STABLE</div>
-        <button id="btnInstallApp" style="display:none;align-items:center;gap:5px;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.04em;margin-top:2px;"><i class="fa-solid fa-download"></i> INSTALL</button>
+
+      <!-- Summary Cards -->
+      <div class="summary-row">
+        <div class="summary-card blue-card">
+          <div class="sc-icon"><i class="fa-solid fa-vault"></i></div>
+          <div class="sc-val" id="dashTotalDana">Menghitung...</div>
+          <div class="sc-label">Total Dana Disiapkan</div>
+        </div>
+        <div class="summary-card green-card">
+          <div class="sc-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="sc-val" id="dashTotalPegawai">-</div>
+          <div class="sc-label">Pegawai Aktif Minggu Ini</div>
+        </div>
       </div>
     </div>
 
-    <div class="summary-row">
-      <div class="summary-card blue-card">
-        <div class="sc-icon"><i class="fa-solid fa-vault"></i></div>
-        <div class="sc-val" id="dashTotalDana">Menghitung...</div>
-        <div class="sc-label">TOTAL DANA DISIAPKAN</div>
-      </div>
-      <div class="summary-card yellow-card">
-        <div class="sc-icon"><i class="fa-solid fa-users"></i></div>
-        <div class="sc-val" id="dashTotalPegawai">-</div>
-        <div class="sc-label">PEGAWAI AKTIF MINGGU INI</div>
-      </div>
-    </div>
-
-    <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden;">
+    <!-- Scrollable Body -->
+    <div class="home-body">
+      <div class="menu-section-title">Menu Utama</div>
       <div class="menu-grid">
-        <div class="menu-card" onclick="bukaInputData()">
+        <div class="menu-card card-input" onclick="bukaInputData()">
           <div class="m-icon"><i class="fa-solid fa-keyboard"></i></div>
           <div class="m-text">
             <div class="m-label">INPUT DATA</div>
-            <div class="m-sub">Catat pekerjaan</div>
+            <div class="m-sub">Catat pekerjaan &amp; data pegawai</div>
           </div>
-          <i class="fa-solid fa-chevron-right m-arrow"></i>
+          <div class="m-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
-        <div class="menu-card" onclick="bukaPinjaman()">
+        <div class="menu-card card-pinjaman" onclick="bukaPinjaman()">
           <div class="m-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
           <div class="m-text">
             <div class="m-label">PINJAMAN</div>
-            <div class="m-sub">Tambah pinjaman</div>
+            <div class="m-sub">Kelola dan tambah pinjaman</div>
           </div>
-          <i class="fa-solid fa-chevron-right m-arrow"></i>
+          <div class="m-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
-        <div class="menu-card" onclick="bukaBayar()">
+        <div class="menu-card card-bayar" onclick="bukaBayar()">
           <div class="m-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
           <div class="m-text">
             <div class="m-label">BAYAR</div>
-            <div class="m-sub">Bayar pinjaman</div>
+            <div class="m-sub">Proses pembayaran pinjaman</div>
           </div>
-          <i class="fa-solid fa-chevron-right m-arrow"></i>
+          <div class="m-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
-        <div class="menu-card highlight" onclick="openRekap()">
+        <div class="menu-card card-rekap" onclick="openRekap()">
           <div class="m-icon"><i class="fa-solid fa-table-list"></i></div>
           <div class="m-text">
             <div class="m-label">REKAP</div>
-            <div class="m-sub">Lihat rekap</div>
+            <div class="m-sub">Lihat ringkasan &amp; laporan</div>
           </div>
-          <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,.7);font-size:13px;flex-shrink:0;"></i>
+          <div class="m-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
       </div>
 
+      <div class="menu-section-title" style="margin-top:6px;">Pengaturan</div>
       <div class="menu-grid-bottom">
-        <div class="menu-card-sm" onclick="openSetting()">
-          <div class="m-label">SETTING</div>
+        <div class="menu-card-sm card-setting" onclick="openSetting()">
+          <div class="m-arrow-sm"><i class="fa-solid fa-chevron-right"></i></div>
           <div class="m-icon"><i class="fa-solid fa-gear"></i></div>
-          <div class="m-sub">(Master data)</div>
+          <div class="m-label">SETTING</div>
+          <div class="m-sub">Atur master data</div>
         </div>
-        <div class="menu-card-sm" onclick="bukaHarga()">
-          <div class="m-label">HARGA</div>
+        <div class="menu-card-sm card-harga" onclick="bukaHarga()">
+          <div class="m-arrow-sm"><i class="fa-solid fa-chevron-right"></i></div>
           <div class="m-icon"><i class="fa-solid fa-tag"></i></div>
-          <div class="m-sub">(Atur harga)</div>
+          <div class="m-label">HARGA</div>
+          <div class="m-sub">Atur harga &amp; komponen</div>
         </div>
       </div>
     </div>
+
   </div>
 
   <!-- ===== INPUT PAGE ===== -->
   <div class="page" id="inputPage">
     <div class="page-header">
+      <div class="page-back" onclick="document.getElementById('inputPage').classList.remove('active')"><i class="fa-solid fa-chevron-left"></i></div>
       <div class="page-title">INPUT DATA</div>
     </div>
     <div class="page-body" style="padding:12px 14px;gap:10px;display:flex;flex-direction:column;">
@@ -1031,7 +1137,38 @@
             <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:5px;">Total</div>
             <input type="text" id="inp_total_display" readonly placeholder="total..." style="width:100%;padding:18px 12px;border:none;border-radius:13px;background:#fff;font-size:19px;font-family:inherit;font-weight:900;color:var(--primary3);outline:none;box-shadow:0 2px 10px rgba(0,0,0,.08);">
           </div>
-          <button id="btnSimpanInput" disabled onclick="simpanInputData()" style="margin:0;padding:16px;font-size:16px;border-radius:50px;letter-spacing:.08em;background:rgba(255,255,255,.35);color:rgba(255,255,255,.5);box-shadow:none;border:none;font-weight:800;cursor:not-allowed;width:100%;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">SAVE</button>
+          <button id="btnTambahInput" disabled onclick="tambahKeStaging()" style="margin:0;padding:16px;font-size:15px;border-radius:50px;letter-spacing:.08em;background:rgba(255,255,255,.35);color:rgba(255,255,255,.5);box-shadow:none;border:none;font-weight:800;cursor:not-allowed;width:100%;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">+ TAMBAH</button>
+        </div>
+      </div>
+
+      <!-- STAGING TABLE -->
+      <div id="stagingSection" style="background:#fff;border-radius:18px;box-shadow:0 4px 18px rgba(26,86,219,.10);border:1.5px solid var(--border);overflow:hidden;flex-shrink:0;display:none;">
+        <div style="padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--primary3);display:flex;align-items:center;gap:6px;">
+            <i class="fa-solid fa-list-check" style="font-size:12px;"></i>
+            <span>DAFTAR ITEM</span>
+            <span id="stagingCount" style="background:var(--primary3);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800;">0</span>
+          </div>
+          <div id="stagingTotal" style="font-size:12px;font-weight:800;color:var(--green);">Rp 0</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:var(--bg2);">
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Brand</th>
+                <th style="padding:8px 6px;text-align:left;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Pekerjaan</th>
+                <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Qty</th>
+                <th style="padding:8px 6px;text-align:right;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Harga</th>
+                <th style="padding:8px 6px;text-align:right;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);">Jumlah</th>
+                <th style="padding:8px 8px 8px 4px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);"></th>
+              </tr>
+            </thead>
+            <tbody id="stagingTbody">
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 14px;border-top:1px solid var(--border);">
+          <button id="btnSimpanInput" disabled onclick="simpanInputData()" style="width:100%;padding:15px;font-size:15px;border-radius:50px;letter-spacing:.08em;background:var(--border);color:var(--muted);border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">SIMPAN</button>
         </div>
       </div>
 
@@ -1070,12 +1207,17 @@
         </div>
       </div>
     </div>
-    <div class="home-fab" onclick="tutupInputData()" style="position:absolute;bottom:calc(12px + var(--safe-bottom));left:14px;right:14px;margin:0;"><i class="fa-solid fa-house"></i></div>
+    <div class="back-bar">
+      <button class="back-bar-btn" onclick="document.getElementById('inputPage').classList.remove('active');history.replaceState({page:'home'},'')"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
+    </div>
   </div>
 
   <!-- ===== SETTING PAGE ===== -->
   <div class="page" id="settingPage">
-    <div class="page-header"><div class="page-title">Setting</div></div>
+    <div class="page-header">
+      <div class="page-back" onclick="document.getElementById('settingPage').classList.remove('active')"><i class="fa-solid fa-chevron-left"></i></div>
+      <div class="page-title">Setting</div>
+    </div>
     <div class="page-body">
       <div class="setting-section">Master Data</div>
       <div class="setting-row" onclick="bukaList('bagian')">
@@ -1167,12 +1309,17 @@
         </div>
       </div>
     </div>
-    <div class="home-fab" onclick="tutupSetting()"><i class="fa-solid fa-house"></i></div>
+    <div class="back-bar">
+      <button class="back-bar-btn" onclick="tutupSetting();history.replaceState({page:'home'},'')"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
+    </div>
   </div>
 
   <!-- ===== HARGA PAGE ===== -->
   <div class="page" id="hargaPage">
-    <div class="page-header"><div class="page-title">Harga</div></div>
+    <div class="page-header">
+      <div class="page-back" onclick="document.getElementById('hargaPage').classList.remove('active')"><i class="fa-solid fa-chevron-left"></i></div>
+      <div class="page-title">Harga</div>
+    </div>
     <div class="page-body" style="padding:14px 14px;padding-bottom:calc(90px + var(--safe-bottom));">
       <div style="background:var(--card);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);">
         <div style="background:linear-gradient(135deg, var(--primary3), var(--primary));padding:13px 16px;text-align:right;">
@@ -1251,12 +1398,17 @@
       <button id="btnEditTambahan" style="display:none"></button>
       <button id="btnSimpanTambahan" style="display:none"></button>
     </div>
-    <div class="home-fab" onclick="tutupHarga()"><i class="fa-solid fa-house"></i></div>
+    <div class="back-bar">
+      <button class="back-bar-btn" onclick="tutupHarga();history.replaceState({page:'home'},'')"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
+    </div>
   </div>
 
   <!-- ===== REKAP PAGE ===== -->
   <div class="page" id="rekapPage">
-    <div class="page-header"><div class="page-title" id="rekapTitle">Rekap Pegawai</div></div>
+    <div class="page-header">
+      <div class="page-back" onclick="tutupRekap()"><i class="fa-solid fa-chevron-left"></i></div>
+      <div class="page-title" id="rekapTitle">Rekap Pegawai</div>
+    </div>
     <div class="rekap-inner">
       <div class="tab-switch">
         <button class="tab-btn active" id="tabPegawai" onclick="gantiTab('pegawai')">Rekap Pegawai</button>
@@ -1268,7 +1420,7 @@
       </div>
       <div class="search-bar">
         <input type="text" placeholder="Cari pegawai..." oninput="filterRekap(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        <button id="btnCetakMassal" onclick="cetakMassal()" style="flex:1;height:44px;padding:0 14px;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,180,216,.3);"><i class="fa-solid fa-print"></i> Cetak All</button>
+        <button id="btnCetakMassal" onclick="cetakMassal()" style="flex:1;height:44px;padding:0 14px;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(26,86,219,.3);"><i class="fa-solid fa-print"></i> Cetak All</button>
         <div id="weekToggleWrap" onclick="toggleMinggu()" title="ON = Minggu Ini | OFF = Minggu Lalu" style="flex-shrink:0;width:136px;height:44px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:var(--card);border:1.5px solid var(--primary);border-radius:12px;padding:0 10px;user-select:none;transition:border-color .2s;box-sizing:border-box;">
           <div id="weekToggleTrack" style="width:36px;height:20px;border-radius:10px;background:var(--primary);transition:background .25s;position:relative;flex-shrink:0;">
             <div id="weekToggleThumb" style="position:absolute;top:2px;left:18px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .25s;box-shadow:0 1px 4px rgba(0,0,0,.2);"></div>
@@ -1295,7 +1447,9 @@
           </table>
         </div>
       </div>
-      <div class="home-fab" onclick="tutupRekap()"><i class="fa-solid fa-house"></i></div>
+      <div class="back-bar" style="position:relative;box-shadow:none;border-top:1px solid var(--border);">
+        <button class="back-bar-btn" onclick="tutupRekap()"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
+      </div>
     </div>
   </div>
 
@@ -1897,7 +2051,9 @@
       $('inp_qty').value = '';
       $('inp_qty').disabled = true;
       $('inp_total_display').value = '';
-      setDis('btnSimpanInput', true);
+      setDis('btnTambahInput', true); _styleBtnTambah(false);
+      // Jangan reset staging list saat buka ulang (biarkan jika ada item)
+      _renderStaging();
       $('inputPage').classList.add('active');
       history.pushState({ page: 'inputPage' }, '');
       refreshQuickStats();
@@ -1916,7 +2072,7 @@
       $('inp_harga_display').value = '';
       $('inp_qty').value = ''; $('inp_qty').disabled = true;
       $('inp_total_display').value = '';
-      setDis('btnSimpanInput', true);
+      setDis('btnTambahInput', true); _styleBtnTambah && _styleBtnTambah(false);
     };
 
     window.onInpBrand = () => {
@@ -1927,7 +2083,7 @@
       $('inp_harga_display').value = '';
       $('inp_qty').value = ''; $('inp_qty').disabled = true;
       $('inp_total_display').value = '';
-      setDis('btnSimpanInput', true);
+      setDis('btnTambahInput', true); _styleBtnTambah && _styleBtnTambah(false);
     };
 
     window.onInpJenis = () => {
@@ -1936,7 +2092,7 @@
       $('inp_harga_display').value = '';
       $('inp_qty').value = '';
       $('inp_total_display').value = '';
-      setDis('btnSimpanInput', true);
+      setDis('btnTambahInput', true); _styleBtnTambah && _styleBtnTambah(false);
       if(brand && jenis) {
         const key = brand + '|' + jenis;
         const hargaVal = MASTER.harga[key] || 0;
@@ -1951,33 +2107,137 @@
       const key = brand + '|' + jenis;
       const harga = MASTER.harga[key] || 0;
       const qty = parseInt($('inp_qty').value) || 0;
-      if(qty < 1 && $('inp_qty').value !== '') { showToast('⚠ QTY minimal 1!'); $('inp_total_display').value = ''; setDis('btnSimpanInput', true); return; }
-      if(qty > 0 && harga > 0) { $('inp_total_display').value = 'Rp ' + fmt(harga * qty); setDis('btnSimpanInput', false); }
-      else { $('inp_total_display').value = ''; setDis('btnSimpanInput', true); }
+      if(qty < 1 && $('inp_qty').value !== '') { showToast('⚠ QTY minimal 1!'); $('inp_total_display').value = ''; setDis('btnTambahInput', true); return; }
+      if(qty > 0 && harga > 0) { $('inp_total_display').value = 'Rp ' + fmt(harga * qty); setDis('btnTambahInput', false); _styleBtnTambah(true); }
+      else { $('inp_total_display').value = ''; setDis('btnTambahInput', true); _styleBtnTambah(false); }
     };
     window.cekSimpanInput = window.onInpQty;
 
-    window.simpanInputData = async () => {
-      const nama = $('inp_nama').value, bagian = $('inp_bagian').value, jenis = $('inp_jenis').value, brand = $('inp_brand').value, qty = parseInt($('inp_qty').value)||0;
-      if(!nama || !brand || qty < 1){ showToast('⚠ Lengkapi semua field!'); return; }
+    // Styling helper untuk tombol tambah
+    function _styleBtnTambah(aktif) {
+      const btn = $('btnTambahInput');
+      if(!btn) return;
+      if(aktif) {
+        btn.style.background = '#fff';
+        btn.style.color = 'var(--primary3)';
+        btn.style.boxShadow = '0 4px 14px rgba(0,0,0,.15)';
+        btn.style.cursor = 'pointer';
+      } else {
+        btn.style.background = 'rgba(255,255,255,.35)';
+        btn.style.color = 'rgba(255,255,255,.5)';
+        btn.style.boxShadow = 'none';
+        btn.style.cursor = 'not-allowed';
+      }
+    }
+
+    // ===== STAGING LIST =====
+    let _stagingList = [];
+
+    function _renderStaging() {
+      const tbody = $('stagingTbody');
+      const section = $('stagingSection');
+      const countEl = $('stagingCount');
+      const totalEl = $('stagingTotal');
+      if(!tbody) return;
+      if(_stagingList.length === 0) {
+        section.style.display = 'none';
+        setDis('btnSimpanInput', true);
+        return;
+      }
+      section.style.display = 'block';
+      countEl.textContent = _stagingList.length;
+      const grandTotal = _stagingList.reduce((s, i) => s + i.jumlah, 0);
+      totalEl.textContent = 'Rp ' + fmt(grandTotal);
+      tbody.innerHTML = _stagingList.map((item, idx) => `
+        <tr style="border-top:1px solid var(--border);${idx % 2 === 1 ? 'background:var(--bg2);' : ''}">
+          <td style="padding:9px 10px;font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${item.brand}</td>
+          <td style="padding:9px 6px;font-size:11px;color:var(--text2);max-width:90px;overflow:hidden;text-overflow:ellipsis;">${item.jenis}</td>
+          <td style="padding:9px 6px;font-size:13px;font-weight:800;color:var(--primary3);text-align:center;">${item.qty}</td>
+          <td style="padding:9px 6px;font-size:11px;color:var(--muted);text-align:right;white-space:nowrap;">Rp ${fmt(item.harga)}</td>
+          <td style="padding:9px 6px;font-size:12px;font-weight:800;color:var(--green);text-align:right;white-space:nowrap;">Rp ${fmt(item.jumlah)}</td>
+          <td style="padding:9px 8px 9px 4px;text-align:center;">
+            <button onclick="hapusStaging(${idx})" style="background:none;border:none;color:#EF4444;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      // Enable simpan button
+      const btnSimpan = $('btnSimpanInput');
+      if(btnSimpan) {
+        btnSimpan.disabled = false;
+        btnSimpan.style.background = 'linear-gradient(135deg, var(--primary3), var(--primary))';
+        btnSimpan.style.color = '#fff';
+        btnSimpan.style.cursor = 'pointer';
+        btnSimpan.style.boxShadow = '0 4px 16px rgba(26,86,219,.28)';
+      }
+    }
+
+    window.hapusStaging = (idx) => {
+      _stagingList.splice(idx, 1);
+      _renderStaging();
+      if(_stagingList.length === 0) {
+        const btnSimpan = $('btnSimpanInput');
+        if(btnSimpan) {
+          btnSimpan.disabled = true;
+          btnSimpan.style.background = 'var(--border)';
+          btnSimpan.style.color = 'var(--muted)';
+          btnSimpan.style.cursor = 'not-allowed';
+          btnSimpan.style.boxShadow = 'none';
+        }
+      }
+    };
+
+    window.tambahKeStaging = () => {
+      const nama = $('inp_nama').value;
+      const bagian = $('inp_bagian').value;
+      const jenis = $('inp_jenis').value;
+      const brand = $('inp_brand').value;
+      const qty = parseInt($('inp_qty').value) || 0;
+      if(!nama || !brand || !jenis || qty < 1) { showToast('⚠ Lengkapi semua field!'); return; }
       const key = brand + '|' + jenis;
       const harga = MASTER.harga[key] || 0;
-      if(!harga){ showToast('⚠ Harga belum diset!'); return; }
+      if(!harga) { showToast('⚠ Harga belum diset!'); return; }
+      _stagingList.push({ nama, bagian, jenis, brand, qty, harga, jumlah: harga * qty });
+      _renderStaging();
+      // Reset brand, pekerjaan, qty — tapi nama & bagian tetap
+      resetSelect('inp_brand', [...new Set(MASTER.hargaList.filter(h => (!bagian || !h.bagian || h.bagian === bagian) && h.brand).map(h => h.brand))].sort(), '-- Pilih Brand --', false);
+      resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
+      $('inp_harga_display').value = '';
+      $('inp_qty').value = '';
+      $('inp_qty').disabled = true;
+      $('inp_total_display').value = '';
+      setDis('btnTambahInput', true);
+      _styleBtnTambah(false);
+      showToast('✅ Item ditambahkan!');
+    };
+
+    window.simpanInputData = async () => {
+      if(_stagingList.length === 0) { showToast('⚠ Tidak ada item untuk disimpan!'); return; }
       const btn = $('btnSimpanInput');
-      const origText = btn.textContent;
-      btn.textContent = '...'; btn.disabled = true;
+      btn.textContent = 'Menyimpan...'; btn.disabled = true;
+      showLoading('Menyimpan data...');
       try {
-        await addDoc(collection(db, COL.input), { tanggal:fmtTgl(new Date()), tanggalISO:new Date().toISOString().slice(0,10), nama, bagian, jenis, brand, qty, harga, jumlah:harga*qty, waktu:serverTimestamp() });
-        showToast('✅ Data tersimpan!');
-        btn.textContent = 'SAVE';
+        const tanggal = fmtTgl(new Date());
+        const tanggalISO = new Date().toISOString().slice(0,10);
+        for(const item of _stagingList) {
+          await addDoc(collection(db, COL.input), { tanggal, tanggalISO, nama:item.nama, bagian:item.bagian, jenis:item.jenis, brand:item.brand, qty:item.qty, harga:item.harga, jumlah:item.jumlah, waktu:serverTimestamp() });
+        }
+        const n = _stagingList.length;
+        _stagingList = [];
+        _renderStaging();
+        showToast('✅ ' + n + ' data tersimpan!');
+        btn.textContent = 'SIMPAN';
+        // Reset semua
         resetSelect('inp_nama', MASTER.pegawai, 'Nama Pegawai....');
         const bagianEl = $('inp_bagian'); bagianEl.value = ''; bagianEl.style.color = '#7A6D55';
         resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
         resetSelect('inp_brand', [], '-- Pilih Brand --', true);
         $('inp_harga_display').value = ''; $('inp_qty').value = ''; $('inp_qty').disabled = true; $('inp_total_display').value = '';
-        setDis('btnSimpanInput', true);
+        setDis('btnTambahInput', true); _styleBtnTambah(false);
         _qsNeedsRefresh = true;
-      } catch(e) { showToast('❌ Gagal: '+e.message); btn.textContent = origText; btn.disabled = false; }
+      } catch(e) { showToast('❌ Gagal: '+e.message); btn.textContent = 'SIMPAN'; btn.disabled = false; }
+      finally { hideLoading(); }
     };
 
     window.bukaPinjaman = () => {
@@ -2521,11 +2781,11 @@
         msg: `"${pekerjaan}" akan dihapus permanen dan tidak bisa dikembalikan.`,
         okLabel: 'Ya, Hapus',
         okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
-        callback: async () => {
-          showLoading('Menghapus...');
-          try { await deleteDoc(doc(db, COL.harga, id)); showToast('🗑 Harga berhasil dihapus!'); renderDaftarHarga(); }
-          catch(e) { showToast('❌ Gagal: ' + e.message); }
-          finally { hideLoading(); }
+        callback: () => {
+          MASTER.hargaList = MASTER.hargaList.filter(h => h.id !== id);
+          renderDaftarHarga();
+          showToast('🗑 Harga berhasil dihapus!');
+          deleteDoc(doc(db, COL.harga, id)).catch(e => showToast('❌ Gagal hapus: ' + e.message));
         }
       });
     };
@@ -3675,7 +3935,7 @@
       el('confirmBtnOk').style.background = okBg || 'linear-gradient(135deg, var(--primary3), var(--primary))';
       el('confirmBtnOk').style.boxShadow = '0 4px 16px rgba(0,180,216,.28)';
       _confirmCallback = callback;
-      el('confirmBtnOk').onclick = () => { const cb = _confirmCallback; tutupConfirm(); if(cb) cb(); };
+      el('confirmBtnOk').onclick = () => { const cb = _confirmCallback; tutupConfirm(); if(cb) setTimeout(cb, 200); };
       el('confirmOverlay').classList.add('active');
     };
     window.tutupConfirm = () => { document.getElementById('confirmOverlay').classList.remove('active'); _confirmCallback = null; };
