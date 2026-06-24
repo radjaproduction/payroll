@@ -1027,6 +1027,124 @@
 
     <!-- Scrollable Body -->
     <div class="home-body">
+      <!-- QUICK STATS ROW -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;">
+        <div style="background:linear-gradient(135deg, #1A2A8C, #2347D8);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(26,86,219,.25);position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-8px;right:-8px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);"></div>
+          <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Transaksi</div>
+          <div style="font-size:22px;font-weight:900;color:#fff;line-height:1;" id="homeStatTransaksi">0</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:4px;font-weight:600;">hari ini</div>
+        </div>
+        <div style="background:linear-gradient(135deg, #059669, #10B981);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(16,185,129,.25);position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-8px;right:-8px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);"></div>
+          <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Pendapatan</div>
+          <div style="font-size:16px;font-weight:900;color:#fff;line-height:1;word-break:break-all;" id="homeStatPendapatan">Rp 0</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:4px;font-weight:600;">minggu ini</div>
+        </div>
+        <div style="background:linear-gradient(135deg, #7C3AED, #8B5CF6);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(124,58,237,.25);position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-8px;right:-8px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);"></div>
+          <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Pinjaman</div>
+          <div style="font-size:22px;font-weight:900;color:#fff;line-height:1;" id="homeStatPinjaman">0</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:4px;font-weight:600;">aktif</div>
+        </div>
+      </div>
+
+      <!-- RECENT ACTIVITY -->
+      <div style="background:var(--card);border-radius:20px;padding:14px 16px;box-shadow:0 2px 12px rgba(26,86,219,.08);border:1px solid rgba(26,86,219,.06);margin-bottom:4px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--primaryDim);display:flex;align-items:center;justify-content:center;color:var(--primary3);font-size:12px;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div style="font-size:12px;font-weight:800;color:var(--text);letter-spacing:.02em;">Aktivitas Terbaru</div>
+          </div>
+          <div style="font-size:9px;font-weight:700;color:var(--muted);background:var(--bg2);padding:3px 10px;border-radius:99px;">Hari Ini</div>
+        </div>
+        <div id="homeRecentActivity" style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:12px;">
+            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--primary3),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;"><i class="fa-solid fa-plus"></i></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Input data pegawai</div>
+              <div style="font-size:9px;color:var(--muted);font-weight:600;">Catat pekerjaan harian</div>
+            </div>
+            <div style="font-size:10px;font-weight:800;color:var(--green);flex-shrink:0;">Input</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:12px;">
+            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#059669,#10B981);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Pinjaman pegawai</div>
+              <div style="font-size:9px;color:var(--muted);font-weight:600;">Tambah / kelola pinjaman</div>
+            </div>
+            <div style="font-size:10px;font-weight:800;color:var(--green);flex-shrink:0;">Pinjam</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:12px;">
+            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#D97706,#F59E0B);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;"><i class="fa-solid fa-money-bill-transfer"></i></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Bayar pinjaman</div>
+              <div style="font-size:9px;color:var(--muted);font-weight:600;">Proses pembayaran</div>
+            </div>
+            <div style="font-size:10px;font-weight:800;color:var(--green);flex-shrink:0;">Bayar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEKLY PROGRESS -->
+      <div style="background:var(--card);border-radius:20px;padding:14px 16px;box-shadow:0 2px 12px rgba(26,86,219,.08);border:1px solid rgba(26,86,219,.06);margin-bottom:4px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--primaryDim);display:flex;align-items:center;justify-content:center;color:var(--primary3);font-size:12px;"><i class="fa-solid fa-chart-column"></i></div>
+            <div style="font-size:12px;font-weight:800;color:var(--text);letter-spacing:.02em;">Ringkasan Minggu Ini</div>
+          </div>
+          <div style="font-size:9px;font-weight:700;color:var(--muted);">7 Hari</div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 4px;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:linear-gradient(180deg,var(--primary),var(--primary2));border-radius:6px 6px 0 0;height:35%;min-height:8px;transition:height .3s;"></div>
+            <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;">Sen</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:linear-gradient(180deg,var(--primary),var(--primary2));border-radius:6px 6px 0 0;height:55%;min-height:8px;transition:height .3s;"></div>
+            <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;">Sel</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:linear-gradient(180deg,var(--primary),var(--primary2));border-radius:6px 6px 0 0;height:70%;min-height:8px;transition:height .3s;"></div>
+            <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;">Rab</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:linear-gradient(180deg,var(--primary),var(--primary2));border-radius:6px 6px 0 0;height:45%;min-height:8px;transition:height .3s;"></div>
+            <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;">Kam</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:linear-gradient(180deg,var(--primary),var(--primary2));border-radius:6px 6px 0 0;height:85%;min-height:8px;transition:height .3s;"></div>
+            <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;">Jum</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:linear-gradient(180deg,#059669,#10B981);border-radius:6px 6px 0 0;height:60%;min-height:8px;transition:height .3s;"></div>
+            <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;">Sab</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:100%;background:linear-gradient(180deg,#059669,#10B981);border-radius:6px 6px 0 0;height:40%;min-height:8px;transition:height .3s;"></div>
+            <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;">Min</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS BADGES ROW -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
+        <div style="background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:0 2px 12px rgba(26,86,219,.08);border:1px solid rgba(26,86,219,.06);display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;color:#D97706;font-size:14px;flex-shrink:0;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div>
+            <div style="font-size:16px;font-weight:900;color:var(--text);line-height:1;" id="homeStatWarning">0</div>
+            <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Pinjaman Aktif</div>
+          </div>
+        </div>
+        <div style="background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:0 2px 12px rgba(26,86,219,.08);border:1px solid rgba(26,86,219,.06);display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:#E0EAFF;display:flex;align-items:center;justify-content:center;color:var(--primary3);font-size:14px;flex-shrink:0;"><i class="fa-solid fa-check-double"></i></div>
+          <div>
+            <div style="font-size:16px;font-weight:900;color:var(--text);line-height:1;" id="homeStatLunas">0</div>
+            <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Bebas Pinjaman</div>
+          </div>
+        </div>
+      </div>
+
       <div class="menu-section-title">Menu Utama</div>
       <div class="menu-grid">
         <div class="menu-card card-input" onclick="bukaInputData()">
@@ -3679,7 +3797,83 @@
       });
       $('dashTotalDana').textContent = 'Rp '+fmt(totalKotor + totalTambahan - totalPotongan);
       $('dashTotalPegawai').textContent = namaAktif.length;
+
+      // Update home stats
+      _updateHomeStats();
     };
+
+    function _updateHomeStats() {
+      // Stat transaksi hari ini
+      const todayISO = new Date().toISOString().slice(0,10);
+      const todayItems = _CACHE.input.filter(r => r.tanggalISO === todayISO);
+      const homeTrans = $('homeStatTransaksi');
+      if(homeTrans) homeTrans.textContent = todayItems.length;
+
+      // Stat pendapatan minggu ini
+      const dari=_getISO('rekapMulai'), sampai=_getISO('rekapAkhir');
+      const weekItems = getInputDataLocal(dari, sampai);
+      let weekTotal = 0;
+      weekItems.forEach(r => weekTotal += (r.jumlah||0));
+      const homePend = $('homeStatPendapatan');
+      if(homePend) {
+        if(weekTotal >= 1000000) homePend.textContent = 'Rp ' + (weekTotal/1000000).toFixed(1).replace('.0','') + ' Jt';
+        else if(weekTotal >= 1000) homePend.textContent = 'Rp ' + (weekTotal/1000).toFixed(0) + 'K';
+        else homePend.textContent = 'Rp ' + fmt(weekTotal);
+      }
+
+      // Stat pinjaman aktif
+      const pinjamanAktif = getRekapPinjamanLocal().filter(r => r.sisa > 0);
+      const homePinj = $('homeStatPinjaman');
+      if(homePinj) homePinj.textContent = pinjamanAktif.length;
+
+      // Warning & Lunas
+      const homeWarn = $('homeStatWarning');
+      const homeLunas = $('homeStatLunas');
+      if(homeWarn) homeWarn.textContent = pinjamanAktif.length;
+      if(homeLunas) {
+        const bebasPinjaman = MASTER.pegawai.length - pinjamanAktif.length;
+        homeLunas.textContent = Math.max(0, bebasPinjaman);
+      }
+
+      // Update recent activity dengan data real
+      _renderHomeRecentActivity(todayItems);
+    }
+
+    function _renderHomeRecentActivity(todayItems) {
+      const container = $('homeRecentActivity');
+      if(!container) return;
+      if(!todayItems || !todayItems.length) {
+        container.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px;font-weight:600;"><i class="fa-solid fa-inbox" style="display:block;font-size:24px;margin-bottom:8px;opacity:.3;"></i>Belum ada aktivitas hari ini</div>';
+        return;
+      }
+      const sorted = [...todayItems].sort((a,b) => {
+        const ta = a.waktu?.seconds || 0;
+        const tb = b.waktu?.seconds || 0;
+        return tb - ta;
+      }).slice(0, 5);
+
+      const icons = {
+        'default': ['fa-keyboard', 'var(--primary3)', 'var(--primary)'],
+      };
+
+      container.innerHTML = sorted.map((r, i) => {
+        const jml = Number(r.jumlah || 0);
+        let jmlStr;
+        if(jml >= 1000000) jmlStr = (jml/1000000).toFixed(1).replace('.0','') + ' Jt';
+        else if(jml >= 1000) jmlStr = (jml/1000).toFixed(0) + 'K';
+        else jmlStr = fmt(jml);
+        const colors = [['var(--primary3)','var(--primary)'], ['#059669','#10B981'], ['#D97706','#F59E0B'], ['#7C3AED','#8B5CF6'], ['#DC2626','#EF4444']];
+        const [c1, c2] = colors[i % colors.length];
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:12px;">
+          <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;"><i class="fa-solid fa-briefcase"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.nama || '-'}</div>
+            <div style="font-size:9px;color:var(--muted);font-weight:600;">${r.jenis || '-'} · ${r.qty || 0} pcs · ${r.brand || '-'}</div>
+          </div>
+          <div style="font-size:11px;font-weight:800;color:var(--green);flex-shrink:0;">Rp ${jmlStr}</div>
+        </div>`;
+      }).join('');
+    }
 
     // ===== QUICK STATS =====
     window.refreshQuickStats = function() {
