@@ -386,7 +386,7 @@
   max-height: 85vh;
   max-height: 85dvh;
   transform: translateY(0);
-  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
 }
 
@@ -1036,7 +1036,7 @@
   flex-direction: column;
   max-height: 85vh;
   max-height: 85dvh;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow: 0 -8px 40px rgba(13, 43, 110, 0.25);
 }
 
@@ -2496,7 +2496,7 @@
   max-height: 85dvh;
   /* Fast transform — hanya translateY */
   transform: translateY(0);
-  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
 }
 
@@ -3243,7 +3243,7 @@
   flex-direction: column;
   max-height: 92vh;
   max-height: 92dvh;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow: 0 -8px 40px rgba(13, 43, 110, 0.25);
 }
 
@@ -5270,7 +5270,7 @@ window.tutupPopup = (id) => {
       sheet.style.transform = '';
       sheet.classList.add('entering');
       _removeKeyboardHandler();
-    }, 200);
+    }, 250);
   } else {
     popup.style.display = 'none';
     _removeKeyboardHandler();
