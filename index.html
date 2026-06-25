@@ -3662,12 +3662,6 @@
         </div>
       </div>
 
-      <!-- AKTIVITAS TERBARU -->
-      <div style="background:var(--card);border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(26,86,219,.08);border:1px solid rgba(26,86,219,.06);">
-        <div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;">Aktivitas Hari Ini</div>
-        <div id="homeRecentActivity"></div>
-      </div>
-
       <div class="menu-section-title">Menu Utama</div>
       <div class="menu-grid">
         <div class="menu-card card-input" onclick="bukaInputData()">
@@ -4028,12 +4022,12 @@
             </button>
             <div id="daftarTamBody" style="display:none;margin-top:8px;max-height:280px;overflow-y:auto;"></div>
           </div>
-    </div>
+        </div>
+      </div>
     </div>
     <div class="back-bar">
       <button class="back-bar-btn" onclick="tutupHarga();history.replaceState({page:'home'},'')"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
     </div>
-  </div>
   </div>
 
   <!-- ===== REKAP PAGE ===== -->
@@ -4483,7 +4477,7 @@
       </div>
       <div style="padding:14px 20px;padding-bottom:calc(14px + var(--safe-bottom));background:var(--card2);">
         <button onclick="simpanTambahanRincian()" style="width:100%;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(0,180,216,.28);">SAVE</button>
-        <button onclick="document.getElementById('tambahanPopup').classList.remove('active')" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:14px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;">Tutup</button>
+        <button onclick="document.getElementById('tambahanPopup').classList.remove('active'); if($('tambahanPopup')._removeTamVp){$('tambahanPopup')._removeTamVp();}" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:14px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;">Tutup</button>
       </div>
     </div>
   </div>
@@ -4916,7 +4910,7 @@
         _initFlags.tambahan = true;
         _tryInit();
         _autoRefresh();
-      }, err => { console.warn('⚠️ Gagal listener tambahan:', err.message); _loadTambahanFromSession(); _initFlags.tambahan = true; _tryInit(); }, q => q.gte('data->tanggalISO', _cutoffTambahanISO));
+      }, err => { console.warn('⚠️ Gagal listener tambahan:', err.message); _loadTambahanFromSession(); _initFlags.tambahan = true; _tryInit(); }, q => q.gte('data->>tanggalISO', _cutoffTambahanISO));
     }
 
     let _initTimeout;
@@ -6417,8 +6411,9 @@ window.simpanBayar = async () => {
   rows.forEach(r => {
     const tam = _rcTambahan[r.nama];
     const tamTgl = tam?._tanggalISO || '';
-    const tamDalamRange = (!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai);
-    const tamTotal = (tam && tam.total > 0 && tamDalamRange) ? tam.total : 0;
+    const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
+    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah || 0), 0) : 0;
+    const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
     const adaPinjaman = sisaPinjaman > 0;
@@ -6459,8 +6454,9 @@ window.simpanBayar = async () => {
   rows.forEach((r, idx) => {
     const tam = _rcTambahan[r.nama];
     const tamTgl = tam?._tanggalISO || '';
-    const tamDalamRange = (!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai);
-    const tamTotal = (tam && tam.total > 0 && tamDalamRange) ? tam.total : 0;
+    const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
+    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah || 0), 0) : 0;
+    const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
     const adaTambahan = tamTotal > 0 || (tam && tam.items && Object.values(tam.items).some(it => it.jumlah > 0));
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
@@ -7015,6 +7011,29 @@ window.hapusBayar = async (id) => {
       window._tamCurrentItems = items;
       hitungTotalTambahan();
       $('tambahanPopup').classList.add('active');
+
+      // Keyboard push-up handler untuk tambahanPopup
+      const card = document.querySelector('#tambahanPopup .rc-card');
+      if (card && window.visualViewport) {
+        const _tamVpHandler = () => {
+          const kbH = window.innerHeight - window.visualViewport.height;
+          if (kbH > 80) {
+            card.style.transform = `translateY(-${kbH}px)`;
+            const activeEl = document.activeElement;
+            if (activeEl && activeEl.tagName === 'INPUT')
+              setTimeout(() => activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+          } else {
+            card.style.transform = '';
+          }
+        };
+        window.visualViewport.addEventListener('resize', _tamVpHandler);
+        window.visualViewport.addEventListener('scroll', _tamVpHandler);
+        $('tambahanPopup')._removeTamVp = () => {
+          window.visualViewport.removeEventListener('resize', _tamVpHandler);
+          window.visualViewport.removeEventListener('scroll', _tamVpHandler);
+          card.style.transform = '';
+        };
+      }
     };
 
     window.hitungTotalTambahan = () => {
@@ -7048,7 +7067,8 @@ window.hapusBayar = async (id) => {
         const key = _tamKey(t);
         savedItems[key] = { jenis: t.jenis, harga: t.harga || 0, qty, jumlah };
       });
-      _rcTambahan[nama] = { items: savedItems, total };
+      const _todayISO = new Date().toISOString().slice(0,10);
+      _rcTambahan[nama] = { items: savedItems, total, _tanggalISO: _todayISO };
       showLoading('Menyimpan data...');
       try {
         _saveTambahanToSession();
@@ -7062,6 +7082,7 @@ window.hapusBayar = async (id) => {
         return;
       }
       if(saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = ''; }
+      if($('tambahanPopup')._removeTamVp) $('tambahanPopup')._removeTamVp();
       $('tambahanPopup').classList.remove('active');
       renderTabelRekap();
       loadDashboardDana();
