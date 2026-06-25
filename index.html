@@ -2265,7 +2265,7 @@
 /* Header */
 .slip-hd {
   background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 100%);
-  padding: 8px 12px 10px;
+  padding: 8px 12px 16px;
   position: relative;
   flex-shrink: 0;
 }
@@ -2278,9 +2278,9 @@
   background: #fff;
   border-radius: 12px 12px 0 0;
 }
-.slip-hd-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; position: relative; z-index: 1; }
+.slip-hd-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; position: relative; z-index: 1; }
 .slip-badge-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.slip-logo { height: 22px; width: auto; object-fit: contain; display: block; }
+.slip-logo { height: 30px; width: auto; object-fit: contain; display: block; }
 .slip-co { font-size: 7px; font-weight: 800; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .12em; }
 .slip-badge { font-size: 7px; font-weight: 700; color: rgba(255,255,255,.9); background: rgba(255,255,255,.15); padding: 2px 8px; border-radius: 4px; letter-spacing: .05em; }
 .slip-nm { font-size: 22px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -.02em; position: relative; z-index: 1; }
@@ -4500,14 +4500,10 @@
   <div style="width:100%;max-width:480px;display:flex;flex-direction:column;max-height:90vh;max-height:90dvh;">
   <div class="slip-box" id="slipBox">
   <div class="slip-hd">
-    <div class="slip-hd-top">
-      <span class="slip-co">Radja Production</span>
-      <div class="slip-badge-wrap">
-        <img src="LOGORD2.png" class="slip-logo" alt="Radja Production" onerror="this.style.display='none'">
-        <span class="slip-badge">SLIP GAJI</span>
-      </div>
+    <div class="slip-hd-top" style="align-items:center;">
+      <div class="slip-nm" id="slipNama">-</div>
+      <img src="LOGORD2.png" class="slip-logo" alt="Radja Production" onerror="this.style.display='none'">
     </div>
-    <div class="slip-nm" id="slipNama">-</div>
     <div class="slip-info">
       <span class="slip-dept" id="slipBagian">-</span>
       <span class="slip-period" id="slipPeriode">-</span>
@@ -4761,7 +4757,7 @@
     }
 
     // ===== STATE =====
-    let MASTER = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[], harga:{}, hargaList:[], brands:[], tambahanItemList:[], tambahan: { uangMakan:0, uangMakanMinggu:0, lembur:0, bonus:0 }, tambahanDocId: '' };
+    let MASTER = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[], harga:{}, hargaList:[], brands:[], tambahanItemList:[] };
     let _masterDocIds = {}, _hargaDocIds = {};
     let _CACHE = { input:[], pinjaman:[], bayar:[] };
     let _initFlags = { master:false, harga:false, input:false, pinjaman:false, bayar:false, tambahan:false };
@@ -4820,6 +4816,32 @@
     const _getSenin = (d) => { const r=new Date(d); const day=r.getDay()||7; r.setDate(r.getDate()-day+1); r.setHours(0,0,0,0); return r; };
     const _saveTambahanToSession = () => { try { sessionStorage.setItem('_rcTambahan', JSON.stringify(_rcTambahan)); } catch(e){} };
     const _loadTambahanFromSession = () => { try { const raw=sessionStorage.getItem('_rcTambahan'); if(raw) _rcTambahan=JSON.parse(raw); } catch(e){ _rcTambahan={}; } };
+    function _getWeekId(date) {
+      const d = new Date(date); d.setHours(0,0,0,0);
+      d.setDate(d.getDate() + 4 - (d.getDay()||7));
+      const yearStart = new Date(d.getFullYear(),0,1);
+      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+      return d.getFullYear() + '-W' + String(weekNo).padStart(2,'0');
+    }
+    function _getMondayISO(date) {
+      const d = new Date(date); const day = d.getDay()||7;
+      d.setDate(d.getDate() - day + 1); d.setHours(0,0,0,0);
+      return d.toISOString().slice(0,10);
+    }
+    function _initWeeklyReset() {
+      const today = new Date();
+      const currentWeekId = _getWeekId(today);
+      const savedWeekId = localStorage.getItem('_tambahanWeekId');
+      if(savedWeekId !== currentWeekId) {
+        _rcTambahan = {};
+        sessionStorage.removeItem('_rcTambahan');
+        localStorage.setItem('_tambahanWeekId', currentWeekId);
+        localStorage.setItem('_tambahanWeekStart', _getMondayISO(today));
+        console.log('🔄 Reset tambahan untuk minggu baru:', currentWeekId);
+        return true;
+      }
+      return false;
+    }
     const _tamKey = (t) => (t.bagian||'') + '|' + (t.jenis||'');
 
     // ===== SUPABASE LISTENERS =====
@@ -4894,98 +4916,55 @@
       const _cutoffTambahanISO = _duaMingguLalu00.toISOString().slice(0,10);
 
       onSnapshot(collection(db, 'tambahan'), snap => {
-      _rcTambahan = {};
-      const _today = new Date();
-      const _day = _today.getDay() || 7;
-      const _senin = new Date(_today); _senin.setDate(_today.getDate() - _day + 1); _senin.setHours(0,0,0,0);
-      const _minggu = new Date(_senin); _minggu.setDate(_senin.getDate() + 6); _minggu.setHours(23,59,59,999);
-      const _seninISO = _senin.toISOString().slice(0,10);
-      const _mingguISO = _minggu.toISOString().slice(0,10);
-      snap.forEach(docSnap => {
-        const data = docSnap.data();
-        const nama = data.nama;
-        if(!nama || nama.trim()==='' || nama==='-') return;
-        const tglISO = (data.tanggalISO || '').slice(0,10);
-        const _duaMingguLalu = new Date(_senin); _duaMingguLalu.setDate(_senin.getDate() - 7);
-        const _duaMingguLaluISO = _duaMingguLalu.toISOString().slice(0,10);
-        if(tglISO < _duaMingguLaluISO || tglISO > _mingguISO) return;
-
-        // === FIX: Format baru itemsJSON ===
-        if(data.itemsJSON) {
-          try { 
-            const itemsRaw = JSON.parse(data.itemsJSON); 
-            // SIMPAN SEMUA items (jangan filter qty>0 di sini)
-            const items = itemsRaw;
-            // Hitung total dari items yang sebenarnya ada qty>0
-            const calcTotal = Object.values(items).reduce((s, it) => {
-              const qty = parseInt(it.qty) || 0;
-              const harga = parseInt(it.harga) || 0;
-              const jumlah = parseInt(it.jumlah) || (qty * harga);
-              return s + (qty > 0 ? jumlah : 0);
-            }, 0); 
-            if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) { 
-              _rcTambahan[nama] = { 
-                items, 
-                total: calcTotal,
-                _tanggalISO: tglISO 
-              }; 
-            } 
-            return; 
-          } catch(e) {
-            console.error('Error parsing itemsJSON:', e);
+        _rcTambahan = {};
+        const _today = new Date();
+        const _day = _today.getDay() || 7;
+        const _senin = new Date(_today); _senin.setDate(_today.getDate() - _day + 1); _senin.setHours(0,0,0,0);
+        const _minggu = new Date(_senin); _minggu.setDate(_senin.getDate() + 6); _minggu.setHours(23,59,59,999);
+        const _seninISO = _senin.toISOString().slice(0,10);
+        const _mingguISO = _minggu.toISOString().slice(0,10);
+        snap.forEach(docSnap => {
+          const data = docSnap.data();
+          const nama = data.nama;
+          if(!nama || nama.trim()==='' || nama==='-') return;
+          const tglISO = (data.tanggalISO || '').slice(0,10);
+          if(tglISO < _seninISO || tglISO > _mingguISO) return;
+          if(data.itemsJSON) {
+            try {
+              const itemsRaw = JSON.parse(data.itemsJSON);
+              const items = Object.fromEntries(
+                Object.entries(itemsRaw).filter(([,it]) => (it.qty||0) > 0)
+              );
+              // FIX 9: Simpan dengan weekId untuk tracking
+              const weekId = data.weekId || _getWeekId(new Date(tglISO));
+              if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) {
+                const calcTotal = Object.values(items).reduce((s, it) => s + (it.jumlah || 0), 0);
+                _rcTambahan[nama] = {
+                  items,
+                  total: data.total > 0 ? data.total : calcTotal,
+                  _tanggalISO: tglISO,
+                  _weekId: weekId
+                };
+              }
+              return;
+            } catch(e) {}
           }
-        }
-
-        // === FIX: Format lama - hanya buat jika ADA DATA VALID ===
-        if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) {
-          const _legacyItems = {};
-          const _mTam = MASTER.tambahan || { uangMakan:0, uangMakanMinggu:0, lembur:0, bonus:0 };
-
-          const hariMakan = parseInt(data.hariMakan) || 0;
-          const jumlahMakan = parseInt(data.jumlahMakan) || 0;
-          if(hariMakan > 0 && jumlahMakan > 0) { 
-            const _hMakan = jumlahMakan && hariMakan ? Math.round(jumlahMakan/hariMakan) : (_mTam.uangMakan||0); 
-            _legacyItems['|UANG MAKAN'] = { jenis:'UANG MAKAN', harga: _hMakan, qty: hariMakan, jumlah: jumlahMakan }; 
+          if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) {
+            const _legacyItems = {};
+            const _mTam = MASTER.tambahan || {};
+            if((data.hariMakan||0)>0||data.jumlahMakan>0) { const _hMakan = data.jumlahMakan&&data.hariMakan ? Math.round(data.jumlahMakan/data.hariMakan) : (_mTam.uangMakan||0); const _qMakan = data.hariMakan||0; const _jMakan = data.jumlahMakan||0; _legacyItems['|UANG MAKAN'] = { jenis:'UANG MAKAN', harga: _hMakan, qty: _qMakan, jumlah: _jMakan > 0 ? _jMakan : _qMakan * _hMakan }; }
+            if((data.hariMakanMinggu||0)>0||data.jumlahMakanMinggu>0) { const _hMakanM = data.jumlahMakanMinggu&&data.hariMakanMinggu ? Math.round(data.jumlahMakanMinggu/data.hariMakanMinggu) : (_mTam.uangMakanMinggu||0); const _qMakanM = data.hariMakanMinggu||0; const _jMakanM = data.jumlahMakanMinggu||0; _legacyItems['|UANG MAKAN MINGGU'] = { jenis:'UANG MAKAN MINGGU', harga: _hMakanM, qty: _qMakanM, jumlah: _jMakanM > 0 ? _jMakanM : _qMakanM * _hMakanM }; }
+            if((data.hariLembur||0)>0||data.jumlahLembur>0) { const _hLembur = data.jumlahLembur&&data.hariLembur ? Math.round(data.jumlahLembur/data.hariLembur) : (_mTam.lembur||0); const _qLembur = data.hariLembur||0; const _jLembur = data.jumlahLembur||0; _legacyItems['|LEMBUR'] = { jenis:'LEMBUR', harga: _hLembur, qty: _qLembur, jumlah: _jLembur > 0 ? _jLembur : _qLembur * _hLembur }; }
+            if((data.hariBonus||0)>0||data.jumlahBonus>0) { const _hBonus = data.jumlahBonus&&data.hariBonus ? Math.round(data.jumlahBonus/data.hariBonus) : (_mTam.bonus||0); const _qBonus = data.hariBonus||0; const _jBonus = data.jumlahBonus||0; _legacyItems['|BONUS'] = { jenis:'BONUS', harga: _hBonus, qty: _qBonus, jumlah: _jBonus > 0 ? _jBonus : _qBonus * _hBonus }; }
+            const _legacyCalcTotal = Object.values(_legacyItems).reduce((s,it)=>s+(it.jumlah||0),0);
+            _rcTambahan[nama] = { makan: { hari: data.hariMakan||0, jumlah: data.jumlahMakan||0 }, makanMinggu: { hari: data.hariMakanMinggu||0, jumlah: data.jumlahMakanMinggu||0 }, lembur: { hari: data.hariLembur||0, jumlah: data.jumlahLembur||0 }, bonus: { hari: data.hariBonus||0, jumlah: data.jumlahBonus||0 }, items: _legacyItems, total: data.total > 0 ? data.total : _legacyCalcTotal, _tanggalISO: tglISO };
           }
-
-          const hariMakanMinggu = parseInt(data.hariMakanMinggu) || 0;
-          const jumlahMakanMinggu = parseInt(data.jumlahMakanMinggu) || 0;
-          if(hariMakanMinggu > 0 && jumlahMakanMinggu > 0) { 
-            const _hMakanM = jumlahMakanMinggu && hariMakanMinggu ? Math.round(jumlahMakanMinggu/hariMakanMinggu) : (_mTam.uangMakanMinggu||0); 
-            _legacyItems['|UANG MAKAN MINGGU'] = { jenis:'UANG MAKAN MINGGU', harga: _hMakanM, qty: hariMakanMinggu, jumlah: jumlahMakanMinggu }; 
-          }
-
-          const hariLembur = parseInt(data.hariLembur) || 0;
-          const jumlahLembur = parseInt(data.jumlahLembur) || 0;
-          if(hariLembur > 0 && jumlahLembur > 0) { 
-            const _hLembur = jumlahLembur && hariLembur ? Math.round(jumlahLembur/hariLembur) : (_mTam.lembur||0); 
-            _legacyItems['|LEMBUR'] = { jenis:'LEMBUR', harga: _hLembur, qty: hariLembur, jumlah: jumlahLembur }; 
-          }
-
-          const hariBonus = parseInt(data.hariBonus) || 0;
-          const jumlahBonus = parseInt(data.jumlahBonus) || 0;
-          if(hariBonus > 0 && jumlahBonus > 0) { 
-            const _hBonus = jumlahBonus && hariBonus ? Math.round(jumlahBonus/hariBonus) : (_mTam.bonus||0); 
-            _legacyItems['|BONUS'] = { jenis:'BONUS', harga: _hBonus, qty: hariBonus, jumlah: jumlahBonus }; 
-          }
-
-          const _legacyCalcTotal = Object.values(_legacyItems).reduce((s,it)=>s+(it.jumlah||0),0);
-
-          _rcTambahan[nama] = { 
-            makan: { hari: hariMakan, jumlah: jumlahMakan }, 
-            makanMinggu: { hari: hariMakanMinggu, jumlah: jumlahMakanMinggu }, 
-            lembur: { hari: hariLembur, jumlah: jumlahLembur }, 
-            bonus: { hari: hariBonus, jumlah: jumlahBonus }, 
-            items: _legacyItems, 
-            total: _legacyCalcTotal,
-            _tanggalISO: tglISO 
-          };
-        }
-      });
-      _saveTambahanToSession();
-      _initFlags.tambahan = true;
-      _tryInit();
-      _autoRefresh();}, err => { console.warn('⚠️ Gagal listener tambahan:', err.message); _loadTambahanFromSession(); _initFlags.tambahan = true; _tryInit(); }, q => q.gte('data->>tanggalISO', _cutoffTambahanISO));
+        });
+        _saveTambahanToSession();
+        _initFlags.tambahan = true;
+        _tryInit();
+        _autoRefresh();
+      }, err => { console.warn('⚠️ Gagal listener tambahan:', err.message); _loadTambahanFromSession(); _initFlags.tambahan = true; _tryInit(); }, q => q.gte('data->>tanggalISO', _cutoffTambahanISO));
     }
 
     let _initTimeout;
@@ -5084,7 +5063,18 @@
       const bayarItems = _CACHE.bayar.filter(b => { if(b.nama!==nama) return false; if(dari && b.tanggalISO < dari) return false; if(sampai && b.tanggalISO > sampai) return false; if(b.luarGaji) return false; return true; });
       const potongan = bayarItems.reduce((s,b) => s+(b.bayar||0), 0);
       const bagian = items.length>0 ? (items[0].bagian||'-') : '-';
-      return { items:rows, subtotal, potongan, total:subtotal-potongan, bagian };
+      // FIX 7: Include tambahan dalam return
+      const tam = _rcTambahan[nama];
+      let tamTotal = 0;
+      if(tam) {
+        const tamTgl = tam._tanggalISO || '';
+        const inRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
+        if(inRange) {
+          tamTotal = tam.total > 0 ? tam.total :
+            (tam.items ? Object.values(tam.items).reduce((s,it)=>s+(it.jumlah||0),0) : 0);
+        }
+      }
+      return { items:rows, subtotal, potongan, tamTotal, total:subtotal+tamTotal-potongan, bagian };
     }
 
     // ===== WINDOW FUNCTIONS =====
@@ -5571,6 +5561,7 @@ window.bukaBayar = () => {
   $('bayar_nilai').value = '-';
   $('bayar_jenis_list').innerHTML = '';
   setDis('btnSimpanBayar', true);
+  $('btnSimpanBayar').innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
   
   // Reset toggle
   _bayarLuarGaji = false;
@@ -5791,8 +5782,6 @@ window.simpanBayar = async () => {
   btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Menyimpan...</span>';
   btn.disabled = true;
   
-  showLoading('Menyimpan...');
-  
   try {
     for (const b of toBayar) {
       await addDoc(collection(db, COL.bayar), {
@@ -5809,6 +5798,8 @@ window.simpanBayar = async () => {
     
     showToast('✅ Pembayaran tersimpan!');
     tutupPopup('bayarPopup');
+    btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
+    btn.disabled = false;
     
     setTimeout(() => {
       muatRekapPinjaman();
@@ -5819,8 +5810,6 @@ window.simpanBayar = async () => {
     showToast('❌ Gagal: ' + e.message);
     btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
     btn.disabled = false;
-  } finally {
-    hideLoading();
   }
 };
     // ===== SETTING =====
@@ -6518,9 +6507,10 @@ window.simpanBayar = async () => {
   rows.forEach(r => {
     const tam = _rcTambahan[r.nama];
     const tamTgl = tam?._tanggalISO || '';
-    const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
-    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => { const qty = parseInt(it.qty) || 0; const harga = parseInt(it.harga) || 0; const jumlah = parseInt(it.jumlah) || (qty * harga); return s + (qty > 0 ? jumlah : 0); }, 0) : 0;
-    const tamTotal = tamDalamRange ? (tamTotalFromItems > 0 ? tamTotalFromItems : (tam?.total || 0)) : 0;
+    // Tanpa tanggal = tidak valid, harus dianggap di luar range (bukan otomatis lolos)
+    const tamDalamRange = tamTgl && ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
+    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
+    const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
     const adaPinjaman = sisaPinjaman > 0;
@@ -6539,8 +6529,8 @@ window.simpanBayar = async () => {
     const tam = _rcTambahan[r.nama];
     const tamTgl = tam?._tanggalISO || '';
     const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
-    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => { const qty = parseInt(it.qty) || 0; const harga = parseInt(it.harga) || 0; const jumlah = parseInt(it.jumlah) || (qty * harga); return s + (qty > 0 ? jumlah : 0); }, 0) : 0;
-    const tamTotal = tamDalamRange ? (tamTotalFromItems > 0 ? tamTotalFromItems : (tam?.total || 0)) : 0;
+    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
+    const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
     const adaTambahan = tamTotal > 0;
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
@@ -6644,24 +6634,6 @@ window.simpanBayar = async () => {
               ${potonganHTML}
               <div class="rekap-breakdown-row total"><span>Total</span><span class="negative">-Rp ${fmt(r.potongan)}</span></div>
             </div>` : ''}
-            <div class="rekap-breakdown-section" style="background:linear-gradient(135deg,#EEF3FF,#F7FAFF); border:1.5px solid rgba(26,86,219,.12); margin-top:6px;">
-              <div class="rekap-breakdown-row total" style="padding:8px 0 2px;">
-                <span style="font-size:11px; font-weight:800; color:var(--primary3);">Pekerjaan</span>
-                <span style="color:var(--text2);">Rp ${fmt(_dataRincian.subtotal)}</span>
-              </div>
-              ${tamTotal > 0 ? `<div class="rekap-breakdown-row total" style="padding:2px 0;">
-                <span style="font-size:11px; font-weight:800; color:#059669;">Tambahan</span>
-                <span class="positive">+Rp ${fmt(tamTotal)}</span>
-              </div>` : ''}
-              ${r.potongan > 0 ? `<div class="rekap-breakdown-row total" style="padding:2px 0;">
-                <span style="font-size:11px; font-weight:800; color:var(--red);">Potongan</span>
-                <span class="negative">-Rp ${fmt(r.potongan)}</span>
-              </div>` : ''}
-              <div class="rekap-breakdown-row total" style="padding:6px 0 4px; border-top:1.5px solid rgba(26,86,219,.15); margin-top:4px;">
-                <span style="font-size:12px; font-weight:900; color:var(--primary3);">Total Diterima</span>
-                <span style="font-size:13px; font-weight:900; color:${bersihFinal < 0 ? 'var(--red)' : 'var(--primary3)'};">Rp ${fmt(bersihFinal)}</span>
-              </div>
-            </div>
           </div>
           <div class="rekap-detail-grid" style="grid-template-columns:1fr;">
             <div class="rekap-detail-item">
@@ -7084,6 +7056,19 @@ window.hapusBayar = async (id) => {
       nama = nama || _rcNamaAktif;
       if(!nama){ showToast('Nama pegawai tidak ditemukan!'); return; }
       _rcNamaAktif = nama;
+
+      // ✅ FIX 4: Load data tambahan dari Supabase jika _rcTambahan kosong
+      if(!_rcTambahan[nama]) {
+        const today = new Date();
+        const day = today.getDay() || 7;
+        const senin = new Date(today); senin.setDate(today.getDate() - day + 1); senin.setHours(0,0,0,0);
+        const seninISO = senin.toISOString().slice(0,10);
+        const minggu = new Date(senin); minggu.setDate(senin.getDate() + 6);
+        const mingguISO = minggu.toISOString().slice(0,10);
+        // Data sudah ada di _rcTambahan jika initDataListeners berhasil
+        // Jika masih kosong, biarkan kosong (user akan input baru)
+      }
+
       const peg = MASTER.pegawaiData[nama] || { bagian: '' };
       const bagian = (peg.bagian || '').trim();
       $('tamNama').textContent = nama;
@@ -7099,8 +7084,7 @@ window.hapusBayar = async (id) => {
         const savedItems = saved.items || {};
         container.innerHTML = items.map((t, i) => {
           const key = _tamKey(t);
-          const qty = savedItems[key] ? (parseInt(savedItems[key].qty) || 0) : 0;
-          const displayQty = (qty > 0) ? qty : '';
+          const qty = savedItems[key] ? savedItems[key].qty : '';
           const harga = t.harga || 0;
           const ph = harga > 0 ? `qty... (@ ${fmt(harga)})` : 'qty... (⚠ harga 0)';
           const fs = t.jenis.length > 14 ? '11px' : '13px';
@@ -7109,7 +7093,7 @@ window.hapusBayar = async (id) => {
               <div style="font-size:${fs};font-weight:800;letter-spacing:.03em;line-height:1.2;">${t.jenis}</div>
               <div style="font-size:9px;font-weight:600;opacity:.8;margin-top:3px;">Rp ${fmt(harga)}/hari</div>
             </div>
-            <input type="number" id="tamItem_${i}" data-idx="${i}" placeholder="${ph}" min="0" inputmode="numeric" value="${displayQty}" oninput="hitungTotalTambahan()" style="padding:13px 14px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:14px;font-family:inherit;color:var(--text);outline:none;width:100%;appearance:none;-webkit-appearance:none;">
+            <input type="number" id="tamItem_${i}" data-idx="${i}" placeholder="${ph}" min="0" inputmode="numeric" value="${qty}" oninput="hitungTotalTambahan()" style="padding:13px 14px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:14px;font-family:inherit;color:var(--text);outline:none;width:100%;appearance:none;-webkit-appearance:none;">
           </div>`;
         }).join('');
       }
@@ -7144,11 +7128,15 @@ window.hapusBayar = async (id) => {
     window.hitungTotalTambahan = () => {
       const items = window._tamCurrentItems || [];
       let total = 0;
+      let hasError = false;
       items.forEach((t, i) => {
         const el = document.getElementById('tamItem_' + i);
-        const qty = parseInt(el ? el.value : 0) || 0;
-        const harga = parseInt(t.harga) || 0;
-        total += qty * harga;
+        let qty = parseInt(el ? el.value : 0) || 0;
+        // ✅ FIX 6: Validasi qty
+        if(qty < 0) { qty = 0; if(el) el.value = 0; }
+        if(qty > 31) { qty = 31; if(el) el.value = 31; showToast('⚠ Maksimal 31 hari!'); }
+        if(!Number.isInteger(qty)) { qty = Math.floor(qty); if(el) el.value = qty; }
+        total += qty * (t.harga || 0);
       });
       const el = $('tamTotalDisplay');
       if(total > 0) { el.textContent = 'Rp ' + fmt(total); el.style.color = 'var(--primary3)'; el.style.fontWeight = '800'; }
@@ -7160,6 +7148,17 @@ window.hapusBayar = async (id) => {
       if(!nama){ showToast('Error: nama pegawai tidak ditemukan'); return; }
       const saveBtn = document.querySelector('#tambahanPopup button[onclick="simpanTambahanRincian()"]');
       if(saveBtn && saveBtn.disabled) return;
+      // FIX 8: Konfirmasi jika sudah ada data
+      const existingTam = _rcTambahan[nama];
+      if(existingTam && existingTam.total > 0) {
+        const tamTgl = existingTam._tanggalISO || '';
+        const todayISO = new Date().toISOString().slice(0,10);
+        if(tamTgl === todayISO) {
+          if(!confirm(`${nama} sudah punya tambahan hari ini (Rp ${fmt(existingTam.total)}). Ganti?`)) {
+            return;
+          }
+        }
+      }
       if(saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '0.5'; }
       const items = window._tamCurrentItems || [];
       let total = 0;
@@ -7176,34 +7175,27 @@ window.hapusBayar = async (id) => {
         }
       });
       const _todayISO = new Date().toISOString().slice(0,10);
-      _rcTambahan[nama] = { items: savedItems, total, _tanggalISO: _todayISO };
+      const _todayWeekId = _getWeekId(new Date());
       showLoading('Menyimpan data...');
       try {
-        _saveTambahanToSession();
-      // === FIX: Update harga default di MASTER.tambahan ===
-      const savedItems = _rcTambahan[nama]?.items || {};
-      Object.values(savedItems).forEach(it => {
-        if (!it || !it.jenis) return;
-        const jenisUpper = it.jenis.toUpperCase();
-        if (jenisUpper === 'UANG MAKAN') MASTER.tambahan.uangMakan = it.harga || MASTER.tambahan.uangMakan;
-        if (jenisUpper === 'UANG MAKAN MINGGU') MASTER.tambahan.uangMakanMinggu = it.harga || MASTER.tambahan.uangMakanMinggu;
-        if (jenisUpper === 'LEMBUR') MASTER.tambahan.lembur = it.harga || MASTER.tambahan.lembur;
-        if (jenisUpper === 'BONUS') MASTER.tambahan.bonus = it.harga || MASTER.tambahan.bonus;
-      });
-      // === FIX: Update harga default di MASTER.tambahan ===
-      const savedItems = _rcTambahan[nama]?.items || {};
-      Object.values(savedItems).forEach(it => {
-        if (!it || !it.jenis) return;
-        const jenisUpper = it.jenis.toUpperCase();
-        if (jenisUpper === 'UANG MAKAN') MASTER.tambahan.uangMakan = it.harga || MASTER.tambahan.uangMakan;
-        if (jenisUpper === 'UANG MAKAN MINGGU') MASTER.tambahan.uangMakanMinggu = it.harga || MASTER.tambahan.uangMakanMinggu;
-        if (jenisUpper === 'LEMBUR') MASTER.tambahan.lembur = it.harga || MASTER.tambahan.lembur;
-        if (jenisUpper === 'BONUS') MASTER.tambahan.bonus = it.harga || MASTER.tambahan.bonus;
-      });
+        // ✅ FIX 5: Simpan ke Supabase DULU, baru update local state
+        // Set sementara agar _saveTambahanDinamisFB bisa baca items
+        _rcTambahan[nama] = { items: savedItems, total, _tanggalISO: _todayISO, _weekId: _todayWeekId };
         const saved = await _saveTambahanDinamisFB(nama);
-        hideLoading();
-        if(saved) showToast(total > 0 ? '✅ Data tersimpan!' : '✅ Tersimpan (total Rp 0)');
+        if(saved) {
+          // ✅ Konfirmasi local state hanya jika Supabase sukses
+          _rcTambahan[nama] = { items: savedItems, total, _tanggalISO: _todayISO, _weekId: _todayWeekId };
+          _saveTambahanToSession();
+          hideLoading();
+          showToast(total > 0 ? '✅ Data tersimpan!' : '✅ Tersimpan (total Rp 0)');
+        } else {
+          // Rollback local state jika Supabase gagal
+          delete _rcTambahan[nama];
+          hideLoading();
+        }
       } catch(e) {
+        // Rollback local state jika exception
+        delete _rcTambahan[nama];
         hideLoading();
         showToast('❌ Error: ' + e.message);
         if(saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = ''; }
@@ -7221,7 +7213,7 @@ window.hapusBayar = async (id) => {
       try {
         const docId = `${nama.replace(/\s+/g,'_')}_${new Date().toISOString().split('T')[0]}`;
         const tam = _rcTambahan[nama];
-        const payload = { nama, total: total, tanggal: new Date(), tanggalISO: new Date().toISOString().slice(0,10), updatedAt: serverTimestamp(), itemsJSON: JSON.stringify(tam.items || {}) };
+        const payload = { nama, total: tam.total || 0, tanggal: new Date(), tanggalISO: new Date().toISOString().slice(0,10), weekId: _getWeekId(new Date()), updatedAt: serverTimestamp(), itemsJSON: JSON.stringify(tam.items || {}) };
         const items = tam.items || {};
         const _findQty = (jenis) => { const e = Object.entries(items).find(([k]) => k.toUpperCase().endsWith('|' + jenis)); return e ? (e[1].qty || 0) : 0; };
         const _findJumlah = (jenis) => { const e = Object.entries(items).find(([k]) => k.toUpperCase().endsWith('|' + jenis)); return e ? (e[1].jumlah || 0) : 0; };
@@ -7317,6 +7309,7 @@ window.hapusBayar = async (id) => {
             <div class="slip-item-left">
               <div class="slip-item-name">${it.jenis}</div>
               <div class="slip-item-meta">${it.qty} hari × Rp ${fmt(it.harga)}</div>
+              <div class="slip-item-meta" style="font-size:6px;color:#aaa;">${tam._tanggalISO || ''}</div>
             </div>
             <div class="slip-item-right">
               <div class="slip-item-amt g">+ Rp ${fmt(jumlahIt)}</div>
@@ -7990,7 +7983,11 @@ window.hapusBayar = async (id) => {
       let totalTambahan = 0;
       namaAktif.forEach(nama => {
         const tam = _rcTambahan[nama];
-        if(tam && tam.total > 0) totalTambahan += tam.total;
+        if(tam && tam.total > 0) {
+          const tamTgl = tam._tanggalISO || '';
+          const inRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
+          if(inRange) totalTambahan += tam.total;
+        }
       });
       let totalPotongan=0;
       _CACHE.bayar.forEach(b => {
@@ -8381,6 +8378,7 @@ window.hapusBayar = async (id) => {
         const flags = Object.entries(_initFlags).filter(([,v])=>!v).map(([k])=>k);
         _showDbError('⚠ Koneksi timeout.<br>Tabel belum merespons: <b>' + flags.join(', ') + '</b><br><br>Kemungkinan penyebab:<br>• RLS Policy Supabase belum mengizinkan akses<br>• Tidak ada koneksi internet<br><br>Coba refresh halaman.');
       }, 12000);
+      _initWeeklyReset();
       _loadTambahanFromSession();
       initMasterListener();
       initDataListeners();
