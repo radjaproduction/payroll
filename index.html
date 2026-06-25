@@ -3848,7 +3848,7 @@
       </div>
     </div>
     <div class="back-bar">
-      <button class="back-bar-btn" onclick="document.getElementById('inputPage').classList.remove('active');history.replaceState({page:'home'},'')"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
+      <button class="back-bar-btn" onclick="tutupInputData()"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
     </div>
   </div>
 <!-- ===== SETTING PAGE ===== -->
@@ -5078,7 +5078,10 @@
     }
 
     // ===== WINDOW FUNCTIONS =====
-    window.bukaInputData = () => {
+    // Flag: user keluar dari inputPage tanpa save
+    let _inputExitedWithoutSave = false;
+
+    function _doResetInputForm() {
       resetSelect('inp_nama', MASTER.pegawai, 'Nama Pegawai....');
       const bagianEl = $('inp_bagian');
       bagianEl.value = '';
@@ -5088,13 +5091,56 @@
       $('inp_qty').value = '';
       $('inp_qty').disabled = true;
       setDis('btnTambahInput', true); _styleBtnTambah(false);
-      // Jangan reset staging list saat buka ulang (biarkan jika ada item)
+      _stagingList = [];
       _renderStaging();
+    }
+
+    window.bukaInputData = () => {
+      // Jika sebelumnya keluar tanpa save, reset semua
+      if (_inputExitedWithoutSave) {
+        _inputExitedWithoutSave = false;
+        _doResetInputForm();
+      } else {
+        // Jangan reset staging list saat buka ulang (biarkan jika ada item)
+        resetSelect('inp_nama', MASTER.pegawai, 'Nama Pegawai....');
+        const bagianEl = $('inp_bagian');
+        bagianEl.value = '';
+        bagianEl.style.color = '#7B8DB0';
+        resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
+        resetSelect('inp_brand', [], '-- Pilih Brand --', true);
+        $('inp_qty').value = '';
+        $('inp_qty').disabled = true;
+        setDis('btnTambahInput', true); _styleBtnTambah(false);
+        _renderStaging();
+      }
       $('inputPage').classList.add('active');
       history.pushState({ page: 'inputPage' }, '');
       refreshQuickStats();
     };
-    window.tutupInputData = () => { $('inputPage').classList.remove('active'); if (history.state && history.state.page === 'inputPage') history.back(); };
+
+    function _tutupInputDataLangsung() {
+      _inputExitedWithoutSave = true;
+      $('inputPage').classList.remove('active');
+      if (history.state && history.state.page === 'inputPage') history.back();
+    }
+
+    window.tutupInputData = () => {
+      if (_stagingList.length > 0) {
+        bukaConfirm({
+          icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+          iconBg: '#FEF3C7',
+          iconColor: '#D97706',
+          title: 'Data Belum Disimpan',
+          msg: `Ada ${_stagingList.length} item yang belum disimpan. Yakin mau keluar? Data akan hilang.`,
+          okLabel: 'Ya, Keluar',
+          okBg: 'linear-gradient(135deg, #EF4444, #F87171)',
+          callback: _tutupInputDataLangsung
+        });
+      } else {
+        $('inputPage').classList.remove('active');
+        if (history.state && history.state.page === 'inputPage') history.back();
+      }
+    };
 
     window.onInpNama = () => {
       const nama = $('inp_nama').value; $('inp_nama').style.color = nama ? '#1A2340' : '#7B8DB0';
@@ -5252,6 +5298,7 @@
         }
         const n = _stagingList.length;
         _stagingList = [];
+        _inputExitedWithoutSave = false;
         _renderStaging();
         showToast('✅ ' + n + ' data tersimpan!');
         btn.textContent = 'SIMPAN';
@@ -5623,7 +5670,7 @@ window.onBayarNama = () => {
   const res = getRincianLocal(nama, dari, sampai);
   const tam = _rcTambahan[nama];
   const tamTgl = tam?._tanggalISO || '';
-  const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
+  const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
   const tamTotalFromItems2 = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
   const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems2) : 0;
   
@@ -8336,6 +8383,21 @@ window.hapusBayar = async (id) => {
         return el && el.classList.contains('active');
       });
       if (activePage) {
+        if (activePage === 'inputPage' && _stagingList && _stagingList.length > 0) {
+          // Push state kembali dulu agar posisi history tidak berubah
+          history.pushState({ page: 'inputPage' }, '');
+          bukaConfirm({
+            icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+            iconBg: '#FEF3C7',
+            iconColor: '#D97706',
+            title: 'Data Belum Disimpan',
+            msg: `Ada ${_stagingList.length} item yang belum disimpan. Yakin mau keluar? Data akan hilang.`,
+            okLabel: 'Ya, Keluar',
+            okBg: 'linear-gradient(135deg, #EF4444, #F87171)',
+            callback: _tutupInputDataLangsung
+          });
+          return;
+        }
         document.getElementById(activePage).classList.remove('active');
         if (activePage === 'rekapPage') try { loadDashboardDana(); } catch(e2) {}
         history.replaceState({ page: 'home' }, '');
