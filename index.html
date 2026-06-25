@@ -982,9 +982,10 @@
 
 /* ===== KEYBOARD ===== */
 .popup-sheet.keyboard-active {
-  max-height: 50vh;
-  max-height: 50dvh;
-  transition: transform 0.15s ease, max-height 0.15s ease;
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  transition: transform 0.15s ease;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -5411,10 +5412,11 @@ function _initKeyboardHandler() {
 
       if (keyboardHeight > 80) {
         sheet.classList.add('keyboard-active');
-        // BUGFIX: Jangan tambahkan vv.offsetTop — nilainya tidak konsisten
-        // di berbagai Android/browser dan menyebabkan posisi bergeser.
-        // Cukup push sejauh tinggi keyboard saja.
-        sheet.style.transform = `translateY(-${keyboardHeight}px)`;
+        // Hitung translateY maksimal agar sheet tidak naik melebihi batas atas layar
+        const sheetHeight = sheet.offsetHeight;
+        const maxTranslate = sheetHeight - 60; // sisakan minimal 60px dari top
+        const safeTranslate = Math.min(keyboardHeight, maxTranslate);
+        sheet.style.transform = `translateY(-${safeTranslate}px)`;
         // Scroll field aktif ke tengah
         const activeEl = document.activeElement;
         if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
@@ -5438,7 +5440,10 @@ function _initKeyboardHandler() {
       if (!sheet || sheet.classList.contains('entering')) return;
       if (heightDiff > 80) {
         sheet.classList.add('keyboard-active');
-        sheet.style.transform = `translateY(-${heightDiff}px)`;
+        const sheetHeight = sheet.offsetHeight;
+        const maxTranslate = sheetHeight - 60;
+        const safeTranslate = Math.min(heightDiff, maxTranslate);
+        sheet.style.transform = `translateY(-${safeTranslate}px)`;
       } else {
         sheet.classList.remove('keyboard-active');
         sheet.style.transform = '';
