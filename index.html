@@ -5251,17 +5251,24 @@ window.bukaPinjaman = () => {
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
     sheet.classList.add('entering');
-    requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.remove('entering')));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      sheet.classList.remove('entering');
+      // BUGFIX: Init keyboard SETELAH animasi entering selesai
+      _initKeyboardHandler();
+    }));
+  } else {
+    _initKeyboardHandler();
   }
-  
-  // Init keyboard
-  _initKeyboardHandler();
 };
 
 window.tutupPopup = (id) => {
   const popup = document.getElementById(id);
   if (!popup) return;
   
+  // BUGFIX: Matikan keyboard handler DULU sebelum animasi tutup,
+  // supaya handler tidak menimpa transform saat animasi berjalan.
+  _removeKeyboardHandler();
+
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
     sheet.style.transform = 'translateY(100%)';
@@ -5269,11 +5276,9 @@ window.tutupPopup = (id) => {
       popup.style.display = 'none';
       sheet.style.transform = '';
       sheet.classList.add('entering');
-      _removeKeyboardHandler();
     }, 250);
   } else {
     popup.style.display = 'none';
-    _removeKeyboardHandler();
   }
 };
 
@@ -5303,14 +5308,15 @@ function _initKeyboardHandler() {
       const keyboardHeight = window.innerHeight - vv.height;
       _pinKeyboardHeight = keyboardHeight;
       const sheet = _getActiveSheet();
-      if (!sheet) return;
+      // Guard: jangan jalankan kalau sheet masih dalam animasi entering
+      if (!sheet || sheet.classList.contains('entering')) return;
 
       if (keyboardHeight > 80) {
         sheet.classList.add('keyboard-active');
-        // Push sheet ke atas sejauh tinggi keyboard
-        // vv.offsetTop memperhitungkan scroll browser bar
-        const pushUp = keyboardHeight + (vv.offsetTop || 0);
-        sheet.style.transform = `translateY(-${pushUp}px)`;
+        // BUGFIX: Jangan tambahkan vv.offsetTop — nilainya tidak konsisten
+        // di berbagai Android/browser dan menyebabkan posisi bergeser.
+        // Cukup push sejauh tinggi keyboard saja.
+        sheet.style.transform = `translateY(-${keyboardHeight}px)`;
         // Scroll field aktif ke tengah
         const activeEl = document.activeElement;
         if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
@@ -5330,7 +5336,8 @@ function _initKeyboardHandler() {
       const currentHeight = window.innerHeight;
       const heightDiff = _initWindowHeight - currentHeight;
       const sheet = _getActiveSheet();
-      if (!sheet) return;
+      // Guard: jangan jalankan kalau sheet masih dalam animasi entering
+      if (!sheet || sheet.classList.contains('entering')) return;
       if (heightDiff > 80) {
         sheet.classList.add('keyboard-active');
         sheet.style.transform = `translateY(-${heightDiff}px)`;
@@ -5522,11 +5529,15 @@ window.bukaBayar = () => {
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
     sheet.classList.add('entering');
-    requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.remove('entering')));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      sheet.classList.remove('entering');
+      // BUGFIX: Init keyboard SETELAH animasi entering selesai,
+      // supaya handler tidak push sheet dari posisi yang salah.
+      _initKeyboardHandler();
+    }));
+  } else {
+    _initKeyboardHandler();
   }
-  
-  // Init keyboard
-  _initKeyboardHandler();
 };
 
 window.toggleLuarGaji = () => {
@@ -6459,30 +6470,7 @@ window.simpanBayar = async () => {
     totalBersih += bersihFinal;
   });
 
-  let html = `
-    <div class="rekap-summary-bar">
-      <div class="rekap-summary-chip">
-        <div class="rekap-summary-chip-label">Pegawai</div>
-        <div class="rekap-summary-chip-value">${rows.length}</div>
-      </div>
-      <div class="rekap-summary-chip">
-        <div class="rekap-summary-chip-label">Kotor</div>
-        <div class="rekap-summary-chip-value">Rp ${fmt(totalKotor)}</div>
-      </div>
-      <div class="rekap-summary-chip">
-        <div class="rekap-summary-chip-label">Tambahan</div>
-        <div class="rekap-summary-chip-value green">+Rp ${fmt(totalTambahan)}</div>
-      </div>
-      <div class="rekap-summary-chip">
-        <div class="rekap-summary-chip-label">Potongan</div>
-        <div class="rekap-summary-chip-value red">-Rp ${fmt(totalPotongan)}</div>
-      </div>
-      <div class="rekap-summary-chip" style="background:linear-gradient(135deg, var(--primary3), var(--primary)); border-color: transparent;">
-        <div class="rekap-summary-chip-label" style="color: rgba(255,255,255,.75);">Bersih</div>
-        <div class="rekap-summary-chip-value" style="color: #fff;">Rp ${fmt(totalBersih)}</div>
-      </div>
-    </div>
-  `;
+  let html = ``;
 
   // Card list
   rows.forEach((r, idx) => {
@@ -6593,6 +6581,24 @@ window.simpanBayar = async () => {
               ${potonganHTML}
               <div class="rekap-breakdown-row total"><span>Total</span><span class="negative">-Rp ${fmt(r.potongan)}</span></div>
             </div>` : ''}
+            <div class="rekap-breakdown-section" style="background:linear-gradient(135deg,#EEF3FF,#F7FAFF); border:1.5px solid rgba(26,86,219,.12); margin-top:6px;">
+              <div class="rekap-breakdown-row total" style="padding:8px 0 2px;">
+                <span style="font-size:11px; font-weight:800; color:var(--primary3);">Pekerjaan</span>
+                <span style="color:var(--text2);">Rp ${fmt(_dataRincian.subtotal)}</span>
+              </div>
+              ${tamTotal > 0 ? `<div class="rekap-breakdown-row total" style="padding:2px 0;">
+                <span style="font-size:11px; font-weight:800; color:#059669;">Tambahan</span>
+                <span class="positive">+Rp ${fmt(tamTotal)}</span>
+              </div>` : ''}
+              ${r.potongan > 0 ? `<div class="rekap-breakdown-row total" style="padding:2px 0;">
+                <span style="font-size:11px; font-weight:800; color:var(--red);">Potongan</span>
+                <span class="negative">-Rp ${fmt(r.potongan)}</span>
+              </div>` : ''}
+              <div class="rekap-breakdown-row total" style="padding:6px 0 4px; border-top:1.5px solid rgba(26,86,219,.15); margin-top:4px;">
+                <span style="font-size:12px; font-weight:900; color:var(--primary3);">Total Diterima</span>
+                <span style="font-size:13px; font-weight:900; color:${bersihFinal < 0 ? 'var(--red)' : 'var(--primary3)'};">Rp ${fmt(bersihFinal)}</span>
+              </div>
+            </div>
           </div>
           <div class="rekap-detail-grid" style="grid-template-columns:1fr;">
             <div class="rekap-detail-item">
