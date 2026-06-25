@@ -4616,7 +4616,7 @@
   </div>
 
   <script type="module">
-    // ===== SUPABASE INIT (migrasi dari Firebase Firestore) =====
+    // ===== SUPABASE INIT =====
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
     const SUPABASE_URL = "https://jziegbpuudswljwasctn.supabase.co";
@@ -4632,14 +4632,12 @@
     };
 
     // ====================================================================
-    // SHIM KOMPATIBEL FIRESTORE → SUPABASE
-    // Tujuan: agar SELURUH kode di bawah (addDoc, setDoc, updateDoc,
-    // deleteDoc, getDocs, onSnapshot, collection, doc, serverTimestamp)
-    // tetap berjalan tanpa diubah, walau backend-nya sudah Supabase Postgres.
+    // SUPABASE HELPER FUNCTIONS
+    // Wrapper sederhana untuk operasi CRUD ke Supabase Postgres.
     //
-    // Setiap "koleksi" Firestore = 1 tabel Supabase dengan kolom:
-    //   id (text, primary key)  -> doc id
-    //   data (jsonb)            -> seluruh field dokumen
+    // Setiap tabel Supabase memiliki kolom:
+    //   id (text, primary key)
+    //   data (jsonb)  -> seluruh field record
     //   created_at (timestamptz)
     // ====================================================================
 
@@ -4647,7 +4645,7 @@
     const _SESSION_ID = Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 8);
 
     function _genId() {
-      // mirip Firestore auto-id: random string unik
+      // generate random unique id
       return (crypto.randomUUID ? crypto.randomUUID().replace(/-/g,'') : ('id' + Date.now() + Math.random().toString(36).slice(2)));
     }
 
@@ -4750,8 +4748,6 @@
       });
 
       // realtime: setiap ada perubahan di tabel ini, baca ulang (dengan filter yang sama)
-      // (sederhana & aman, meniru perilaku onSnapshot Firestore yang selalu
-      // mengirim seluruh isi koleksi setiap ada perubahan)
       const channel = sb.channel('realtime:' + table + ':' + _SESSION_ID)
         .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
           _buildQuery().then(({ data: rows, error }) => {
@@ -4826,7 +4822,7 @@
     const _loadTambahanFromSession = () => { try { const raw=sessionStorage.getItem('_rcTambahan'); if(raw) _rcTambahan=JSON.parse(raw); } catch(e){ _rcTambahan={}; } };
     const _tamKey = (t) => (t.bagian||'') + '|' + (t.jenis||'');
 
-    // ===== FIREBASE LISTENERS =====
+    // ===== SUPABASE LISTENERS =====
     function initMasterListener() {
       onSnapshot(collection(db, COL.master), snap => {
         const m = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[] };
@@ -4851,7 +4847,7 @@
         _tryInit();
         _autoRefresh();
         if($('listPopup').classList.contains('active')) renderListBody();
-      }, err => _showFirebaseError('⚠ Gagal membaca data master.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      }, err => _showDbError('⚠ Gagal membaca data master.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
 
       onSnapshot(collection(db, COL.harga), snap => {
         _hargaDocIds = {};
@@ -4881,13 +4877,13 @@
         _initFlags.harga = true;
         _tryInit();
         if($('hargaPage').classList.contains('active')) { _populateTamPekerjaanSelect(); _populateHrgBrandSelect(); }
-      }, err => _showFirebaseError('⚠ Gagal membaca data harga.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      }, err => _showDbError('⚠ Gagal membaca data harga.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
     }
 
     function initDataListeners() {
-      onSnapshot(collection(db, COL.input), snap => { _CACHE.input = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.input = true; _tryInit(); _autoRefresh(); }, err => _showFirebaseError('⚠ Gagal membaca payroll_input.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
-      onSnapshot(collection(db, COL.pinjaman), snap => { _CACHE.pinjaman = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.pinjaman = true; _tryInit(); _autoRefresh(); }, err => _showFirebaseError('⚠ Gagal membaca payroll_pinjaman.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
-      onSnapshot(collection(db, COL.bayar), snap => { _CACHE.bayar = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.bayar = true; _tryInit(); _autoRefresh(); }, err => _showFirebaseError('⚠ Gagal membaca payroll_bayar.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      onSnapshot(collection(db, COL.input), snap => { _CACHE.input = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.input = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_input.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      onSnapshot(collection(db, COL.pinjaman), snap => { _CACHE.pinjaman = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.pinjaman = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_pinjaman.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      onSnapshot(collection(db, COL.bayar), snap => { _CACHE.bayar = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.bayar = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_bayar.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
       // Hanya butuh data ~2 minggu terakhir untuk rekap, jadi filter di server
       // (sebelumnya download SELURUH histori 'tambahan' lalu baru disaring di JS,
       // ini yang paling bikin loading lama kalau datanya sudah banyak)
@@ -4918,10 +4914,11 @@
           }
           if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) {
             const _legacyItems = {};
-            if((data.hariMakan||0)>0||data.jumlahMakan>0) _legacyItems['|UANG MAKAN'] = { jenis:'UANG MAKAN', harga: data.jumlahMakan&&data.hariMakan ? Math.round(data.jumlahMakan/data.hariMakan) : 0, qty: data.hariMakan||0, jumlah: data.jumlahMakan||0 };
-            if((data.hariMakanMinggu||0)>0||data.jumlahMakanMinggu>0) _legacyItems['|UANG MAKAN MINGGU'] = { jenis:'UANG MAKAN MINGGU', harga: data.jumlahMakanMinggu&&data.hariMakanMinggu ? Math.round(data.jumlahMakanMinggu/data.hariMakanMinggu) : 0, qty: data.hariMakanMinggu||0, jumlah: data.jumlahMakanMinggu||0 };
-            if((data.hariLembur||0)>0||data.jumlahLembur>0) _legacyItems['|LEMBUR'] = { jenis:'LEMBUR', harga: data.jumlahLembur&&data.hariLembur ? Math.round(data.jumlahLembur/data.hariLembur) : 0, qty: data.hariLembur||0, jumlah: data.jumlahLembur||0 };
-            if((data.hariBonus||0)>0||data.jumlahBonus>0) _legacyItems['|BONUS'] = { jenis:'BONUS', harga: data.jumlahBonus&&data.hariBonus ? Math.round(data.jumlahBonus/data.hariBonus) : 0, qty: data.hariBonus||0, jumlah: data.jumlahBonus||0 };
+            const _mTam = MASTER.tambahan || {};
+            if((data.hariMakan||0)>0||data.jumlahMakan>0) { const _hMakan = data.jumlahMakan&&data.hariMakan ? Math.round(data.jumlahMakan/data.hariMakan) : (_mTam.uangMakan||0); const _qMakan = data.hariMakan||0; const _jMakan = data.jumlahMakan||0; _legacyItems['|UANG MAKAN'] = { jenis:'UANG MAKAN', harga: _hMakan, qty: _qMakan, jumlah: _jMakan > 0 ? _jMakan : _qMakan * _hMakan }; }
+            if((data.hariMakanMinggu||0)>0||data.jumlahMakanMinggu>0) { const _hMakanM = data.jumlahMakanMinggu&&data.hariMakanMinggu ? Math.round(data.jumlahMakanMinggu/data.hariMakanMinggu) : (_mTam.uangMakanMinggu||0); const _qMakanM = data.hariMakanMinggu||0; const _jMakanM = data.jumlahMakanMinggu||0; _legacyItems['|UANG MAKAN MINGGU'] = { jenis:'UANG MAKAN MINGGU', harga: _hMakanM, qty: _qMakanM, jumlah: _jMakanM > 0 ? _jMakanM : _qMakanM * _hMakanM }; }
+            if((data.hariLembur||0)>0||data.jumlahLembur>0) { const _hLembur = data.jumlahLembur&&data.hariLembur ? Math.round(data.jumlahLembur/data.hariLembur) : (_mTam.lembur||0); const _qLembur = data.hariLembur||0; const _jLembur = data.jumlahLembur||0; _legacyItems['|LEMBUR'] = { jenis:'LEMBUR', harga: _hLembur, qty: _qLembur, jumlah: _jLembur > 0 ? _jLembur : _qLembur * _hLembur }; }
+            if((data.hariBonus||0)>0||data.jumlahBonus>0) { const _hBonus = data.jumlahBonus&&data.hariBonus ? Math.round(data.jumlahBonus/data.hariBonus) : (_mTam.bonus||0); const _qBonus = data.hariBonus||0; const _jBonus = data.jumlahBonus||0; _legacyItems['|BONUS'] = { jenis:'BONUS', harga: _hBonus, qty: _qBonus, jumlah: _jBonus > 0 ? _jBonus : _qBonus * _hBonus }; }
             const _legacyCalcTotal = Object.values(_legacyItems).reduce((s,it)=>s+(it.jumlah||0),0);
             _rcTambahan[nama] = { makan: { hari: data.hariMakan||0, jumlah: data.jumlahMakan||0 }, makanMinggu: { hari: data.hariMakanMinggu||0, jumlah: data.jumlahMakanMinggu||0 }, lembur: { hari: data.hariLembur||0, jumlah: data.jumlahLembur||0 }, bonus: { hari: data.hariBonus||0, jumlah: data.jumlahBonus||0 }, items: _legacyItems, total: data.total > 0 ? data.total : _legacyCalcTotal, _tanggalISO: tglISO };
           }
@@ -4937,7 +4934,7 @@
     function _tryInit() {
       if(Object.values(_initFlags).every(Boolean)) { clearTimeout(_initTimeout); hideLoading(); loadDashboardDana(); }
     }
-    function _showFirebaseError(msg) {
+    function _showDbError(msg) {
       clearTimeout(_initTimeout);
       const el = $('loadingText');
       el.innerHTML = msg;
@@ -8300,7 +8297,7 @@ window.hapusBayar = async (id) => {
       _setTgl('printAkhir', fmtTgl(hariIni));
       _initTimeout = setTimeout(()=>{
         const flags = Object.entries(_initFlags).filter(([,v])=>!v).map(([k])=>k);
-        _showFirebaseError('⚠ Koneksi timeout.<br>Koleksi belum merespons: <b>' + flags.join(', ') + '</b><br><br>Kemungkinan penyebab:<br>• RLS Policy Supabase belum mengizinkan akses<br>• Tidak ada koneksi internet<br><br>Coba refresh halaman.');
+        _showDbError('⚠ Koneksi timeout.<br>Tabel belum merespons: <b>' + flags.join(', ') + '</b><br><br>Kemungkinan penyebab:<br>• RLS Policy Supabase belum mengizinkan akses<br>• Tidak ada koneksi internet<br><br>Coba refresh halaman.');
       }, 12000);
       _loadTambahanFromSession();
       initMasterListener();
