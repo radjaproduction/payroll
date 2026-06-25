@@ -397,7 +397,6 @@
 
 .popup-header-bg {
   padding: 16px 20px 24px;
-  padding-top: calc(14px + var(--safe-top));
   position: relative;
   overflow: hidden;
 }
@@ -466,7 +465,7 @@
 
 .popup-header-close {
   position: absolute;
-  top: calc(12px + var(--safe-top));
+  top: 12px;
   right: 14px;
   width: 34px;
   height: 34px;
@@ -6662,10 +6661,13 @@ window.batalModePilih = function() {
 };
 
 window.bukaBayarForNama = function(nama) {
-  // Pre-select nama di popup bayar
-  $('bayar_nama').value = nama;
-  onBayarNama();
+  // Buka popup dulu (akan reset form & isi dropdown)
   bukaBayar();
+  // Setelah popup dibuka & dropdown diisi, baru pre-select nama
+  requestAnimationFrame(() => {
+    $('bayar_nama').value = nama;
+    onBayarNama();
+  });
 };
 
 window.bukaPinjamanForNama = function(nama) {
