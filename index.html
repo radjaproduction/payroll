@@ -7728,7 +7728,6 @@ window.hapusBayar = async (id) => {
     const pw = window.open('', '_blank');
     if (!pw) { showToast('Popup diblokir browser, izinkan popup!'); return; }
 
-    // mm ke px @96dpi
     const mm = v => Math.round(v * 96 / 25.4);
     const PW = mm(99), PH = mm(142); // usable area
 
