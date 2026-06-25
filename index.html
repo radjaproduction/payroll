@@ -4142,202 +4142,172 @@
   </div>
 
  <!-- POPUP PINJAMAN -->
-<div class="popup" id="pinjamanPopup">
-  <div class="popup-sheet entering">
-    
-    <div class="popup-header">
-      <div class="popup-header-bg popup-header-blue">
-        <div class="popup-header-content">
-          <div class="popup-header-icon">
-            <i class="fa-solid fa-hand-holding-dollar"></i>
-          </div>
-          <div class="popup-header-text">
-            <div class="popup-header-title">Pinjaman</div>
-            <div class="popup-header-subtitle">Catat pinjaman pegawai</div>
-          </div>
-        </div>
-        <button class="popup-header-close" onclick="tutupPopup('pinjamanPopup')">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+<!-- ===== PINJAMAN PAGE (full-page, keyboard-safe) ===== -->
+<div class="page" id="pinjamanPage">
+  <div class="page-header" style="background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 55%, #3B7BF8 100%);">
+    <div class="page-back" onclick="tutupPinjaman()"><i class="fa-solid fa-chevron-left"></i></div>
+    <div style="display:flex;align-items:center;gap:10px;flex:1;">
+      <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;">
+        <i class="fa-solid fa-hand-holding-dollar"></i>
       </div>
-      <div class="popup-header-wave">
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
-          <path d="M0,30L48,35C96,40,192,50,288,45C384,40,480,20,576,18C672,15,768,20,864,28C960,35,1056,45,1152,42C1248,40,1344,25,1392,18L1440,10L1440,60L1392,60C1344,60,1248,60,1152,60C1056,60,960,60,864,60C768,60,672,60,576,60C480,60,384,60,288,60C192,60,96,60,48,60L0,60Z"></path>
-        </svg>
+      <div>
+        <div class="page-title" style="font-size:18px;">Pinjaman</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.75);font-weight:500;">Catat pinjaman pegawai</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-body" style="padding:14px 16px;padding-bottom:calc(90px + var(--safe-bottom));">
+
+    <div class="popup-info popup-info-blue" style="margin-bottom:16px;">
+      <div class="popup-info-icon popup-info-icon-blue">
+        <i class="fa-solid fa-circle-info"></i>
+      </div>
+      <div class="popup-info-text popup-info-text-blue">
+        Pinjaman akan otomatis dipotong dari gaji pegawai saat periode pembayaran.
       </div>
     </div>
 
-    <div class="popup-body">
-      <div class="popup-info popup-info-blue">
-        <div class="popup-info-icon popup-info-icon-blue">
-          <i class="fa-solid fa-circle-info"></i>
-        </div>
-        <div class="popup-info-text popup-info-text-blue">
-          Pinjaman akan otomatis dipotong dari gaji pegawai saat periode pembayaran.
-        </div>
-      </div>
-
-      <div class="popup-form-group" id="pinNamaGroup">
-        <label class="popup-label">
-          <i class="fa-solid fa-user"></i>
-          Nama Pegawai
-        </label>
-        <div class="popup-select-wrap">
-          <select id="pin_nama" onchange="onPinNama()" class="popup-select">
-            <option value="">-- Pilih Pegawai --</option>
-          </select>
-          <div class="popup-select-arrow">
-            <i class="fa-solid fa-chevron-down"></i>
-          </div>
-        </div>
-      </div>
-
-      <div class="popup-form-group hidden" id="pinJenisGroup">
-        <label class="popup-label">
-          <i class="fa-solid fa-tags"></i>
-          Jenis Pinjaman
-        </label>
-        <div class="popup-select-wrap">
-          <select id="pin_jenis" onchange="onPinJenis()" class="popup-select" disabled>
-            <option value="">-- Pilih Jenis --</option>
-          </select>
-          <div class="popup-select-arrow">
-            <i class="fa-solid fa-chevron-down"></i>
-          </div>
-        </div>
-      </div>
-
-      <div class="popup-form-group hidden" id="pinNominalGroup">
-        <label class="popup-label">
-          <i class="fa-solid fa-money-bill-wave"></i>
-          Jumlah Pinjaman
-        </label>
-        <div class="popup-input-wrap">
-          <span class="popup-input-prefix">Rp</span>
-          <input type="number" id="pin_nominal" placeholder="0" min="1" disabled 
-            oninput="cekSimpanPin()" inputmode="numeric" pattern="[0-9]*" 
-            autocomplete="off" autocorrect="off" class="popup-input">
-        </div>
-        <div class="popup-hint" id="pinNominalHint">Masukkan jumlah pinjaman</div>
-      </div>
-
-      <div class="popup-quick hidden" id="pinQuickAmounts">
-        <div class="popup-quick-label">Pilih nominal cepat:</div>
-        <div class="popup-quick-grid">
-          <button onclick="setPinNominal(100000, event)" class="popup-quick-btn">100rb</button>
-          <button onclick="setPinNominal(200000, event)" class="popup-quick-btn">200rb</button>
-          <button onclick="setPinNominal(300000, event)" class="popup-quick-btn">300rb</button>
-          <button onclick="setPinNominal(500000, event)" class="popup-quick-btn">500rb</button>
+    <div class="popup-form-group" id="pinNamaGroup">
+      <label class="popup-label">
+        <i class="fa-solid fa-user"></i>
+        Nama Pegawai
+      </label>
+      <div class="popup-select-wrap">
+        <select id="pin_nama" onchange="onPinNama()" class="popup-select">
+          <option value="">-- Pilih Pegawai --</option>
+        </select>
+        <div class="popup-select-arrow">
+          <i class="fa-solid fa-chevron-down"></i>
         </div>
       </div>
     </div>
 
-    <div class="popup-footer">
-      <button class="popup-btn-primary popup-btn-primary-blue" id="btnSimpanPin" disabled onclick="simpanPinjaman()">
-        <i class="fa-solid fa-floppy-disk"></i>
-        <span>Simpan Pinjaman</span>
-      </button>
-      <button class="popup-btn-ghost" onclick="tutupPopup('pinjamanPopup')">Batal</button>
+    <div class="popup-form-group hidden" id="pinJenisGroup">
+      <label class="popup-label">
+        <i class="fa-solid fa-tags"></i>
+        Jenis Pinjaman
+      </label>
+      <div class="popup-select-wrap">
+        <select id="pin_jenis" onchange="onPinJenis()" class="popup-select" disabled>
+          <option value="">-- Pilih Jenis --</option>
+        </select>
+        <div class="popup-select-arrow">
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="popup-form-group hidden" id="pinNominalGroup">
+      <label class="popup-label">
+        <i class="fa-solid fa-money-bill-wave"></i>
+        Jumlah Pinjaman
+      </label>
+      <div class="popup-input-wrap">
+        <span class="popup-input-prefix">Rp</span>
+        <input type="number" id="pin_nominal" placeholder="0" min="1" disabled 
+          oninput="cekSimpanPin()" inputmode="numeric" pattern="[0-9]*" 
+          autocomplete="off" autocorrect="off" class="popup-input">
+      </div>
+      <div class="popup-hint" id="pinNominalHint">Masukkan jumlah pinjaman</div>
+    </div>
+
+    <div class="popup-quick hidden" id="pinQuickAmounts">
+      <div class="popup-quick-label">Pilih nominal cepat:</div>
+      <div class="popup-quick-grid">
+        <button onclick="setPinNominal(100000, event)" class="popup-quick-btn">100rb</button>
+        <button onclick="setPinNominal(200000, event)" class="popup-quick-btn">200rb</button>
+        <button onclick="setPinNominal(300000, event)" class="popup-quick-btn">300rb</button>
+        <button onclick="setPinNominal(500000, event)" class="popup-quick-btn">500rb</button>
+      </div>
     </div>
 
   </div>
+  <div class="back-bar" style="display:flex;flex-direction:column;gap:8px;">
+    <button class="back-bar-btn" id="btnSimpanPin" disabled onclick="simpanPinjaman()" style="background:linear-gradient(135deg,#1A56DB,#4B8EF8);box-shadow:0 4px 16px rgba(26,86,219,.28);">
+      <i class="fa-solid fa-floppy-disk"></i> Simpan Pinjaman
+    </button>
+    <button class="back-bar-btn" onclick="tutupPinjaman()" style="background:transparent;border:1.5px solid var(--border);color:var(--text2);box-shadow:none;">
+      Batal
+    </button>
+  </div>
 </div>
 
-<!-- ===== POPUP BAYAR PINJAMAN ===== -->
-<div class="popup" id="bayarPopup">
-  <div class="popup-sheet bayar-sheet entering">
-    
-    <!-- HEADER HIJAU -->
-    <div class="popup-header">
-      <div class="popup-header-bg" style="background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%);">
-        <div class="popup-header-content">
-          <div class="popup-header-icon" style="background: rgba(255,255,255,0.2);">
-            <i class="fa-solid fa-money-bill-transfer"></i>
-          </div>
-          <div class="popup-header-text">
-            <div class="popup-header-title">Bayar Pinjaman</div>
-            <div class="popup-header-subtitle">Proses pembayaran pinjaman</div>
-          </div>
-        </div>
-        <button class="popup-header-close" onclick="tutupPopup('bayarPopup')">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+<!-- ===== BAYAR PINJAMAN PAGE (full-page, keyboard-safe) ===== -->
+<div class="page" id="bayarPage">
+  <div class="page-header" style="background: linear-gradient(135deg, #059669 0%, #10B981 55%, #34D399 100%);">
+    <div class="page-back" onclick="tutupBayar()"><i class="fa-solid fa-chevron-left"></i></div>
+    <div style="display:flex;align-items:center;gap:10px;flex:1;">
+      <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;">
+        <i class="fa-solid fa-money-bill-transfer"></i>
       </div>
-      <div class="popup-header-wave">
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
-          <path d="M0,30L48,35C96,40,192,50,288,45C384,40,480,20,576,18C672,15,768,20,864,28C960,35,1056,45,1152,42C1248,40,1344,25,1392,18L1440,10L1440,60L1392,60C1344,60,1248,60,1152,60C1056,60,960,60,864,60C768,60,672,60,576,60C480,60,384,60,288,60C192,60,96,60,48,60L0,60Z"></path>
-        </svg>
+      <div>
+        <div class="page-title" style="font-size:18px;">Bayar Pinjaman</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.75);font-weight:500;">Proses pembayaran pinjaman</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-body" style="padding:14px 16px;padding-bottom:calc(110px + var(--safe-bottom));">
+
+    <!-- Info Pendapatan -->
+    <div class="popup-info" id="bayarPendapatanCard" style="display:none;background:linear-gradient(135deg,#D1FAE5 0%,#ECFDF5 100%);border:1.5px solid rgba(16,185,129,.15);margin-bottom:14px;">
+      <div class="popup-info-icon" style="background:#059669;">
+        <i class="fa-solid fa-wallet"></i>
+      </div>
+      <div class="popup-info-text" style="color:#059669;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Pendapatan Bersih</div>
+        <div style="font-size:18px;font-weight:900;line-height:1;">Rp <span id="bayarPendapatanVal">0</span></div>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:8px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.05em;">Maks. Bayar</div>
       </div>
     </div>
 
-    <!-- BODY -->
-    <div class="popup-body">
-      
-      <!-- Info Pendapatan (muncul setelah pilih nama) -->
-      <div class="popup-info" id="bayarPendapatanCard" style="display: none; background: linear-gradient(135deg, #D1FAE5 0%, #ECFDF5 100%); border: 1.5px solid rgba(16, 185, 129, 0.15);">
-        <div class="popup-info-icon" style="background: #059669;">
-          <i class="fa-solid fa-wallet"></i>
-        </div>
-        <div class="popup-info-text" style="color: #059669;">
-          <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px;">Pendapatan Bersih</div>
-          <div style="font-size: 18px; font-weight: 900; line-height: 1;">Rp <span id="bayarPendapatanVal">0</span></div>
-        </div>
-        <div style="margin-left: auto; text-align: right;">
-          <div style="font-size: 8px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.05em;">Maks. Bayar</div>
+    <!-- Nama Pegawai -->
+    <div class="popup-form-group" id="bayarNamaGroup">
+      <label class="popup-label">
+        <i class="fa-solid fa-user"></i>
+        Nama Pegawai
+      </label>
+      <div class="popup-select-wrap">
+        <select id="bayar_nama" onchange="onBayarNama()" class="popup-select">
+          <option value="">-- Pilih Pegawai --</option>
+        </select>
+        <div class="popup-select-arrow">
+          <i class="fa-solid fa-chevron-down"></i>
         </div>
       </div>
-
-      <!-- Nama Pegawai -->
-      <div class="popup-form-group" id="bayarNamaGroup">
-        <label class="popup-label">
-          <i class="fa-solid fa-user"></i>
-          Nama Pegawai
-        </label>
-        <div class="popup-select-wrap">
-          <select id="bayar_nama" onchange="onBayarNama()" class="popup-select">
-            <option value="">-- Pilih Pegawai --</option>
-          </select>
-          <div class="popup-select-arrow">
-            <i class="fa-solid fa-chevron-down"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Total Pinjaman + Toggle Luar Gaji -->
-      <div class="popup-form-group" id="bayarTotalGroup" style="display: none;">
-        <div style="display: flex; align-items: flex-end; gap: 10px;">
-          <div style="flex: 1;">
-            <label class="popup-label">
-              <i class="fa-solid fa-hand-holding-dollar"></i>
-              Total Pinjaman
-            </label>
-            <input type="text" id="bayar_nilai" readonly class="popup-input" style="padding-left: 14px; background: var(--bg2); color: var(--muted);" value="-">
-          </div>
-          <div style="flex-shrink: 0; margin-bottom: 2px;">
-            <div id="lgTrack" onclick="toggleLuarGaji()" style="width: 52px; height: 28px; border-radius: 14px; background: #D1D5DB; position: relative; transition: background 0.2s; cursor: pointer;">
-              <div id="lgThumb" style="position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
-            </div>
-            <div style="font-size: 8px; font-weight: 700; color: var(--muted); text-align: center; margin-top: 3px; letter-spacing: 0.03em;">LUAR GAJI</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- List Pinjaman per Jenis -->
-      <div id="bayar_jenis_list"></div>
-
     </div>
 
-    <!-- FOOTER -->
-    <div class="popup-footer">
-      <button class="popup-btn-primary" id="btnSimpanBayar" disabled onclick="simpanBayar()" style="background: linear-gradient(135deg, #059669, #10B981); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.28);">
-        <i class="fa-solid fa-check"></i>
-        <span>Simpan Pembayaran</span>
-      </button>
-      <button class="popup-btn-ghost" onclick="tutupPopup('bayarPopup')">
-        Batal
-      </button>
+    <!-- Total Pinjaman + Toggle Luar Gaji -->
+    <div class="popup-form-group" id="bayarTotalGroup" style="display:none;">
+      <div style="display:flex;align-items:flex-end;gap:10px;">
+        <div style="flex:1;">
+          <label class="popup-label">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+            Total Pinjaman
+          </label>
+          <input type="text" id="bayar_nilai" readonly class="popup-input" style="padding-left:14px;background:var(--bg2);color:var(--muted);" value="-">
+        </div>
+        <div style="flex-shrink:0;margin-bottom:2px;">
+          <div id="lgTrack" onclick="toggleLuarGaji()" style="width:52px;height:28px;border-radius:14px;background:#D1D5DB;position:relative;transition:background .2s;cursor:pointer;">
+            <div id="lgThumb" style="position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);"></div>
+          </div>
+          <div style="font-size:8px;font-weight:700;color:var(--muted);text-align:center;margin-top:3px;letter-spacing:.03em;">LUAR GAJI</div>
+        </div>
+      </div>
     </div>
 
+    <!-- List Pinjaman per Jenis -->
+    <div id="bayar_jenis_list"></div>
+
+  </div>
+  <div class="back-bar" style="display:flex;flex-direction:column;gap:8px;">
+    <button class="back-bar-btn" id="btnSimpanBayar" disabled onclick="simpanBayar()" style="background:linear-gradient(135deg,#059669,#10B981);box-shadow:0 4px 16px rgba(16,185,129,.28);">
+      <i class="fa-solid fa-check"></i> Simpan Pembayaran
+    </button>
+    <button class="back-bar-btn" onclick="tutupBayar()" style="background:transparent;border:1.5px solid var(--border);color:var(--text2);box-shadow:none;">
+      Batal
+    </button>
   </div>
 </div>
 
@@ -5338,26 +5308,14 @@ window.bukaPinjaman = () => {
   $('pinNominalGroup').className = 'popup-form-group hidden';
   $('pinQuickAmounts').className = 'popup-quick hidden';
   
-  // Show popup
-  const popup = $('pinjamanPopup');
-  if (!popup) {
-    console.error('pinjamanPopup not found!');
-    return;
-  }
-  
-  popup.style.display = 'flex';
-  
-  const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) {
-    sheet.classList.add('entering');
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      sheet.classList.remove('entering');
-      // BUGFIX: Init keyboard SETELAH animasi entering selesai
-      _initKeyboardHandler();
-    }));
-  } else {
-    _initKeyboardHandler();
-  }
+  // Buka sebagai full-page
+  $('pinjamanPage').classList.add('active');
+  history.pushState({ page: 'pinjamanPage' }, '');
+};
+
+window.tutupPinjaman = () => {
+  $('pinjamanPage').classList.remove('active');
+  if (history.state?.page === 'pinjamanPage') history.back();
 };
 
 window.tutupPopup = (id) => {
@@ -5414,10 +5372,7 @@ function _initKeyboardHandler() {
         sheet.classList.add('keyboard-active');
         // Hitung translateY maksimal agar sheet tidak naik melebihi batas atas layar
         const sheetHeight = sheet.offsetHeight;
-        // Tambah safe-area-inset-top agar tidak terpotong status bar
-        const safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top')) || 0;
-        const minVisible = 80 + safeTop; // 80px konten header + status bar
-        const maxTranslate = sheetHeight - minVisible;
+        const maxTranslate = sheetHeight - 60; // sisakan minimal 60px dari top
         const safeTranslate = Math.min(keyboardHeight, maxTranslate);
         sheet.style.transform = `translateY(-${safeTranslate}px)`;
         // Scroll field aktif ke tengah
@@ -5444,9 +5399,7 @@ function _initKeyboardHandler() {
       if (heightDiff > 80) {
         sheet.classList.add('keyboard-active');
         const sheetHeight = sheet.offsetHeight;
-        const safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top')) || 0;
-        const minVisible = 80 + safeTop;
-        const maxTranslate = sheetHeight - minVisible;
+        const maxTranslate = sheetHeight - 60;
         const safeTranslate = Math.min(heightDiff, maxTranslate);
         sheet.style.transform = `translateY(-${safeTranslate}px)`;
       } else {
@@ -5578,7 +5531,7 @@ window.simpanPinjaman = async () => {
     });
     
     showToast('✅ Pinjaman tersimpan!');
-    tutupPopup('pinjamanPopup');
+    tutupPinjaman();
     
   } catch (e) {
     showToast('❌ Gagal: ' + e.message);
@@ -5618,7 +5571,7 @@ window.bukaBayar = () => {
   $('bayar_nilai').value = '-';
   $('bayar_jenis_list').innerHTML = '';
   setDis('btnSimpanBayar', true);
-  $('btnSimpanBayar').innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
+  $('btnSimpanBayar').innerHTML = '<i class="fa-solid fa-check"></i> Simpan Pembayaran';
   
   // Reset toggle
   _bayarLuarGaji = false;
@@ -5631,22 +5584,14 @@ window.bukaBayar = () => {
   $('bayarPendapatanCard').style.display = 'none';
   $('bayarTotalGroup').style.display = 'none';
   
-  // Show popup dari BAWAH
-  const popup = $('bayarPopup');
-  popup.style.display = 'flex';
-  
-  const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) {
-    sheet.classList.add('entering');
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      sheet.classList.remove('entering');
-      // BUGFIX: Init keyboard SETELAH animasi entering selesai,
-      // supaya handler tidak push sheet dari posisi yang salah.
-      _initKeyboardHandler();
-    }));
-  } else {
-    _initKeyboardHandler();
-  }
+  // Buka sebagai full-page
+  $('bayarPage').classList.add('active');
+  history.pushState({ page: 'bayarPage' }, '');
+};
+
+window.tutupBayar = () => {
+  $('bayarPage').classList.remove('active');
+  if (history.state?.page === 'bayarPage') history.back();
 };
 
 window.toggleLuarGaji = () => {
@@ -5854,8 +5799,8 @@ window.simpanBayar = async () => {
     }
     
     showToast('✅ Pembayaran tersimpan!');
-    tutupPopup('bayarPopup');
-    btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
+    tutupBayar();
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Simpan Pembayaran';
     btn.disabled = false;
     
     setTimeout(() => {
@@ -5865,7 +5810,7 @@ window.simpanBayar = async () => {
     
   } catch (e) {
     showToast('❌ Gagal: ' + e.message);
-    btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Simpan Pembayaran';
     btn.disabled = false;
   }
 };
@@ -8387,7 +8332,7 @@ window.hapusBayar = async (id) => {
 
     // ===== ANDROID BACK =====
     window.addEventListener('popstate', (e) => {
-      const pages = ['inputPage', 'settingPage', 'hargaPage', 'rekapPage'];
+      const pages = ['inputPage', 'settingPage', 'hargaPage', 'rekapPage', 'pinjamanPage', 'bayarPage'];
       const activePage = pages.find(id => {
         const el = document.getElementById(id);
         return el && el.classList.contains('active');
