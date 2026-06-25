@@ -5414,7 +5414,10 @@ function _initKeyboardHandler() {
         sheet.classList.add('keyboard-active');
         // Hitung translateY maksimal agar sheet tidak naik melebihi batas atas layar
         const sheetHeight = sheet.offsetHeight;
-        const maxTranslate = sheetHeight - 60; // sisakan minimal 60px dari top
+        // Tambah safe-area-inset-top agar tidak terpotong status bar
+        const safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top')) || 0;
+        const minVisible = 80 + safeTop; // 80px konten header + status bar
+        const maxTranslate = sheetHeight - minVisible;
         const safeTranslate = Math.min(keyboardHeight, maxTranslate);
         sheet.style.transform = `translateY(-${safeTranslate}px)`;
         // Scroll field aktif ke tengah
@@ -5441,7 +5444,9 @@ function _initKeyboardHandler() {
       if (heightDiff > 80) {
         sheet.classList.add('keyboard-active');
         const sheetHeight = sheet.offsetHeight;
-        const maxTranslate = sheetHeight - 60;
+        const safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top')) || 0;
+        const minVisible = 80 + safeTop;
+        const maxTranslate = sheetHeight - minVisible;
         const safeTranslate = Math.min(heightDiff, maxTranslate);
         sheet.style.transform = `translateY(-${safeTranslate}px)`;
       } else {
