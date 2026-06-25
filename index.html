@@ -361,6 +361,12 @@
   align-items: flex-end;
   z-index: 99999;
   padding: 0;
+  animation: popupOverlayIn 0.25s ease;
+}
+
+@keyframes popupOverlayIn {
+  from { background: rgba(13, 43, 110, 0); }
+  to   { background: rgba(13, 43, 110, 0.55); }
 }
 
 .popup.active {
@@ -379,11 +385,13 @@
   flex-direction: column;
   max-height: 85vh;
   max-height: 85dvh;
+  transform: translateY(0);
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
 }
 
 .popup-sheet.entering {
-  display: none;
+  transform: translateY(100%);
 }
 
 /* ===== HEADER ===== */
@@ -5339,17 +5347,37 @@ window.bukaPinjaman = () => {
   popup.style.display = 'flex';
   
   const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) sheet.classList.remove('entering');
-  _initKeyboardHandler();
+  if (sheet) {
+    sheet.classList.add('entering');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      sheet.classList.remove('entering');
+      // BUGFIX: Init keyboard SETELAH animasi entering selesai
+      _initKeyboardHandler();
+    }));
+  } else {
+    _initKeyboardHandler();
+  }
 };
 
 window.tutupPopup = (id) => {
   const popup = document.getElementById(id);
   if (!popup) return;
+  
+  // BUGFIX: Matikan keyboard handler DULU sebelum animasi tutup,
+  // supaya handler tidak menimpa transform saat animasi berjalan.
   _removeKeyboardHandler();
-  popup.style.display = 'none';
+
   const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) sheet.classList.add('entering');
+  if (sheet) {
+    sheet.style.transform = 'translateY(100%)';
+    setTimeout(() => {
+      popup.style.display = 'none';
+      sheet.style.transform = '';
+      sheet.classList.add('entering');
+    }, 250);
+  } else {
+    popup.style.display = 'none';
+  }
 };
 
 // ===== KEYBOARD PUSH UP HANDLER =====
@@ -5378,7 +5406,8 @@ function _initKeyboardHandler() {
       const keyboardHeight = window.innerHeight - vv.height;
       _pinKeyboardHeight = keyboardHeight;
       const sheet = _getActiveSheet();
-      if (!sheet) return;
+      // Guard: jangan jalankan kalau sheet masih dalam animasi entering
+      if (!sheet || sheet.classList.contains('entering')) return;
 
       if (keyboardHeight > 80) {
         sheet.classList.add('keyboard-active');
@@ -5405,7 +5434,8 @@ function _initKeyboardHandler() {
       const currentHeight = window.innerHeight;
       const heightDiff = _initWindowHeight - currentHeight;
       const sheet = _getActiveSheet();
-      if (!sheet) return;
+      // Guard: jangan jalankan kalau sheet masih dalam animasi entering
+      if (!sheet || sheet.classList.contains('entering')) return;
       if (heightDiff > 80) {
         sheet.classList.add('keyboard-active');
         sheet.style.transform = `translateY(-${heightDiff}px)`;
@@ -5596,8 +5626,17 @@ window.bukaBayar = () => {
   popup.style.display = 'flex';
   
   const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) sheet.classList.remove('entering');
-  _initKeyboardHandler();
+  if (sheet) {
+    sheet.classList.add('entering');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      sheet.classList.remove('entering');
+      // BUGFIX: Init keyboard SETELAH animasi entering selesai,
+      // supaya handler tidak push sheet dari posisi yang salah.
+      _initKeyboardHandler();
+    }));
+  } else {
+    _initKeyboardHandler();
+  }
 };
 
 window.toggleLuarGaji = () => {
@@ -7728,6 +7767,7 @@ window.hapusBayar = async (id) => {
     const pw = window.open('', '_blank');
     if (!pw) { showToast('Popup diblokir browser, izinkan popup!'); return; }
 
+    // mm ke px @96dpi
     const mm = v => Math.round(v * 96 / 25.4);
     const PW = mm(99), PH = mm(142); // usable area
 
