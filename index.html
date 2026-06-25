@@ -6340,6 +6340,26 @@ window.simpanBayar = async () => {
     window.openRekap = () => {
       $('rekapPage').classList.add('active');
       history.pushState({ page: 'rekapPage' }, '');
+
+      // Sync toggle UI ke state aktual (_weekToggleOn)
+      const track = document.getElementById('weekToggleTrack');
+      const thumb = document.getElementById('weekToggleThumb');
+      const label = document.getElementById('weekToggleLabel');
+      const wrap  = document.getElementById('weekToggleWrap');
+      if (_weekToggleOn) {
+        track.style.background = 'var(--primary)';
+        thumb.style.left = '18px';
+        label.style.color = 'var(--primary)';
+        label.textContent = 'MINGGU INI';
+        wrap.style.borderColor = 'var(--primary)';
+      } else {
+        track.style.background = 'var(--muted)';
+        thumb.style.left = '2px';
+        label.style.color = 'var(--muted)';
+        label.textContent = 'MINGGU LALU';
+        wrap.style.borderColor = 'var(--muted)';
+      }
+
       muatRekapPegawai();
       muatRekapPinjaman();
     };
@@ -6623,6 +6643,10 @@ window.toggleCardExpand = function(idx) {
   } else {
     body.classList.add('open');
     card.classList.add('open');
+    // Scroll card ke atas agar terlihat dari awal
+    setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   }
 };
 
