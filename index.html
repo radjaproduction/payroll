@@ -4910,7 +4910,16 @@
           const _duaMingguLaluISO = _duaMingguLalu.toISOString().slice(0,10);
           if(tglISO < _duaMingguLaluISO || tglISO > _mingguISO) return;
           if(data.itemsJSON) {
-            try { const items = JSON.parse(data.itemsJSON); if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) { const calcTotal = Object.values(items).reduce((s, it) => s + (it.jumlah || 0), 0); _rcTambahan[nama] = { items, total: data.total > 0 ? data.total : calcTotal, _tanggalISO: tglISO }; } return; } catch(e) {}
+            try { 
+              const itemsRaw = JSON.parse(data.itemsJSON); 
+              // Filter hanya items yang benar-benar ada (qty > 0)
+              const items = Object.fromEntries(Object.entries(itemsRaw).filter(([,it]) => (it.qty||0) > 0));
+              if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) { 
+                const calcTotal = Object.values(items).reduce((s, it) => s + (it.jumlah || 0), 0); 
+                _rcTambahan[nama] = { items, total: data.total > 0 ? data.total : calcTotal, _tanggalISO: tglISO }; 
+              } 
+              return; 
+            } catch(e) {}
           }
           if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) {
             const _legacyItems = {};
@@ -6483,7 +6492,7 @@ window.simpanBayar = async () => {
     const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
     const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
     const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
-    const adaTambahan = tamTotal > 0 || (tam && tam.items && Object.values(tam.items).some(it => it.jumlah > 0 || (it.qty > 0 && it.harga > 0)));
+    const adaTambahan = tamTotal > 0;
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
     const adaPinjaman = sisaPinjaman > 0;
@@ -7110,8 +7119,10 @@ window.hapusBayar = async (id) => {
         if(qty > 0 && (t.harga || 0) === 0) { showToast(`⚠ Harga "${t.jenis}" belum diset!`); }
         const jumlah = qty * (t.harga || 0);
         total += jumlah;
-        const key = _tamKey(t);
-        savedItems[key] = { jenis: t.jenis, harga: t.harga || 0, qty, jumlah };
+        if(qty > 0) {
+          const key = _tamKey(t);
+          savedItems[key] = { jenis: t.jenis, harga: t.harga || 0, qty, jumlah };
+        }
       });
       const _todayISO = new Date().toISOString().slice(0,10);
       _rcTambahan[nama] = { items: savedItems, total, _tanggalISO: _todayISO };
