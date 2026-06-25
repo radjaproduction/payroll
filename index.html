@@ -5475,7 +5475,7 @@ window.simpanPinjaman = async () => {
 
 // ===== BAYAR PINJAMAN — FIX =====
 
-window.bukaBayar = () => {
+window.bukaBayar = (preNama) => {
   const data = getRekapPinjamanLocal();
   _sisaPerNama = {};
   _nilaiPerNama = {};
@@ -5487,14 +5487,17 @@ window.bukaBayar = () => {
     }
   });
   
-  const list = Object.keys(_sisaPerNama);
-  if (!list.length) {
+  const allList = Object.keys(_sisaPerNama);
+  if (!allList.length) {
     showToast('ℹ Tidak ada sisa pinjaman');
     return;
   }
   
+  // Jika dipanggil dari card pegawai tertentu, filter hanya nama itu
+  const list = preNama ? [preNama] : allList;
+  
   // Reset form
-  resetSelect('bayar_nama', list, '-- Pilih Pegawai --');
+  resetSelect('bayar_nama', list, preNama ? '' : '-- Pilih Pegawai --');
   $('bayar_nilai').value = '-';
   $('bayar_jenis_list').innerHTML = '';
   setDis('btnSimpanBayar', true);
@@ -5518,6 +5521,16 @@ window.bukaBayar = () => {
   if (sheet) {
     sheet.classList.add('entering');
     requestAnimationFrame(() => sheet.classList.remove('entering'));
+  }
+  
+  // Jika ada preNama, langsung select dan load datanya
+  if (preNama) {
+    const sel = $('bayar_nama');
+    if (sel) {
+      sel.value = preNama;
+      sel.style.color = '#1A2340';
+    }
+    onBayarNama();
   }
   
   // Init keyboard
@@ -6668,10 +6681,8 @@ window.batalModePilih = function() {
 };
 
 window.bukaBayarForNama = function(nama) {
-  // Pre-select nama di popup bayar
-  $('bayar_nama').value = nama;
-  onBayarNama();
-  bukaBayar();
+  // Buka popup bayar dengan nama terkunci (hanya tampil nama ini)
+  bukaBayar(nama);
 };
 
 window.bukaPinjamanForNama = function(nama) {
