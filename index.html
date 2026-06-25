@@ -5578,7 +5578,8 @@ window.onBayarNama = () => {
   const tam = _rcTambahan[nama];
   const tamTgl = tam?._tanggalISO || '';
   const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
-  const tamTotal = (tam && tam.total > 0 && tamDalamRange) ? tam.total : 0;
+  const tamTotalFromItems2 = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
+  const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems2) : 0;
   
   const potMap = {};
   _CACHE.bayar.filter(b => {
@@ -6463,7 +6464,7 @@ window.simpanBayar = async () => {
     const tam = _rcTambahan[r.nama];
     const tamTgl = tam?._tanggalISO || '';
     const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
-    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah || 0), 0) : 0;
+    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
     const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
@@ -6483,9 +6484,9 @@ window.simpanBayar = async () => {
     const tam = _rcTambahan[r.nama];
     const tamTgl = tam?._tanggalISO || '';
     const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
-    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah || 0), 0) : 0;
+    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
     const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
-    const adaTambahan = tamTotal > 0 || (tam && tam.items && Object.values(tam.items).some(it => it.jumlah > 0));
+    const adaTambahan = tamTotal > 0 || (tam && tam.items && Object.values(tam.items).some(it => it.jumlah > 0 || (it.qty > 0 && it.harga > 0)));
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
     const adaPinjaman = sisaPinjaman > 0;
@@ -6510,9 +6511,10 @@ window.simpanBayar = async () => {
     // Rincian item: Tambahan
     let tambahanHTML = '';
     if (tam && tam.items) {
-      tambahanHTML = Object.values(tam.items).filter(it => it.jumlah > 0).map(it =>
-        `<div class="rekap-breakdown-row"><span>${it.jenis} <small>(${it.qty} hari)</small></span><span class="positive">+Rp ${fmt(it.jumlah)}</span></div>`
-      ).join('');
+      tambahanHTML = Object.values(tam.items).filter(it => (it.jumlah > 0) || (it.qty > 0 && it.harga > 0)).map(it => {
+        const jumlahTampil = it.jumlah > 0 ? it.jumlah : (it.qty || 0) * (it.harga || 0);
+        return `<div class="rekap-breakdown-row"><span>${it.jenis} <small>(${it.qty} hari)</small></span><span class="positive">+Rp ${fmt(jumlahTampil)}</span></div>`;
+      }).join('');
     }
     
     // Rincian item: Potongan
@@ -7217,15 +7219,19 @@ window.hapusBayar = async (id) => {
   const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
   const secTambahan = $('slipSecTambahan');
   
-  if (tam && tam.total > 0 && tamDalamRange) {
+  if (tam && tamDalamRange) {
+    const _tamFromItemsSlip = tam.items ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
+    const _tamTotalSlip = tam.total > 0 ? tam.total : _tamFromItemsSlip;
+    if(_tamTotalSlip > 0) {
     secTambahan.style.display = '';
     const tambahanContainer = $('slipTambahanList');
     tambahanContainer.innerHTML = '';
     
     if (tam.items) {
       Object.values(tam.items).forEach(it => {
-        if (it.jumlah > 0) {
-          totalTambahan += it.jumlah;
+        const jumlahIt = it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0);
+        if (jumlahIt > 0) {
+          totalTambahan += jumlahIt;
           const row = document.createElement('div');
           row.className = 'slip-item';
           row.innerHTML = `
@@ -7234,14 +7240,16 @@ window.hapusBayar = async (id) => {
               <div class="slip-item-meta">${it.qty} hari × Rp ${fmt(it.harga)}</div>
             </div>
             <div class="slip-item-right">
-              <div class="slip-item-amt g">+ Rp ${fmt(it.jumlah)}</div>
+              <div class="slip-item-amt g">+ Rp ${fmt(jumlahIt)}</div>
             </div>
           `;
           tambahanContainer.appendChild(row);
         }
       });
     }
+    if(totalTambahan === 0 && _tamTotalSlip > 0) totalTambahan = _tamTotalSlip;
     $('slipSubTambahan').textContent = '+ Rp ' + fmt(totalTambahan);
+    } else { secTambahan.style.display = 'none'; }
   } else {
     secTambahan.style.display = 'none';
   }
@@ -7338,16 +7346,18 @@ window.hapusBayar = async (id) => {
   const tam = _rcTambahan[nama];
   let tamHTMLCetak = '';
   let tamTotal = 0;
-  if(tam && tam.total > 0) {
-    tamTotal = tam.total;
-    if(tam.items) {
-      Object.values(tam.items).forEach(it => { 
-        if(it.jumlah > 0) { 
-          tamHTMLCetak += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(it.jumlah)}</span></div>`; 
+  if(tam) {
+    const _tamFromItems = tam.items ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
+    tamTotal = tam.total > 0 ? tam.total : _tamFromItems;
+    if(tamTotal > 0 && tam.items) {
+      Object.values(tam.items).forEach(it => {
+        const jumlahIt = it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0);
+        if(jumlahIt > 0) { 
+          tamHTMLCetak += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(jumlahIt)}</span></div>`; 
         } 
       });
     }
-    if(!tamHTMLCetak) tamHTMLCetak = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
+    if(tamTotal > 0 && !tamHTMLCetak) tamHTMLCetak = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
   }
   
   // Ambil potongan
@@ -7422,16 +7432,18 @@ window.hapusBayar = async (id) => {
     const tam = _rcTambahan[nama];
     let tamTotal = 0;
     let tamHTMLMassal = '';
-    if(tam && tam.total > 0) {
-      tamTotal = tam.total;
-      if(tam.items) {
-        Object.values(tam.items).forEach(it => { 
-          if(it.jumlah > 0) { 
-            tamHTMLMassal += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(it.jumlah)}</span></div>`; 
+    if(tam) {
+      const _tamFromItemsMassal = tam.items ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
+      tamTotal = tam.total > 0 ? tam.total : _tamFromItemsMassal;
+      if(tamTotal > 0 && tam.items) {
+        Object.values(tam.items).forEach(it => {
+          const jumlahIt = it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0);
+          if(jumlahIt > 0) { 
+            tamHTMLMassal += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(jumlahIt)}</span></div>`; 
           } 
         });
       }
-      if(!tamHTMLMassal) tamHTMLMassal = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
+      if(tamTotal > 0 && !tamHTMLMassal) tamHTMLMassal = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
     }
     
     const bayarItems = _CACHE.bayar.filter(b => { 
