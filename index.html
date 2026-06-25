@@ -4218,10 +4218,10 @@
       <div class="popup-quick hidden" id="pinQuickAmounts">
         <div class="popup-quick-label">Pilih nominal cepat:</div>
         <div class="popup-quick-grid">
+          <button onclick="setPinNominal(100000, event)" class="popup-quick-btn">100rb</button>
+          <button onclick="setPinNominal(200000, event)" class="popup-quick-btn">200rb</button>
+          <button onclick="setPinNominal(300000, event)" class="popup-quick-btn">300rb</button>
           <button onclick="setPinNominal(500000, event)" class="popup-quick-btn">500rb</button>
-          <button onclick="setPinNominal(1000000, event)" class="popup-quick-btn">1 Jt</button>
-          <button onclick="setPinNominal(2000000, event)" class="popup-quick-btn">2 Jt</button>
-          <button onclick="setPinNominal(5000000, event)" class="popup-quick-btn">5 Jt</button>
         </div>
       </div>
     </div>
@@ -5475,7 +5475,7 @@ window.simpanPinjaman = async () => {
 
 // ===== BAYAR PINJAMAN — FIX =====
 
-window.bukaBayar = (preNama) => {
+window.bukaBayar = () => {
   const data = getRekapPinjamanLocal();
   _sisaPerNama = {};
   _nilaiPerNama = {};
@@ -5487,17 +5487,14 @@ window.bukaBayar = (preNama) => {
     }
   });
   
-  const allList = Object.keys(_sisaPerNama);
-  if (!allList.length) {
+  const list = Object.keys(_sisaPerNama);
+  if (!list.length) {
     showToast('ℹ Tidak ada sisa pinjaman');
     return;
   }
   
-  // Jika dipanggil dari card pegawai tertentu, filter hanya nama itu
-  const list = preNama ? [preNama] : allList;
-  
   // Reset form
-  resetSelect('bayar_nama', list, preNama ? '' : '-- Pilih Pegawai --');
+  resetSelect('bayar_nama', list, '-- Pilih Pegawai --');
   $('bayar_nilai').value = '-';
   $('bayar_jenis_list').innerHTML = '';
   setDis('btnSimpanBayar', true);
@@ -5521,16 +5518,6 @@ window.bukaBayar = (preNama) => {
   if (sheet) {
     sheet.classList.add('entering');
     requestAnimationFrame(() => sheet.classList.remove('entering'));
-  }
-  
-  // Jika ada preNama, langsung select dan load datanya
-  if (preNama) {
-    const sel = $('bayar_nama');
-    if (sel) {
-      sel.value = preNama;
-      sel.style.color = '#1A2340';
-    }
-    onBayarNama();
   }
   
   // Init keyboard
@@ -6520,14 +6507,8 @@ window.simpanBayar = async () => {
     const initials = r.nama.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     
     // Format amount
-    let amountDisplay;
-    if (bersihFinal >= 1000000) {
-      amountDisplay = (bersihFinal / 1000000).toFixed(1).replace('.0', '') + ' Jt';
-    } else if (bersihFinal >= 1000) {
-      amountDisplay = (bersihFinal / 1000).toFixed(0) + 'K';
-    } else {
-      amountDisplay = fmt(bersihFinal);
-    }
+    // Format amount: selalu Rupiah penuh
+    const amountDisplay = fmt(bersihFinal);
     
     const q = s => String(s).replace(/'/g, "\\'");
     
@@ -6681,8 +6662,10 @@ window.batalModePilih = function() {
 };
 
 window.bukaBayarForNama = function(nama) {
-  // Buka popup bayar dengan nama terkunci (hanya tampil nama ini)
-  bukaBayar(nama);
+  // Pre-select nama di popup bayar
+  $('bayar_nama').value = nama;
+  onBayarNama();
+  bukaBayar();
 };
 
 window.bukaPinjamanForNama = function(nama) {
@@ -7945,10 +7928,7 @@ window.hapusBayar = async (id) => {
 
       container.innerHTML = sorted.map((r, i) => {
         const jml = Number(r.jumlah || 0);
-        let jmlStr;
-        if(jml >= 1000000) jmlStr = (jml/1000000).toFixed(1).replace('.0','') + ' Jt';
-        else if(jml >= 1000) jmlStr = (jml/1000).toFixed(0) + 'K';
-        else jmlStr = fmt(jml);
+        const jmlStr = fmt(jml);
         const colors = [['var(--primary3)','var(--primary)'], ['#059669','#10B981'], ['#D97706','#F59E0B'], ['#7C3AED','#8B5CF6'], ['#DC2626','#EF4444']];
         const [c1, c2] = colors[i % colors.length];
         return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg2);border-radius:12px;">
@@ -7978,12 +7958,9 @@ window.hapusBayar = async (id) => {
       el('qs_tanggal').textContent = todayLabel;
       el('qs_entri').textContent = todayData.length || '0';
       el('qs_pegawai').textContent = uniquePegawai || '0';
-      let totalStr = '0';
-      if(totalNominal >= 1000000) totalStr = (totalNominal/1000000).toFixed(1).replace('.0','') + ' Jt';
-      else if(totalNominal >= 1000) totalStr = (totalNominal/1000).toFixed(0) + 'K';
-      else totalStr = totalNominal.toString();
+      const totalStr = fmt(totalNominal);
       const totalEl = el('qs_total');
-      if(totalEl) { totalEl.innerHTML = '<span style="font-size:9px;opacity:.8;">Rp</span><br>' + totalStr; }
+      if(totalEl) { totalEl.innerHTML = 'Rp ' + totalStr; }
       const recentEl = el('qs_recent');
       if(!recentEl) return;
       const sorted = [...todayData].sort((a, b) => {
@@ -7997,10 +7974,7 @@ window.hapusBayar = async (id) => {
       }
       recentEl.innerHTML = sorted.map(r => {
         const jml = Number(r.jumlah || 0);
-        let jmlStr;
-        if(jml >= 1000000) jmlStr = 'Rp ' + (jml/1000000).toFixed(1).replace('.0','') + 'jt';
-        else if(jml >= 1000) jmlStr = 'Rp ' + (jml/1000).toFixed(0) + 'k';
-        else jmlStr = 'Rp ' + jml;
+        const jmlStr = 'Rp ' + fmt(jml);
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.1);pointer-events:none;">'
           + '<div style="flex:1;min-width:0;">'
           + '<div style="font-size:11px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (r.nama || '-') + '</div>'
