@@ -361,6 +361,12 @@
   align-items: flex-end;
   z-index: 99999;
   padding: 0;
+  animation: popupOverlayIn 0.25s ease;
+}
+
+@keyframes popupOverlayIn {
+  from { background: rgba(13, 43, 110, 0); }
+  to   { background: rgba(13, 43, 110, 0.55); }
 }
 
 .popup.active {
@@ -380,7 +386,7 @@
   max-height: 85vh;
   max-height: 85dvh;
   transform: translateY(0);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
 }
 
@@ -2490,7 +2496,7 @@
   max-height: 85dvh;
   /* Fast transform — hanya translateY */
   transform: translateY(0);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
 }
 
@@ -5245,7 +5251,7 @@ window.bukaPinjaman = () => {
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
     sheet.classList.add('entering');
-    requestAnimationFrame(() => sheet.classList.remove('entering'));
+    requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.remove('entering')));
   }
   
   // Init keyboard
@@ -5516,7 +5522,7 @@ window.bukaBayar = () => {
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
     sheet.classList.add('entering');
-    requestAnimationFrame(() => sheet.classList.remove('entering'));
+    requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.remove('entering')));
   }
   
   // Init keyboard
