@@ -4914,10 +4914,16 @@
           const _duaMingguLaluISO = _duaMingguLalu.toISOString().slice(0,10);
           if(tglISO < _duaMingguLaluISO || tglISO > _mingguISO) return;
           if(data.itemsJSON) {
-            try { const items = JSON.parse(data.itemsJSON); if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) { _rcTambahan[nama] = { items, total: data.total || 0, _tanggalISO: tglISO }; } return; } catch(e) {}
+            try { const items = JSON.parse(data.itemsJSON); if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) { const calcTotal = Object.values(items).reduce((s, it) => s + (it.jumlah || 0), 0); _rcTambahan[nama] = { items, total: data.total > 0 ? data.total : calcTotal, _tanggalISO: tglISO }; } return; } catch(e) {}
           }
           if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) {
-            _rcTambahan[nama] = { makan: { hari: data.hariMakan || 0, jumlah: data.jumlahMakan || 0 }, makanMinggu: { hari: data.hariMakanMinggu || 0, jumlah: data.jumlahMakanMinggu || 0 }, lembur: { hari: data.hariLembur || 0, jumlah: data.jumlahLembur || 0 }, bonus: { hari: data.hariBonus || 0, jumlah: data.jumlahBonus || 0 }, total: data.total || 0, _tanggalISO: tglISO };
+            const _legacyItems = {};
+            if((data.hariMakan||0)>0||data.jumlahMakan>0) _legacyItems['|UANG MAKAN'] = { jenis:'UANG MAKAN', harga: data.jumlahMakan&&data.hariMakan ? Math.round(data.jumlahMakan/data.hariMakan) : 0, qty: data.hariMakan||0, jumlah: data.jumlahMakan||0 };
+            if((data.hariMakanMinggu||0)>0||data.jumlahMakanMinggu>0) _legacyItems['|UANG MAKAN MINGGU'] = { jenis:'UANG MAKAN MINGGU', harga: data.jumlahMakanMinggu&&data.hariMakanMinggu ? Math.round(data.jumlahMakanMinggu/data.hariMakanMinggu) : 0, qty: data.hariMakanMinggu||0, jumlah: data.jumlahMakanMinggu||0 };
+            if((data.hariLembur||0)>0||data.jumlahLembur>0) _legacyItems['|LEMBUR'] = { jenis:'LEMBUR', harga: data.jumlahLembur&&data.hariLembur ? Math.round(data.jumlahLembur/data.hariLembur) : 0, qty: data.hariLembur||0, jumlah: data.jumlahLembur||0 };
+            if((data.hariBonus||0)>0||data.jumlahBonus>0) _legacyItems['|BONUS'] = { jenis:'BONUS', harga: data.jumlahBonus&&data.hariBonus ? Math.round(data.jumlahBonus/data.hariBonus) : 0, qty: data.hariBonus||0, jumlah: data.jumlahBonus||0 };
+            const _legacyCalcTotal = Object.values(_legacyItems).reduce((s,it)=>s+(it.jumlah||0),0);
+            _rcTambahan[nama] = { makan: { hari: data.hariMakan||0, jumlah: data.jumlahMakan||0 }, makanMinggu: { hari: data.hariMakanMinggu||0, jumlah: data.jumlahMakanMinggu||0 }, lembur: { hari: data.hariLembur||0, jumlah: data.jumlahLembur||0 }, bonus: { hari: data.hariBonus||0, jumlah: data.jumlahBonus||0 }, items: _legacyItems, total: data.total > 0 ? data.total : _legacyCalcTotal, _tanggalISO: tglISO };
           }
         });
         _saveTambahanToSession();
