@@ -3828,6 +3828,86 @@
       cursor: pointer;
       z-index: 2;
     }
+
+    /* ═══════════════════════════════════════════════════════════════
+       OPTIMASI POPUP — PERFORMANCE FIXES
+       ═══════════════════════════════════════════════════════════════ */
+    /* 1. HAPUS backdrop-filter blur — ganti dengan opacity saja */
+    .rc-overlay {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: rgba(13, 43, 110, 0.75) !important;
+    }
+    /* 2. GPU layer promotion + will-change */
+    .popup-sheet,
+    .pinjaman-sheet,
+    .bayar-sheet,
+    .rc-card,
+    .numpad-sheet {
+      will-change: transform;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    /* 3. Sederhanakan box-shadow */
+    .popup-sheet,
+    .pinjaman-sheet,
+    .bayar-sheet {
+      box-shadow: 0 -4px 16px rgba(13, 43, 110, 0.15) !important;
+    }
+    .rc-card {
+      box-shadow: 0 -4px 20px rgba(13, 43, 110, 0.15) !important;
+    }
+    .numpad-sheet {
+      box-shadow: 0 -4px 16px rgba(13, 43, 110, 0.12) !important;
+    }
+    /* 4. Ganti animation keyframes dengan transition */
+    .rc-card {
+      animation: none !important;
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .rc-overlay.active .rc-card {
+      transform: translateY(0);
+    }
+    .numpad-sheet {
+      animation: none !important;
+      transform: translateY(100%);
+      transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .numpad-overlay.active .numpad-sheet {
+      transform: translateY(0);
+    }
+    /* 5. Popup sheet — gunakan transition, bukan entering class */
+    .popup-sheet {
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  max-height 0.15s ease;
+    }
+    .popup.active .popup-sheet {
+      transform: translateY(0);
+    }
+    .popup-sheet.entering {
+      transform: translateY(100%) !important;
+    }
+    /* 6. Percepat overlay fade */
+    .popup,
+    .rc-overlay,
+    .numpad-overlay {
+      transition: opacity 0.15s ease;
+    }
+    /* 7. Reduce paint area — contain */
+    .popup-sheet,
+    .rc-card,
+    .numpad-sheet {
+      contain: layout style paint;
+    }
+    /* 8. Z-index yang masuk akal */
+    .rc-overlay { z-index: 1000 !important; }
+    .popup { z-index: 1000 !important; }
+    .numpad-overlay { z-index: 1001 !important; }
+    #tambahanPopup { z-index: 1002 !important; }
+    #slipPopup { z-index: 1003 !important; }
   </style>
 </head>
 <body>
@@ -5165,19 +5245,28 @@
     const showLoading = t => { $('loadingText').textContent = t||'Memuat...'; $('loadingOverlay').classList.add('active'); };
     const hideLoading = () => $('loadingOverlay').classList.remove('active');
     const showToast = (msg, dur=3000) => { const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), dur); };
-    const bukaPopup = id => {
+    window.bukaPopup = id => {
       const el = $(id); if(!el) return;
-      el.style.display = 'flex';
       const sheet = el.querySelector('.popup-sheet');
-      if(sheet) { sheet.classList.add('entering'); requestAnimationFrame(() => sheet.classList.remove('entering')); }
+      if(sheet) sheet.style.transform = 'translateY(100%)';
+      el.style.display = 'flex';
+      if(sheet) {
+        sheet.offsetHeight; // Force reflow
+        requestAnimationFrame(() => {
+          sheet.style.transform = 'translateY(0)';
+        });
+      }
     };
-    window.bukaPopup = bukaPopup;
+    const bukaPopup = window.bukaPopup;
     window.tutupPopup = id => {
       const el = $(id); if(!el) return;
       const sheet = el.querySelector('.popup-sheet');
       if(sheet) {
         sheet.style.transform = 'translateY(100%)';
-        setTimeout(() => { el.style.display = 'none'; sheet.style.transform = ''; sheet.classList.add('entering'); }, 250);
+        setTimeout(() => {
+          el.style.display = 'none';
+          sheet.style.transform = ''; // Reset untuk next time
+        }, 250);
       } else {
         el.style.display = 'none';
       }
@@ -5382,20 +5471,31 @@
     }
 
     let _refreshDebounceTimer = null;
+    let _dashboardStale = false;
     function _autoRefresh() {
       clearTimeout(_refreshDebounceTimer);
       _refreshDebounceTimer = setTimeout(() => {
-        loadDashboardDana();
-        if($('rekapPage').classList.contains('active')) { muatRekapPegawai(); muatRekapPinjaman(); }
-        if($('settingPage').classList.contains('active') && _pegMode === 'select') {
+        const onHome    = !$('inputPage').classList.contains('active') &&
+                          !$('rekapPage').classList.contains('active') &&
+                          !$('settingPage').classList.contains('active') &&
+                          !$('hargaPage').classList.contains('active');
+        const onRekap   = $('rekapPage').classList.contains('active');
+        const onSetting = $('settingPage').classList.contains('active');
+        const onInput   = $('inputPage').classList.contains('active');
+
+        if(onHome)  { loadDashboardDana(); }
+        if(onRekap) { muatRekapPegawai(); muatRekapPinjaman(); }
+        if(onSetting && _pegMode === 'select') {
           const namaTerpilih = $('set_peg_dropdown').value;
           const dd = $('set_peg_dropdown');
           dd.innerHTML = '<option value="">dropdown...</option>';
           MASTER.pegawai.slice().sort((a,b)=>String(a).localeCompare(String(b),'id')).forEach(p => dd.innerHTML += `<option value="${p}">${p}</option>`);
           if(namaTerpilih && MASTER.pegawai.includes(namaTerpilih)) { dd.value = namaTerpilih; } else { dd.value = ''; $('set_peg_bagian_ro').textContent = '—'; $('pegRowHapusSave').style.display = 'none'; }
         }
-        if($('inputPage').classList.contains('active')) { refreshQuickStats(); }
-      }, 300);
+        if(onInput) { refreshQuickStats(); }
+
+        if(!onHome) { _dashboardStale = true; }
+      }, 400);
     }
 
     function getInputDataLocal(dari, sampai) {
@@ -5517,6 +5617,7 @@
       _inputExitedWithoutSave = true;
       $('inputPage').classList.remove('active');
       if (history.state && history.state.page === 'inputPage') history.back();
+      if(_dashboardStale) { _dashboardStale = false; loadDashboardDana(); }
     }
 
     window.tutupInputData = () => {
@@ -5784,14 +5885,14 @@ window.bukaPinjaman = () => {
   $('pinNominalGroup').className = 'popup-form-group hidden';
   
   const popup = $('pinjamanPopup');
-  popup.style.display = 'flex';
-  
   const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) sheet.style.transform = 'translateY(100%)';
+  popup.style.display = 'flex';
   if (sheet) {
-    sheet.classList.add('entering');
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      sheet.classList.remove('entering');
-    }));
+    sheet.offsetHeight; // Force reflow
+    requestAnimationFrame(() => {
+      sheet.style.transform = 'translateY(0)';
+    });
   }
 };
 
@@ -5803,7 +5904,6 @@ window.tutupPopupPinjaman = () => {
     setTimeout(() => {
       popup.style.display = 'none';
       sheet.style.transform = '';
-      sheet.classList.add('entering');
     }, 250);
   } else {
     popup.style.display = 'none';
@@ -6044,14 +6144,14 @@ window.bukaBayar = () => {
   $('bayarTotalGroup').style.display = 'none';
   
   const popup = $('bayarPopup');
-  popup.style.display = 'flex';
-  
   const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) sheet.style.transform = 'translateY(100%)';
+  popup.style.display = 'flex';
   if (sheet) {
-    sheet.classList.add('entering');
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      sheet.classList.remove('entering');
-    }));
+    sheet.offsetHeight; // Force reflow
+    requestAnimationFrame(() => {
+      sheet.style.transform = 'translateY(0)';
+    });
   }
 };
 
@@ -6063,7 +6163,6 @@ window.tutupPopupBayar = () => {
     setTimeout(() => {
       popup.style.display = 'none';
       sheet.style.transform = '';
-      sheet.classList.add('entering');
     }, 250);
   } else {
     popup.style.display = 'none';
@@ -6330,7 +6429,7 @@ window.tutupNumpadBayar = () => {
       history.pushState({ page: 'settingPage' }, '');
       setTimeout(_loadPrintMarginsToUI, 50);
     };
-    window.tutupSetting = () => { $('settingPage').classList.remove('active'); if (history.state && history.state.page === 'settingPage') history.back(); };
+    window.tutupSetting = () => { $('settingPage').classList.remove('active'); if (history.state && history.state.page === 'settingPage') history.back(); if(_dashboardStale) { _dashboardStale = false; loadDashboardDana(); } };
 
     function initSettingPegawai() {
       _pegMode = 'select';
@@ -6475,7 +6574,7 @@ window.tutupNumpadBayar = () => {
       $('hargaPage').classList.add('active');
       history.pushState({ page: 'hargaPage' }, '');
     };
-    window.tutupHarga = () => { $('hargaPage').classList.remove('active'); if (history.state && history.state.page === 'hargaPage') history.back(); };
+    window.tutupHarga = () => { $('hargaPage').classList.remove('active'); if (history.state && history.state.page === 'hargaPage') history.back(); if(_dashboardStale) { _dashboardStale = false; loadDashboardDana(); } };
 
     function _populateHrgBrandSelect() {
       const sel = $('hrg_brand');
@@ -6942,7 +7041,7 @@ window.tutupNumpadBayar = () => {
       gantiTab('pegawai');
       muatRekapPinjaman();
     };
-    window.tutupRekap = () => { $('rekapPage').classList.remove('active'); if (history.state && history.state.page === 'rekapPage') history.back(); loadDashboardDana(); };
+    window.tutupRekap = () => { $('rekapPage').classList.remove('active'); if (history.state && history.state.page === 'rekapPage') history.back(); _dashboardStale = false; loadDashboardDana(); };
 
     window.gantiTab = tab => {
       currentTab = tab;
@@ -7364,12 +7463,12 @@ window.bukaEditBayar = (nama) => {
   
   // Show popup
   const popup = $('editBayarPopup');
-  popup.style.display = 'flex';
-  
   const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) sheet.style.transform = 'translateY(100%)';
+  popup.style.display = 'flex';
   if (sheet) {
-    sheet.classList.add('entering');
-    requestAnimationFrame(() => sheet.classList.remove('entering'));
+    sheet.offsetHeight;
+    requestAnimationFrame(() => { sheet.style.transform = 'translateY(0)'; });
   }
   
   _initKeyboardHandler();
@@ -7454,12 +7553,12 @@ window.bukaEditNominalBayar = (id, currentBayar, sisaSebelumBayar) => {
   
   // Show popup
   const popup = $('editNominalBayarPopup');
-  popup.style.display = 'flex';
-  
   const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) sheet.style.transform = 'translateY(100%)';
+  popup.style.display = 'flex';
   if (sheet) {
-    sheet.classList.add('entering');
-    requestAnimationFrame(() => sheet.classList.remove('entering'));
+    sheet.offsetHeight;
+    requestAnimationFrame(() => { sheet.style.transform = 'translateY(0)'; });
   }
 };
 
