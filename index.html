@@ -3902,6 +3902,79 @@
     .numpad-overlay { z-index: 1001 !important; }
     #tambahanPopup { z-index: 1002 !important; }
     #slipPopup { z-index: 1003 !important; }
+
+    /* ===== PWA INSTALL MODAL ===== */
+    #pwaInstallModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 43, 110, 0.6);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 99998;
+      padding: 0;
+    }
+    #pwaInstallModal.active { display: flex; }
+    #pwaInstallSheet {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 24px 24px 0 0;
+      padding: 28px 24px 32px;
+      padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.18);
+    }
+    #pwaInstallModal.active #pwaInstallSheet { transform: translateY(0); }
+    .pwa-modal-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #1A2A8C, #4B8EF8);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #fff;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 20px rgba(26, 86, 219, 0.3);
+    }
+    .pwa-modal-title {
+      font-size: 18px; font-weight: 900;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .pwa-modal-sub {
+      font-size: 13px; color: var(--muted);
+      font-weight: 500; line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .pwa-modal-features {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-bottom: 24px;
+    }
+    .pwa-modal-feat {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 13px; font-weight: 600; color: var(--text2);
+    }
+    .pwa-modal-feat i {
+      width: 32px; height: 32px;
+      background: var(--primaryDim);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary3); font-size: 13px; flex-shrink: 0;
+    }
+    .pwa-modal-btn-install {
+      width: 100%; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #1A2A8C, #4B8EF8);
+      color: #fff; border-radius: 16px;
+      padding: 16px; font-size: 15px; font-weight: 800;
+      font-family: inherit; letter-spacing: .02em;
+      box-shadow: 0 6px 20px rgba(26, 86, 219, 0.3);
+      margin-bottom: 10px;
+    }
+    .pwa-modal-btn-skip {
+      width: 100%; border: none; cursor: pointer;
+      background: transparent; color: var(--muted);
+      font-size: 13px; font-weight: 600;
+      font-family: inherit; padding: 10px;
+    }
   </style>
 </head>
 <body>
@@ -9098,24 +9171,69 @@ window.hapusBayar = async (id) => {
       history.pushState({ page: 'home' }, '');
     });
 
-    // ===== PWA INSTALL BUTTON =====
+    // ===== PWA INSTALL =====
     let _pwaInstallPrompt = null;
+    const _PWA_SKIP_KEY = 'pwa_install_skipped';
+
+    function _showInstallModal() {
+      const modal = document.getElementById('pwaInstallModal');
+      if(modal) {
+        modal.style.display = 'flex';
+        requestAnimationFrame(() => modal.classList.add('active'));
+      }
+    }
+    function _hideInstallModal() {
+      const modal = document.getElementById('pwaInstallModal');
+      if(modal) {
+        modal.classList.remove('active');
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+      }
+    }
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       _pwaInstallPrompt = e;
+
+      // Tampilkan tombol kecil di header
       const btn = $('btnInstallApp');
       if(btn) btn.style.display = 'flex';
+
+      // Tampilkan modal otomatis setelah 2 detik, kecuali user pernah skip
+      const skipped = localStorage.getItem(_PWA_SKIP_KEY);
+      if(!skipped) {
+        setTimeout(_showInstallModal, 2000);
+      }
     });
+
     window.addEventListener('appinstalled', () => {
       _pwaInstallPrompt = null;
       const btn = $('btnInstallApp');
       if(btn) btn.style.display = 'none';
+      _hideInstallModal();
+      localStorage.removeItem(_PWA_SKIP_KEY);
     });
+
+    // Tombol install kecil di header
     document.getElementById('btnInstallApp')?.addEventListener('click', async () => {
       if(!_pwaInstallPrompt) return;
       _pwaInstallPrompt.prompt();
       const { outcome } = await _pwaInstallPrompt.userChoice;
       if(outcome === 'accepted') _pwaInstallPrompt = null;
+    });
+
+    // Tombol install di modal
+    document.getElementById('pwaInstallBtn')?.addEventListener('click', async () => {
+      _hideInstallModal();
+      if(!_pwaInstallPrompt) return;
+      _pwaInstallPrompt.prompt();
+      const { outcome } = await _pwaInstallPrompt.userChoice;
+      if(outcome === 'accepted') _pwaInstallPrompt = null;
+    });
+
+    // Tombol skip di modal — simpan ke localStorage agar tidak muncul lagi
+    document.getElementById('pwaSkipBtn')?.addEventListener('click', () => {
+      localStorage.setItem(_PWA_SKIP_KEY, '1');
+      _hideInstallModal();
     });
 
     // ===== INIT =====
@@ -9151,5 +9269,22 @@ window.hapusBayar = async (id) => {
       });
     }
   </script>
+
+  <!-- PWA INSTALL MODAL -->
+  <div id="pwaInstallModal">
+    <div id="pwaInstallSheet">
+      <div class="pwa-modal-icon"><i class="fa-solid fa-wallet"></i></div>
+      <div class="pwa-modal-title">Install Payroll Radja</div>
+      <div class="pwa-modal-sub">Pasang aplikasi ini di HP kamu untuk akses lebih cepat tanpa buka browser.</div>
+      <div class="pwa-modal-features">
+        <div class="pwa-modal-feat"><i class="fa-solid fa-bolt"></i> Buka langsung dari layar utama</div>
+        <div class="pwa-modal-feat"><i class="fa-solid fa-wifi-slash"></i> Tetap bisa diakses saat offline</div>
+        <div class="pwa-modal-feat"><i class="fa-solid fa-expand"></i> Tampilan fullscreen tanpa browser bar</div>
+      </div>
+      <button class="pwa-modal-btn-install" id="pwaInstallBtn"><i class="fa-solid fa-download"></i> &nbsp;Install Sekarang</button>
+      <button class="pwa-modal-btn-skip" id="pwaSkipBtn">Nanti saja</button>
+    </div>
+  </div>
+
 </body>
 </html>
