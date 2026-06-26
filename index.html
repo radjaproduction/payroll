@@ -4517,6 +4517,9 @@
   <button id="btnCetakMassal" onclick="cetakMassal()" style="height:44px; padding:0 18px; background:linear-gradient(135deg, var(--primary3), var(--primary)); color:#fff; border:none; border-radius:14px; font-size:12px; font-weight:800; font-family:inherit; cursor:pointer; display:none; align-items:center; justify-content:center; gap:6px; white-space:nowrap; box-shadow:0 2px 8px rgba(26,86,219,.3); flex-shrink:0;">
     <i class="fa-solid fa-print"></i> <span id="cetakMassalLabel">Cetak</span>
   </button>
+  <button id="btnThermalMassal" onclick="cetakMassalRawBT()" style="height:44px; padding:0 14px; background:linear-gradient(135deg,#7C3AED,#8B5CF6); color:#fff; border:none; border-radius:14px; font-size:12px; font-weight:800; font-family:inherit; cursor:pointer; display:none; align-items:center; justify-content:center; gap:6px; white-space:nowrap; box-shadow:0 2px 8px rgba(124,58,237,.3); flex-shrink:0;">
+    <i class="fa-solid fa-print"></i> Thermal
+  </button>
   <div id="weekToggleWrap" onclick="toggleMinggu()" title="ON = Minggu Ini | OFF = Minggu Lalu" style="flex-shrink:0; height:44px; display:flex; align-items:center; gap:8px; cursor:pointer; background:var(--card); border:1.5px solid var(--primary); border-radius:14px; padding:0 12px; user-select:none; transition:border-color .2s; box-sizing:border-box;">
     <div id="weekToggleTrack" style="width:36px; height:20px; border-radius:10px; background:var(--primary); transition:background .25s; position:relative; flex-shrink:0;">
       <div id="weekToggleThumb" style="position:absolute; top:2px; left:18px; width:16px; height:16px; border-radius:50%; background:#fff; transition:left .25s; box-shadow:0 1px 4px rgba(0,0,0,.2);"></div>
@@ -5108,6 +5111,9 @@
   </button>
   <button onclick="cetakSlip()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,#059669,#10B981);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(16,185,129,.25);">
     <i class="fa-solid fa-print"></i> Cetak
+  </button>
+  <button onclick="cetakSlipRawBT()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,#7C3AED,#8B5CF6);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(124,58,237,.25);">
+    <i class="fa-solid fa-print"></i> Cetak Thermal
   </button>
   <button onclick="downloadSlipGaji(document.getElementById('slipNama').textContent)" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,#1A56DB,#4B8EF8);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(26,86,219,.25);">
     <i class="fa-solid fa-download"></i> Download
@@ -7187,6 +7193,7 @@ window.tutupNumpadBayar = () => {
       $('rekapTitle').textContent = tab==='pegawai' ? 'Rekap Pegawai' : 'Rekap Pinjaman';
       $('rekapDateBox').style.display = tab==='pegawai' ? '' : 'none';
       $('btnCetakMassal').style.display = tab==='pegawai' ? '' : 'none';
+      const _btnTM = $('btnThermalMassal'); if(_btnTM) _btnTM.style.display = tab==='pegawai' ? '' : 'none';
       const legendaEl = $('legendaPinjaman');
       if(legendaEl) legendaEl.style.display = tab==='pegawai' ? 'flex' : 'none';
       if(tab==='pegawai') muatRekapPegawai();
@@ -7455,6 +7462,7 @@ window.masukModePilih = function() {
   $('btnModePilih').style.display = 'none';
   $('btnBatalPilih').style.display = 'flex';
   $('btnCetakMassal').style.display = 'flex';
+  const _btnTM2 = $('btnThermalMassal'); if(_btnTM2) _btnTM2.style.display = 'flex';
   const label = $('cetakMassalLabel');
   if (label) label.textContent = 'Cetak';
 };
@@ -7465,6 +7473,7 @@ window.batalModePilih = function() {
   $('btnModePilih').style.display = 'flex';
   $('btnBatalPilih').style.display = 'none';
   $('btnCetakMassal').style.display = 'none';
+  const _btnTM3 = $('btnThermalMassal'); if(_btnTM3) _btnTM3.style.display = 'none';
 };
 
 window.bukaBayarForNama = function(nama) {
@@ -8305,7 +8314,7 @@ window.hapusBayar = async (id) => {
     '* { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }',
     "body { font-family:'Plus Jakarta Sans',sans-serif; background:#f0f0f0; color:#1A1A1A; }",
     '.slip-page { width:396px; height:558px; margin:8px auto; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,.15); overflow:hidden; position:relative; break-inside:avoid; page-break-inside:avoid; flex-shrink:0; }',
-    '.slip-inner { width:396px; padding:5mm 4mm 4mm; box-sizing:border-box; background:#ffffff; position:absolute; top:0; left:0; }',
+    '.slip-inner { width:396px; padding:5mm 4mm 4mm; box-sizing:border-box; background:#ffffff; position:static; }',
     '.hd { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:6px; }',
     '.hd-left { flex:1; min-width:0; }',
     '.hd-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; max-width:90px; }',
@@ -8526,7 +8535,25 @@ window.hapusBayar = async (id) => {
   };
 };
 
-    function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tambahanHTML, tamTotal, pinjDetail, subKotorHTML) {
+    const _slipAutoShrinkScript = `<script>(function(){
+      var maxH=137,root=document.getElementById('slip-root');
+      if(!root)return;
+      function fit(){
+        root.style.zoom=1;
+        var hMM=root.offsetHeight*25.4/96;
+        if(hMM>maxH){
+          var s=maxH/hMM;
+          root.style.zoom=s;
+        }
+      }
+      window.addEventListener('load',function(){
+        if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(fit,100); }); }
+        else { setTimeout(fit,300); }
+      });
+      window.addEventListener('beforeprint',fit);
+    })();<\/script>`;
+
+function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tambahanHTML, tamTotal, pinjDetail, subKotorHTML) {
       let pinjDetailHTML = pinjDetail || '';
       let subKotorLn = subKotorHTML || '';
       let tamHTML = tambahanHTML || '';
@@ -8564,23 +8591,7 @@ window.hapusBayar = async (id) => {
 <body><div id="slip-root"><div class="hd"><div class="hd-left"><div class="co">Slip Gaji</div><div class="nm">${nama}</div></div><div class="hd-right"><img src="LOGORD.png" class="hd-logo" alt="Radja Production" onerror="this.style.display='none'"><div class="bg">${bagian}</div></div></div><hr class="divider"><div class="pr">${periode}</div><table><thead><tr><th>PEKERJAAN</th><th>QTY</th><th>HARGA</th><th>JUMLAH</th></tr></thead><tbody>${rows}</tbody></table><div class="ln sub"><span>Pendapatan Kotor</span><span>${subtot}</span></div>${tamHTML}${subKotorLn}${pinjDetailHTML}<div class="ln tot"><span>Total Bersih</span><span>${total}</span></div></div>${_slipAutoShrinkScript}</body></html>`;
     }
 
-    const _slipAutoShrinkScript = `<script>(function(){
-      var maxH=137,root=document.getElementById('slip-root');
-      if(!root)return;
-      function fit(){
-        root.style.zoom=1;
-        var hMM=root.offsetHeight*25.4/96;
-        if(hMM>maxH){
-          var s=maxH/hMM;
-          root.style.zoom=s;
-        }
-      }
-      window.addEventListener('load',function(){
-        if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(fit,100); }); }
-        else { setTimeout(fit,300); }
-      });
-      window.addEventListener('beforeprint',fit);
-    })();<\/script>`;
+
 
     function _cetakSlipInPage(html) {
       const overlayId = '_printSlipOverlay';
@@ -9096,7 +9107,7 @@ window.hapusBayar = async (id) => {
   const H = 559; // 148mm @ 96dpi
   const clone = slipBox.cloneNode(true);
   clone.style.cssText = `
-    position:fixed; left:-9999px; top:0;
+    position:absolute; left:-10000px; top:0;
     width:${W}px; height:${H}px; max-height:${H}px;
     border-radius:0; overflow:hidden;
     background:#fff; z-index:-1;
@@ -9128,6 +9139,136 @@ window.hapusBayar = async (id) => {
     hideLoading();
   }
 };
+
+    // ===== RAWBT THERMAL PRINTER INTEGRATION =====
+    /**
+     * Cetak slip gaji ke printer thermal via RawBT
+     * @param {string} nama - Nama pegawai
+     * @param {Object} data - Data slip gaji
+     * @param {string} periode - String periode
+     */
+    function cetakRawBT(nama, data, periode) {
+      const escpos = generateESCPOS(nama, data, periode);
+      const base64Data = btoa(unescape(encodeURIComponent(escpos)));
+      window.location.href = 'rawbt:' + base64Data;
+    }
+
+    /**
+     * Generate ESC/POS commands untuk slip gaji (58mm)
+     */
+    function generateESCPOS(nama, data, periode) {
+      const ESC = '\x1B', GS = '\x1D', LF = '\x0A';
+      const CENTER = ESC + 'a\x01', LEFT = ESC + 'a\x00', RIGHT = ESC + 'a\x02';
+      const BOLD_ON = ESC + 'E\x01', BOLD_OFF = ESC + 'E\x00';
+      const DOUBLE_ON = ESC + '!\x30', DOUBLE_OFF = ESC + '!\x00';
+      const CUT = GS + 'V\x01', INIT = ESC + '@';
+
+      let out = INIT + CENTER + BOLD_ON + DOUBLE_ON;
+      out += 'RADJA PRODUCTION' + LF;
+      out += DOUBLE_OFF + BOLD_OFF + 'SLIP GAJI' + LF;
+      out += '==============================' + LF + LEFT;
+      out += 'Nama  : ' + nama + LF;
+      out += 'Bagian: ' + (data.bagian || '-') + LF;
+      out += 'Periode: ' + periode + LF;
+      out += '------------------------------' + LF;
+
+      // Pekerjaan
+      if (data.items?.length > 0) {
+        out += BOLD_ON + 'PEKERJAAN:' + BOLD_OFF + LF;
+        data.items.forEach(item => {
+          const jenis = (item.jenis || '-').substring(0, 20);
+          out += jenis + LF;
+          out += '  ' + (item.qty||0) + ' x Rp ' + fmt(item.harga||0);
+          out += RIGHT + 'Rp ' + fmt(item.jumlah||0) + LEFT + LF;
+        });
+        out += '------------------------------' + LF;
+        out += RIGHT + 'Subtotal: Rp ' + fmt(data.subtotal) + LEFT + LF;
+      }
+
+      // Tambahan & Potongan
+      if (data.tamTotal > 0) {
+        out += BOLD_ON + 'TAMBAHAN:' + BOLD_OFF + LF;
+        out += RIGHT + '+ Rp ' + fmt(data.tamTotal) + LEFT + LF;
+      }
+      if (data.potongan > 0) {
+        out += BOLD_ON + 'POTONGAN:' + BOLD_OFF + LF;
+        out += RIGHT + '- Rp ' + fmt(data.potongan) + LEFT + LF;
+      }
+
+      // Total Bersih
+      out += '===============================' + LF;
+      out += BOLD_ON + DOUBLE_ON + CENTER + 'TOTAL BERSIH' + LF;
+      out += 'Rp ' + fmt(data.total) + LF;
+      out += DOUBLE_OFF + BOLD_OFF + LEFT;
+      out += '===============================' + LF;
+      out += CENTER + 'Dicetak: ' + new Date().toLocaleString('id-ID') + LF;
+      out += 'Terima kasih' + LF + LF + LF + CUT;
+
+      return out;
+    }
+
+    function fmt(n) { return Number(n||0).toLocaleString('id-ID'); }
+
+    // ===== WRAPPER UNTUK SLIP POPUP =====
+    window.cetakSlipRawBT = function() {
+      const nama = document.getElementById('slipNama').textContent;
+      const periode = document.getElementById('slipPeriode').textContent.replace('Periode: ', '');
+      const dari = _getISO('rekapMulai');
+      const sampai = _getISO('rekapAkhir');
+      const data = getRincianLocal(nama, dari, sampai);
+
+      // Ambil tambahan
+      const tam = _rcTambahan[nama];
+      const tamTgl = tam?._tanggalISO || '';
+      const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
+      const tamTotalFromItems = tam?.items ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah||0), 0) : 0;
+      data.tamTotal = tamDalamRange ? (tam?.total > 0 ? tam.total : tamTotalFromItems) : 0;
+
+      cetakRawBT(nama, data, periode);
+    };
+
+    // ===== CETAK MASSAL RAWBT =====
+    window.cetakMassalRawBT = function() {
+      const checkboxes = document.querySelectorAll('.row-check-rekap:checked');
+      if (!checkboxes.length) { showToast('Pilih minimal satu pegawai!'); return; }
+
+      const dari = _getISO('rekapMulai'), sampai = _getISO('rekapAkhir');
+      const periode = (_tgl.rekapMulai || '--') + ' — ' + (_tgl.rekapAkhir || '--');
+      let combined = '';
+      let count = 0;
+
+      checkboxes.forEach((cb) => {
+        const nama = cb.value;
+        if (!nama?.trim() || nama === '-') return;
+
+        const data = getRincianLocal(nama, dari, sampai);
+
+        // Hitung tambahan (sama persis dengan cetakSlipRawBT)
+        const tam = _rcTambahan[nama];
+        const tamTgl = tam?._tanggalISO || '';
+        const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
+        const tamTotalFromItems = tam?.items
+          ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah||0), 0)
+          : 0;
+        data.tamTotal = tamDalamRange
+          ? (tam?.total > 0 ? tam.total : tamTotalFromItems)
+          : 0;
+
+        if (!data.items.length && !data.tamTotal && !(data.potongan > 0)) return;
+
+        if (count > 0) {
+          // Separator antar slip
+          combined += '\x1B' + 'a\x01' + '---\x0A\x0A';
+        }
+        combined += generateESCPOS(nama, data, periode);
+        count++;
+      });
+
+      if (!count) { showToast('Tidak ada data untuk dicetak!'); return; }
+
+      showToast('🖨 Mengirim ' + count + ' slip ke printer thermal…');
+      window.location.href = 'rawbt:' + btoa(unescape(encodeURIComponent(combined)));
+    };
 
     // ===== PRINT MARGIN =====
     const _PM_KEY = 'radja_print_margins';
