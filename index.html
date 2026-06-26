@@ -4009,7 +4009,7 @@
           <div class="brand-badge"><i class="fa-solid fa-circle" style="font-size:7px;"></i> Supabase Realtime</div>
         </div>
         <div style="flex-shrink:0;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
-          <div style="background:rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:3px 9px;font-size:10px;font-weight:800;letter-spacing:.06em;backdrop-filter:blur(6px);">v2.1.0</div>
+          <div style="background:rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:3px 9px;font-size:10px;font-weight:800;letter-spacing:.06em;backdrop-filter:blur(6px);">v2.1.1</div>
           <div style="font-size:9px;color:rgba(255,255,255,.65);font-weight:600;letter-spacing:.04em;">MAY 2026</div>
           <div style="font-size:8px;color:rgba(255,255,255,.8);font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:3px;"><i class="fa-solid fa-circle" style="font-size:6px;color:#22C55E;"></i> STABLE</div>
           <button id="btnInstallApp" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,.25);color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.04em;margin-top:2px;"><i class="fa-solid fa-download"></i> INSTALL</button>
@@ -8588,49 +8588,186 @@ window.hapusBayar = async (id) => {
       if(existing) existing.remove();
       const existingPS = document.getElementById('_printSlipStyle');
       if(existingPS) existingPS.remove();
-      const styleMatch = html.match(/<style>([\s\S]*?)<\/style>/);
-      const bodyMatch = html.match(/<body>([\s\S]*?)<\/body>/);
+
+      // PERBAIKAN BUG 1: Parsing yang lebih robust
+      const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+      const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+
       const styleCSS = styleMatch ? styleMatch[1] : '';
-      const bodyHTML = bodyMatch ? bodyMatch[1] : html;
+      let bodyHTML = bodyMatch ? bodyMatch[1] : html;
+
+      if (!bodyHTML || !bodyHTML.trim()) {
+        const slipInnerMatch = html.match(/<div[^>]*class=["'][^"']*slip-inner["'][^>]*>[\s\S]*?<\/div>\s*<\/div>/i);
+        if (slipInnerMatch) bodyHTML = slipInnerMatch[0];
+      }
+
+      // PERBAIKAN BUG 2: Tutup popup slip jika masih terbuka
+      tutupSlip();
+
+      // Buat style element dasar
       const printStyleEl = document.createElement('style');
       printStyleEl.id = '_printSlipStyle';
-      printStyleEl.textContent = styleCSS + '\n@media print {\n ._sp-bar { display:none!important; height:0!important; overflow:hidden!important; }\n html, body { background:transparent!important; overflow:visible!important; height:auto!important; margin:0!important; padding:0!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }\n body > * { display:none!important; }\n body > #_printSlipOverlay { display:block!important; position:static!important; padding:0!important; margin:0!important; overflow:visible!important; height:auto!important; width:100%!important; background:transparent!important; z-index:auto!important; }\n #slip-root { width:100%!important; max-width:100%!important; margin:0 auto!important; display:block!important; overflow:visible!important; }\n @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }\n}';
+
+      // CSS dasar untuk kedua mode
+      const baseCSS = styleCSS + `
+@media print {
+  ._sp-bar, ._sp-pilih { display:none!important; height:0!important; overflow:hidden!important; }
+  html, body { background:transparent!important; overflow:visible!important; height:auto!important; margin:0!important; padding:0!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
+  body > * { display:none!important; }
+  body > #_printSlipOverlay { display:block!important; position:static!important; padding:0!important; margin:0!important; overflow:visible!important; height:auto!important; width:100%!important; background:transparent!important; z-index:auto!important; }
+  #slip-root { width:100%!important; max-width:100%!important; margin:0 auto!important; display:block!important; overflow:visible!important; }
+}`;
+
+      // CSS khusus Laser (A6)
+      const laserCSS = `
+@media print {
+  @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}`;
+
+      // CSS khusus Thermal (58mm = 58mm lebar kertas)
+      const thermalCSS = `
+@media print {
+  @page { size:58mm auto; margin:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  #slip-root { width:58mm!important; max-width:58mm!important; font-size:10px!important; }
+  .slip-inner { width:58mm!important; padding:2mm!important; }
+  table { font-size:9px!important; }
+  th, td { padding:2px 1px!important; font-size:8px!important; }
+  .nm { font-size:14px!important; }
+  .co { font-size:6px!important; }
+  .bg { font-size:6px!important; }
+  .pr { font-size:5px!important; }
+  .ln { font-size:7px!important; padding:1px 0!important; }
+  .tot { font-size:10px!important; padding:4px 0!important; }
+  .sub { font-size:8px!important; }
+  .hd-logo { height:14px!important; }
+  .divider { margin:3px 0!important; }
+}`;
+
+      printStyleEl.textContent = baseCSS + laserCSS; // default: laser
       document.head.appendChild(printStyleEl);
+
+      // PERBAIKAN BUG 2: z-index lebih tinggi dari slipPopup
       const overlay = document.createElement('div');
       overlay.id = overlayId;
-      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:#F0F8FF;display:flex;flex-direction:column;';
-      const bar = document.createElement('div');
-      bar.className = '_sp-bar';
-      bar.style.cssText = 'display:flex;gap:10px;flex-shrink:0;background:#1A2A3A;padding:14px 20px;width:100%;box-shadow:0 -2px 12px rgba(0,0,0,.3);order:2;justify-content:center;';
-      const btnCetakSlip = document.createElement('button');
-      btnCetakSlip.textContent = '🖨 Cetak';
-      btnCetakSlip.style.cssText = 'background:var(--primary);color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;';
-      btnCetakSlip.addEventListener('click', function() { window.print(); });
-      const btnTutupSlip = document.createElement('button');
-      btnTutupSlip.textContent = '✕ Tutup';
-      btnTutupSlip.style.cssText = 'background:#333333;color:#F5F0E8;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;';
-      btnTutupSlip.addEventListener('click', function() { 
-        overlay.remove(); 
-        const ps = document.getElementById('_printSlipStyle'); 
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:99999999;background:#F0F8FF;display:flex;flex-direction:column;';
+
+      // ===== BAR PILIH PRINTER =====
+      const pilihBar = document.createElement('div');
+      pilihBar.className = '_sp-pilih';
+      pilihBar.style.cssText = 'display:flex;gap:10px;flex-shrink:0;background:#1A2A8C;padding:14px 20px;width:100%;box-shadow:0 2px 12px rgba(0,0,0,.3);order:0;justify-content:center;align-items:center;flex-wrap:wrap;';
+
+      const labelPilih = document.createElement('span');
+      labelPilih.textContent = '🖨 Pilih Printer:';
+      labelPilih.style.cssText = 'color:#fff;font-size:13px;font-weight:700;margin-right:6px;';
+      pilihBar.appendChild(labelPilih);
+
+      // Tombol Laser
+      const btnLaser = document.createElement('button');
+      btnLaser.textContent = '📄 Laser (A6)';
+      btnLaser.style.cssText = 'background:linear-gradient(135deg,#4B8EF8,#6BA3FF);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(26,86,219,.3);transition:all .15s;';
+      btnLaser.addEventListener('click', () => {
+        printStyleEl.textContent = baseCSS + laserCSS;
+        btnLaser.style.background = 'linear-gradient(135deg,#4B8EF8,#6BA3FF)';
+        btnLaser.style.transform = 'scale(1.05)';
+        btnThermal.style.background = '#333';
+        btnThermal.style.transform = 'scale(1)';
+        // Update preview
+        slipRoot.style.width = '396px';
+        slipRoot.style.fontSize = '';
+        showToast('✅ Mode Laser (A6) aktif');
+      });
+      pilihBar.appendChild(btnLaser);
+
+      // Tombol Thermal
+      const btnThermal = document.createElement('button');
+      btnThermal.textContent = '🧾 Thermal (58mm)';
+      btnThermal.style.cssText = 'background:#333;color:#F5F0E8;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s;';
+      btnThermal.addEventListener('click', () => {
+        printStyleEl.textContent = baseCSS + thermalCSS;
+        btnThermal.style.background = 'linear-gradient(135deg,#F59E0B,#FBBF24)';
+        btnThermal.style.color = '#1A1A1A';
+        btnThermal.style.transform = 'scale(1.05)';
+        btnLaser.style.background = '#333';
+        btnLaser.style.color = '#fff';
+        btnLaser.style.transform = 'scale(1)';
+        // Update preview
+        slipRoot.style.width = '220px';
+        slipRoot.style.fontSize = '10px';
+        showToast('✅ Mode Thermal (58mm) aktif');
+      });
+      pilihBar.appendChild(btnThermal);
+
+      // Tombol Tutup
+      const btnTutupPilih = document.createElement('button');
+      btnTutupPilih.textContent = '✕ Tutup';
+      btnTutupPilih.style.cssText = 'background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4);border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-left:10px;';
+      btnTutupPilih.addEventListener('click', () => {
+        overlay.remove();
+        const ps = document.getElementById('_printSlipStyle');
         if(ps) ps.remove();
         window.removeEventListener('beforeprint', _bpS);
         window.removeEventListener('afterprint', _apS);
         window._slipBpS = null;
         window._slipApS = null;
       });
+      pilihBar.appendChild(btnTutupPilih);
+
+      // ===== BAR CETAK (muncul saat print) =====
+      const bar = document.createElement('div');
+      bar.className = '_sp-bar';
+      bar.style.cssText = 'display:none;gap:10px;flex-shrink:0;background:#1A2A3A;padding:14px 20px;width:100%;box-shadow:0 -2px 12px rgba(0,0,0,.3);order:2;justify-content:center;';
+
+      const btnCetakSlip = document.createElement('button');
+      btnCetakSlip.textContent = '🖨 Cetak Sekarang';
+      btnCetakSlip.style.cssText = 'background:linear-gradient(135deg,var(--primary3),var(--primary));color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(26,86,219,.28);';
+      btnCetakSlip.addEventListener('click', () => { window.print(); });
       bar.appendChild(btnCetakSlip);
+
+      const btnTutupSlip = document.createElement('button');
+      btnTutupSlip.textContent = '✕ Batal';
+      btnTutupSlip.style.cssText = 'background:#333333;color:#F5F0E8;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;';
+      btnTutupSlip.addEventListener('click', () => {
+        overlay.remove();
+        const ps = document.getElementById('_printSlipStyle');
+        if(ps) ps.remove();
+        window.removeEventListener('beforeprint', _bpS);
+        window.removeEventListener('afterprint', _apS);
+        window._slipBpS = null;
+        window._slipApS = null;
+      });
       bar.appendChild(btnTutupSlip);
+
+      // Content wrapper
       const contentWrap = document.createElement('div');
       contentWrap.style.cssText = 'flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;padding:16px;order:1;width:100%;';
-      contentWrap.insertAdjacentHTML('beforeend', bodyHTML);
+
+      // Buat container untuk slip dengan ID slip-root
+      const slipRoot = document.createElement('div');
+      slipRoot.id = 'slip-root';
+      slipRoot.style.cssText = 'width:396px;max-width:100%;transition:width .2s;';
+      slipRoot.innerHTML = bodyHTML;
+      contentWrap.appendChild(slipRoot);
+
+      overlay.appendChild(pilihBar);
       overlay.appendChild(contentWrap);
       overlay.appendChild(bar);
       document.body.appendChild(overlay);
-      // Cleanup listener lama jika ada (cegah memory leak)
+
+      // Cleanup listener lama
       if(window._slipBpS) window.removeEventListener('beforeprint', window._slipBpS);
       if(window._slipApS) window.removeEventListener('afterprint', window._slipApS);
-      const _bpS = () => { if(bar.parentNode) bar.parentNode.removeChild(bar); };
-      const _apS = () => { if(!overlay.contains(bar)) overlay.appendChild(bar); };
+
+      const _bpS = () => { 
+        if(pilihBar.parentNode) pilihBar.parentNode.removeChild(pilihBar);
+        bar.style.display = 'flex';
+      };
+      const _apS = () => { 
+        if(!overlay.contains(pilihBar)) {
+          // Kembalikan pilihan setelah print
+          overlay.insertBefore(pilihBar, contentWrap);
+          bar.style.display = 'none';
+        }
+      };
       window._slipBpS = _bpS;
       window._slipApS = _apS;
       window.addEventListener('beforeprint', _bpS);
