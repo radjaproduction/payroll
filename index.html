@@ -9150,7 +9150,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     function cetakRawBT(nama, data, periode) {
       const escpos = generateESCPOS(nama, data, periode);
       const base64Data = btoa(unescape(encodeURIComponent(escpos)));
-      window.location.href = 'rawbt:' + base64Data;
+      window.location.href = 'rawbt:base64,' + base64Data;
     }
 
     /**
@@ -9265,7 +9265,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       if (!count) { showToast('Tidak ada data untuk dicetak!'); return; }
 
       showToast('🖨 Mengirim ' + count + ' slip ke printer thermal…');
-      window.location.href = 'rawbt:' + btoa(unescape(encodeURIComponent(combined)));
+      window.location.href = 'rawbt:base64,' + btoa(unescape(encodeURIComponent(combined)));
     };
 
     // ===== PRINT MARGIN =====
