@@ -7285,11 +7285,17 @@ window.toggleCheckAllRekap = function(cb) {
       <td style="color:var(--green);font-weight:600;font-size:11px;">${r.bayar > 0 ? fmt(r.bayar) : '-'}</td>
       <td style="color:var(--red);font-weight:700;font-size:11px;">${fmt(r.sisa)}</td>
       <td style="text-align:center;padding:6px 4px;">
-        <button onclick="${adaBayar ? `bukaEditBayar('${q(r.nama)}')` : ''}" 
-          style="background:${adaBayar ? 'var(--primaryDim)' : '#E8EEF5'};border:none;border-radius:8px;padding:5px 8px;cursor:${adaBayar ? 'pointer' : 'not-allowed'};color:${adaBayar ? 'var(--primary3)' : '#7B8DB0'};font-size:10px;font-weight:700;white-space:nowrap;"
-          ${!adaBayar ? 'disabled' : ''}>
-          <i class="fa-solid fa-pen-to-square"></i> Edit
-        </button>
+        <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+          <button onclick="${adaBayar ? `bukaEditBayar('${q(r.nama)}')` : ''}" 
+            style="background:${adaBayar ? 'var(--primaryDim)' : '#E8EEF5'};border:none;border-radius:8px;padding:5px 8px;cursor:${adaBayar ? 'pointer' : 'not-allowed'};color:${adaBayar ? 'var(--primary3)' : '#7B8DB0'};font-size:10px;font-weight:700;white-space:nowrap;"
+            ${!adaBayar ? 'disabled' : ''}>
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+          </button>
+          <button onclick="hapusPinjamanRekap('${q(r.nama)}')" 
+            style="background:#FEE2E2;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;color:#DC2626;font-size:10px;font-weight:700;white-space:nowrap;">
+            <i class="fa-solid fa-trash"></i> Hapus
+          </button>
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -8727,7 +8733,117 @@ window.hapusBayar = async (id) => {
         setTimeout(() => { muatRekapPinjaman(); muatRekapPegawai(); }, 300);
       } catch(e) { showToast('❌ Gagal hapus: ' + e.message); }
       finally { hideLoading(); }
+    }
+
+    // ===== HAPUS PINJAMAN DARI REKAP =====
+    window.hapusPinjamanRekap = (nama) => {
+      if(!nama) { showToast('❌ Nama pegawai tidak valid'); return; }
+
+      // Find pinjaman records for this user
+      const pinjamanList = _CACHE.pinjaman.filter(p => p.nama === nama);
+      if(!pinjamanList.length) { showToast('ℹ Tidak ada pinjaman untuk ' + nama); return; }
+
+      // Sort by date (newest first)
+      pinjamanList.sort((a, b) => (b.tanggalISO || '').localeCompare(a.tanggalISO || ''));
+
+      // If only one pinjaman, show confirmation directly
+      if(pinjamanList.length === 1) {
+        const p = pinjamanList[0];
+        bukaConfirm({
+          icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+          iconBg: '#FEE2E2', 
+          iconColor: '#EF4444',
+          title: 'Hapus Pinjaman?',
+          msg: `<div style="text-align:left;line-height:1.6;">
+            <b>${nama}</b><br><br>
+            Jenis: <b>${p.jenis || 'Pinjaman'}</b><br>
+            Nominal: <b style="color:#DC2626;">Rp ${fmt(p.nominal || 0)}</b><br>
+            Tanggal: ${p.tanggal || '-'}<br><br>
+            <span style="color:#DC2626;font-size:12px;">⚠ Data akan dihapus permanen dan tidak bisa dikembalikan!</span>
+          </div>`,
+          okLabel: 'Ya, Hapus Pinjaman',
+          okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
+          callback: () => {
+            showLoading('Menghapus pinjaman...');
+            deleteDoc(doc(db, COL.pinjaman, p.id))
+              .then(() => {
+                showToast('🗑 Pinjaman berhasil dihapus');
+                setTimeout(() => {
+                  muatRekapPinjaman();
+                  muatRekapPegawai();
+                  loadDashboardDana();
+                }, 300);
+              })
+              .catch(e => showToast('❌ Gagal: ' + e.message))
+              .finally(() => hideLoading());
+          }
+        });
+        return;
+      }
+
+      // Multiple pinjaman: show selection dialog
+      const q = s => String(s).replace(/'/g,"\'");
+      const listHtml = pinjamanList.map((p, i) => {
+        const sisa = (p.nominal || 0) - (_CACHE.bayar
+          .filter(b => b.nama === nama && b.jenisPinjaman === (p.jenis || 'Pinjaman') && !b.luarGaji)
+          .reduce((s, b) => s + (b.bayar || 0), 0));
+        return `<button onclick="window._hapusPinjamanTerpilih('${q(p.id)}', '${q(nama)}', '${q(p.jenis || 'Pinjaman')}', ${p.nominal || 0})" 
+          style="width:100%;text-align:left;background:var(--card2);border:1.5px solid var(--muted);border-radius:12px;padding:13px 16px;margin-bottom:8px;cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;transition:all .15s;"
+          onmouseover="this.style.borderColor='var(--red)';this.style.background='#FEE2E2';"
+          onmouseout="this.style.borderColor='var(--muted)';this.style.background='var(--card2)';">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:var(--text);">${p.jenis || 'Pinjaman'}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">${p.tanggal || '-'} • Sisa: Rp ${fmt(Math.max(0, sisa))}</div>
+          </div>
+          <div style="font-size:14px;font-weight:900;color:#DC2626;">Rp ${fmt(p.nominal || 0)}</div>
+        </button>`;
+      }).join('');
+
+      bukaConfirm({
+        icon: '<i class="fa-solid fa-list-check"></i>',
+        iconBg: '#E0EAFF', 
+        iconColor: '#1A56DB',
+        title: 'Pilih Pinjaman',
+        msg: `<div style="text-align:left;"><b>${nama}</b> memiliki ${pinjamanList.length} pinjaman aktif. Pilih yang akan dihapus:<br><br>${listHtml}</div>`,
+        okLabel: 'Batal',
+        okBg: 'linear-gradient(135deg,var(--muted),#9CA3AF)',
+        callback: () => {} // Just close
+      });
     };
+
+    window._hapusPinjamanTerpilih = (id, nama, jenis, nominal) => {
+      tutupConfirm();
+      setTimeout(() => {
+        bukaConfirm({
+          icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+          iconBg: '#FEE2E2', 
+          iconColor: '#EF4444',
+          title: 'Hapus Pinjaman Ini?',
+          msg: `<div style="text-align:left;line-height:1.6;">
+            <b>${nama}</b><br><br>
+            Jenis: <b>${jenis}</b><br>
+            Nominal: <b style="color:#DC2626;">Rp ${fmt(nominal)}</b><br><br>
+            <span style="color:#DC2626;font-size:12px;">⚠ Data akan dihapus permanen dan tidak bisa dikembalikan!</span>
+          </div>`,
+          okLabel: 'Ya, Hapus',
+          okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
+          callback: () => {
+            showLoading('Menghapus pinjaman...');
+            deleteDoc(doc(db, COL.pinjaman, id))
+              .then(() => {
+                showToast('🗑 Pinjaman berhasil dihapus');
+                setTimeout(() => {
+                  muatRekapPinjaman();
+                  muatRekapPegawai();
+                  loadDashboardDana();
+                }, 300);
+              })
+              .catch(e => showToast('❌ Gagal: ' + e.message))
+              .finally(() => hideLoading());
+          }
+        });
+      }, 300);
+    };;
 
     window.downloadSlipGaji = async (nama) => {
   const slipBox = $('slipBox');
