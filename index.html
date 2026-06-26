@@ -1701,14 +1701,18 @@
     }
     table { width:100%; border-collapse:collapse }
     th {
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
+      background:var(--muted);
       color:#fff;
-      padding:10px 8px;
+      padding:10px 6px;
       font-size:10px; font-weight:800;
       text-align:center; letter-spacing:.07em;
       text-transform:uppercase;
       border-bottom:none;
       position:sticky; top:0;
+    }
+    #tablePinjaman th:last-child,
+    #tablePinjaman td:last-child {
+      min-width:110px;
     }
     td {
       padding:8px 5px;
@@ -4383,12 +4387,12 @@
   <div class="table-wrap" id="tablePinjaman" style="display:none">
     <table style="table-layout:fixed;">
       <colgroup>
-        <col style="width:18%">
-        <col style="width:20%">
+        <col style="width:16%">
         <col style="width:18%">
         <col style="width:16%">
-        <col style="width:16%">
-        <col style="width:12%">
+        <col style="width:14%">
+        <col style="width:14%">
+        <col style="width:22%">
       </colgroup>
       <thead><tr><th>Nama</th><th>Jenis</th><th>Pinjaman</th><th>Dibayar</th><th>Sisa</th><th>Aksi</th></tr></thead>
       <tbody id="tbodyPinjaman"></tbody>
@@ -5773,6 +5777,7 @@ window.bukaPinjaman = () => {
   $('pin_nominal').value = '';
   $('pinNominalHint').textContent = 'Ketuk field di atas untuk membuka numpad';
   $('pinNominalHint').style.color = '#7B8DB0';
+  const _bp=$('btnSimpanPin');if(_bp)_bp.innerHTML='<i class="fa-solid fa-floppy-disk"></i><span>Simpan Pinjaman</span>';
   setDis('btnSimpanPin', true);
   
   $('pinJenisGroup').className = 'popup-form-group hidden';
@@ -5882,6 +5887,7 @@ window.simpanPinjaman = async () => {
       waktu: serverTimestamp()
     });
     
+    btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i><span>Simpan Pinjaman</span>';
     showToast('✅ Pinjaman tersimpan!');
     tutupPopupPinjaman();
     
@@ -6933,7 +6939,7 @@ window.tutupNumpadBayar = () => {
         wrap.style.borderColor = 'var(--muted)';
       }
 
-      muatRekapPegawai();
+      gantiTab('pegawai');
       muatRekapPinjaman();
     };
     window.tutupRekap = () => { $('rekapPage').classList.remove('active'); if (history.state && history.state.page === 'rekapPage') history.back(); loadDashboardDana(); };
@@ -7284,15 +7290,15 @@ window.toggleCheckAllRekap = function(cb) {
       <td style="font-weight:600;font-size:11px;">${fmt(r.pinjaman)}</td>
       <td style="color:var(--green);font-weight:600;font-size:11px;">${r.bayar > 0 ? fmt(r.bayar) : '-'}</td>
       <td style="color:var(--red);font-weight:700;font-size:11px;">${fmt(r.sisa)}</td>
-      <td style="text-align:center;padding:6px 4px;">
-        <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+      <td style="padding:5px 3px;">
+        <div style="display:flex;flex-direction:row;gap:4px;justify-content:center;align-items:center;flex-wrap:nowrap;">
           <button onclick="${adaBayar ? `bukaEditBayar('${q(r.nama)}')` : ''}" 
-            style="background:${adaBayar ? 'var(--primaryDim)' : '#E8EEF5'};border:none;border-radius:8px;padding:5px 8px;cursor:${adaBayar ? 'pointer' : 'not-allowed'};color:${adaBayar ? 'var(--primary3)' : '#7B8DB0'};font-size:10px;font-weight:700;white-space:nowrap;"
-            ${!adaBayar ? 'disabled' : ''}>
+            style="flex:1;min-width:0;background:${adaBayar ? 'var(--primaryDim)' : '#E8EEF5'};border:none;border-radius:8px;padding:7px 4px;cursor:${adaBayar ? 'pointer' : 'not-allowed'};color:${adaBayar ? 'var(--primary3)' : '#7B8DB0'};font-size:10px;font-weight:800;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:3px;"
+            ${!adaBayar ? "disabled" : ""}>
             <i class="fa-solid fa-pen-to-square"></i> Edit
           </button>
           <button onclick="hapusPinjamanRekap('${q(r.nama)}')" 
-            style="background:#FEE2E2;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;color:#DC2626;font-size:10px;font-weight:700;white-space:nowrap;">
+            style="flex:1;min-width:0;background:#FEE2E2;border:none;border-radius:8px;padding:7px 4px;cursor:pointer;color:#DC2626;font-size:10px;font-weight:800;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:3px;">
             <i class="fa-solid fa-trash"></i> Hapus
           </button>
         </div>
@@ -8946,7 +8952,7 @@ window.hapusBayar = async (id) => {
       el('confirmIcon').style.background = iconBg || 'var(--primaryDim)';
       el('confirmIcon').style.color = iconColor || 'var(--primary3)';
       el('confirmTitle').textContent = title;
-      el('confirmMsg').textContent = msg;
+      el('confirmMsg').innerHTML = msg;
       el('confirmBtnOk').textContent = okLabel || 'Ya, Lanjutkan';
       el('confirmBtnOk').style.background = okBg || 'linear-gradient(135deg, var(--primary3), var(--primary))';
       el('confirmBtnOk').style.boxShadow = '0 4px 16px rgba(0,180,216,.28)';
