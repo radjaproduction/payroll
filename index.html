@@ -3838,13 +3838,12 @@
       -webkit-backdrop-filter: none !important;
       background: rgba(13, 43, 110, 0.75) !important;
     }
-    /* 2. GPU layer promotion + will-change */
+    /* 2. GPU layer promotion — translateZ(0) saja, will-change diset via JS saat animasi */
     .popup-sheet,
     .pinjaman-sheet,
     .bayar-sheet,
     .rc-card,
     .numpad-sheet {
-      will-change: transform;
       transform: translateZ(0);
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
@@ -3896,12 +3895,7 @@
     .numpad-overlay {
       transition: opacity 0.15s ease;
     }
-    /* 7. Reduce paint area — contain */
-    .popup-sheet,
-    .rc-card,
-    .numpad-sheet {
-      contain: layout style paint;
-    }
+    /* 7. contain dihapus — menyebabkan lag pada animasi popup */
     /* 8. Z-index yang masuk akal */
     .rc-overlay { z-index: 1000 !important; }
     .popup { z-index: 1000 !important; }
@@ -5248,12 +5242,16 @@
     window.bukaPopup = id => {
       const el = $(id); if(!el) return;
       const sheet = el.querySelector('.popup-sheet');
-      if(sheet) sheet.style.transform = 'translateY(100%)';
+      if(sheet) {
+        sheet.style.willChange = 'transform';
+        sheet.style.transform = 'translateY(100%)';
+      }
       el.style.display = 'flex';
       if(sheet) {
         sheet.offsetHeight; // Force reflow
         requestAnimationFrame(() => {
           sheet.style.transform = 'translateY(0)';
+          setTimeout(() => { sheet.style.willChange = 'auto'; }, 300);
         });
       }
     };
@@ -5262,10 +5260,12 @@
       const el = $(id); if(!el) return;
       const sheet = el.querySelector('.popup-sheet');
       if(sheet) {
+        sheet.style.willChange = 'transform';
         sheet.style.transform = 'translateY(100%)';
         setTimeout(() => {
           el.style.display = 'none';
-          sheet.style.transform = ''; // Reset untuk next time
+          sheet.style.transform = '';
+          sheet.style.willChange = 'auto';
         }, 250);
       } else {
         el.style.display = 'none';
@@ -5886,12 +5886,13 @@ window.bukaPinjaman = () => {
   
   const popup = $('pinjamanPopup');
   const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) sheet.style.transform = 'translateY(100%)';
+  if (sheet) { sheet.style.willChange = 'transform'; sheet.style.transform = 'translateY(100%)'; }
   popup.style.display = 'flex';
   if (sheet) {
-    sheet.offsetHeight; // Force reflow
+    sheet.offsetHeight;
     requestAnimationFrame(() => {
       sheet.style.transform = 'translateY(0)';
+      setTimeout(() => { sheet.style.willChange = 'auto'; }, 300);
     });
   }
 };
@@ -5900,10 +5901,12 @@ window.tutupPopupPinjaman = () => {
   const popup = $('pinjamanPopup');
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
+    sheet.style.willChange = 'transform';
     sheet.style.transform = 'translateY(100%)';
     setTimeout(() => {
       popup.style.display = 'none';
       sheet.style.transform = '';
+      sheet.style.willChange = 'auto';
     }, 250);
   } else {
     popup.style.display = 'none';
@@ -6145,12 +6148,13 @@ window.bukaBayar = () => {
   
   const popup = $('bayarPopup');
   const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) sheet.style.transform = 'translateY(100%)';
+  if (sheet) { sheet.style.willChange = 'transform'; sheet.style.transform = 'translateY(100%)'; }
   popup.style.display = 'flex';
   if (sheet) {
-    sheet.offsetHeight; // Force reflow
+    sheet.offsetHeight;
     requestAnimationFrame(() => {
       sheet.style.transform = 'translateY(0)';
+      setTimeout(() => { sheet.style.willChange = 'auto'; }, 300);
     });
   }
 };
@@ -6159,10 +6163,12 @@ window.tutupPopupBayar = () => {
   const popup = $('bayarPopup');
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
+    sheet.style.willChange = 'transform';
     sheet.style.transform = 'translateY(100%)';
     setTimeout(() => {
       popup.style.display = 'none';
       sheet.style.transform = '';
+      sheet.style.willChange = 'auto';
     }, 250);
   } else {
     popup.style.display = 'none';
