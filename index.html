@@ -4676,6 +4676,35 @@
   </div>
 </div>
 
+<!-- ===== NUMPAD GENERAL (editNominalInput, ep_nominal, tamItem) ===== -->
+<div class="numpad-overlay" id="numpadGenOverlay">
+  <div class="numpad-sheet">
+    <div class="numpad-display">
+      <div class="numpad-display-label" id="numpadGenLabel">Nominal</div>
+      <div class="numpad-display-value" id="numpadGenDisplay">0</div>
+    </div>
+    <div class="numpad-grid">
+      <button class="numpad-btn" onclick="numpadGenInput('1')">1</button>
+      <button class="numpad-btn" onclick="numpadGenInput('2')">2</button>
+      <button class="numpad-btn" onclick="numpadGenInput('3')">3</button>
+      <button class="numpad-btn" onclick="numpadGenInput('4')">4</button>
+      <button class="numpad-btn" onclick="numpadGenInput('5')">5</button>
+      <button class="numpad-btn" onclick="numpadGenInput('6')">6</button>
+      <button class="numpad-btn" onclick="numpadGenInput('7')">7</button>
+      <button class="numpad-btn" onclick="numpadGenInput('8')">8</button>
+      <button class="numpad-btn" onclick="numpadGenInput('9')">9</button>
+      <button class="numpad-btn wide" onclick="numpadGenInput('0')">0</button>
+      <button class="numpad-btn" onclick="numpadGenBackspace()">
+        <i class="fa-solid fa-delete-left"></i>
+      </button>
+    </div>
+    <div class="numpad-actions">
+      <button class="numpad-cancel" onclick="tutupNumpadGen()">Batal</button>
+      <button class="numpad-confirm" onclick="numpadGenConfirm()">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== POPUP EDIT BAYAR ===== -->
 <div class="popup" id="editBayarPopup">
   <div class="popup-sheet entering">
@@ -4755,13 +4784,13 @@
           <i class="fa-solid fa-money-bill-wave"></i>
           Nominal Bayar Baru
         </label>
-        <div class="popup-input-wrap">
+        <div class="popup-input-trigger" onclick="bukaNumpadGenEditNominal()">
           <span class="popup-input-prefix">Rp</span>
-          <input type="number" id="editNominalInput" placeholder="0" min="0" 
-            inputmode="numeric" pattern="[0-9]*" 
-            autocomplete="off" autocorrect="off" class="popup-input">
+          <input type="text" id="editNominalDisplay" readonly placeholder="Ketuk untuk input..."
+            class="popup-input-no-keyboard" inputmode="none">
+          <input type="hidden" id="editNominalInput" value="">
         </div>
-        <div class="popup-hint" id="editNominalHint">Masukkan nominal baru</div>
+        <div class="popup-hint" id="editNominalHint">Ketuk field di atas untuk membuka numpad</div>
       </div>
     </div>
 
@@ -4945,7 +4974,14 @@
       <input type="hidden" id="ep_id">
       <div class="form-group"><label>Nama Pegawai</label><input type="text" id="ep_nama" readonly style="background:var(--bg2);color:var(--muted);"></div>
       <div class="form-group"><label>Jenis Pinjaman</label><input type="text" id="ep_jenis" readonly style="background:var(--bg2);color:var(--muted);"></div>
-      <div class="form-group"><label>Nominal</label><input type="number" id="ep_nominal" placeholder="0" min="0" inputmode="numeric"></div>
+      <div class="form-group"><label>Nominal</label>
+        <div class="popup-input-trigger" onclick="bukaNumpadGenEpNominal()" style="margin-top:4px;">
+          <span class="popup-input-prefix" style="position:absolute;left:12px;color:var(--muted);font-size:13px;font-weight:700;pointer-events:none;">Rp</span>
+          <input type="text" id="ep_nominal_display" readonly placeholder="Ketuk untuk input..."
+            class="popup-input-no-keyboard" inputmode="none" style="padding-left:38px;font-size:14px;">
+          <input type="hidden" id="ep_nominal" value="">
+        </div>
+      </div>
       <div class="btn-group">
         <button class="btn btn-primary" onclick="simpanEditPinjaman()">Simpan Perubahan</button>
         <button class="btn" onclick="konfirmasiHapusPinjaman()" style="background:#FEE2E2;color:#DC2626;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;flex:1;"><i class="fa-solid fa-trash" style="margin-right:6px;"></i>Hapus Pinjaman</button>
@@ -5129,6 +5165,17 @@
       el.style.display = 'flex';
       const sheet = el.querySelector('.popup-sheet');
       if(sheet) { sheet.classList.add('entering'); requestAnimationFrame(() => sheet.classList.remove('entering')); }
+    };
+    window.bukaPopup = bukaPopup;
+    window.tutupPopup = id => {
+      const el = $(id); if(!el) return;
+      const sheet = el.querySelector('.popup-sheet');
+      if(sheet) {
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => { el.style.display = 'none'; sheet.style.transform = ''; sheet.classList.add('entering'); }, 250);
+      } else {
+        el.style.display = 'none';
+      }
     };
     const fmt = n => Number(n||0).toLocaleString('id-ID');
     const fmtTgl = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
@@ -5880,6 +5927,78 @@ window.numpadConfirm = () => {
 window.tutupNumpad = () => {
   $('numpadOverlay').classList.remove('active');
   _numpadValue = '';
+};
+
+// ===== NUMPAD GENERAL (editNominalInput, ep_nominal, tamItem) =====
+
+let _numpadGenValue = '';
+let _numpadGenOnConfirm = null;
+
+window.bukaNumpadGen = (label, initialVal, onConfirm) => {
+  _numpadGenValue = initialVal ? String(initialVal) : '';
+  _numpadGenOnConfirm = onConfirm;
+  $('numpadGenLabel').textContent = label;
+  $('numpadGenDisplay').textContent = _numpadGenValue ? fmt(parseInt(_numpadGenValue)) : '0';
+  $('numpadGenOverlay').classList.add('active');
+};
+
+window.numpadGenInput = (digit) => {
+  if (_numpadGenValue.length >= 12) return;
+  _numpadGenValue += digit;
+  $('numpadGenDisplay').textContent = fmt(parseInt(_numpadGenValue));
+};
+
+window.numpadGenBackspace = () => {
+  _numpadGenValue = _numpadGenValue.slice(0, -1);
+  $('numpadGenDisplay').textContent = _numpadGenValue ? fmt(parseInt(_numpadGenValue)) : '0';
+};
+
+window.numpadGenConfirm = () => {
+  const val = parseInt(_numpadGenValue) || 0;
+  if (_numpadGenOnConfirm) _numpadGenOnConfirm(val);
+  tutupNumpadGen();
+};
+
+window.tutupNumpadGen = () => {
+  $('numpadGenOverlay').classList.remove('active');
+  _numpadGenValue = '';
+  _numpadGenOnConfirm = null;
+};
+
+// Trigger: Edit Nominal Bayar
+window.bukaNumpadGenEditNominal = () => {
+  const cur = parseInt($('editNominalInput').value) || 0;
+  bukaNumpadGen('Nominal Bayar Baru', cur > 0 ? String(cur) : '', (val) => {
+    $('editNominalInput').value = val;
+    $('editNominalDisplay').value = val > 0 ? 'Rp ' + fmt(val) : '';
+    $('editNominalHint').innerHTML = val > 0
+      ? `Nominal baru: <b>Rp ${fmt(val)}</b><br><span style="color:var(--muted);">Input 0 untuk membatalkan pembayaran</span>`
+      : `<span style="color:var(--muted);">Input 0 untuk membatalkan pembayaran</span>`;
+  });
+};
+
+// Trigger: Edit Pinjaman nominal
+window.bukaNumpadGenEpNominal = () => {
+  const cur = parseInt(document.getElementById('ep_nominal').value) || 0;
+  bukaNumpadGen('Nominal Pinjaman', cur > 0 ? String(cur) : '', (val) => {
+    document.getElementById('ep_nominal').value = val;
+    document.getElementById('ep_nominal_display').value = val > 0 ? 'Rp ' + fmt(val) : '';
+  });
+};
+
+// Trigger: Tambahan item qty
+window.bukaNumpadGenTam = (idx) => {
+  const items = window._tamCurrentItems || [];
+  const t = items[idx];
+  const label = t ? `${t.jenis} (hari)` : 'Jumlah Hari';
+  const cur = window._tamValues[idx] || 0;
+  bukaNumpadGen(label, cur > 0 ? String(cur) : '', (val) => {
+    if(val > 31) { val = 31; showToast('⚠ Maksimal 31 hari!'); }
+    window._tamValues[idx] = val;
+    const el = document.getElementById('tamItem_' + idx);
+    if(el) el.value = val > 0 ? val + ' hari' : '';
+    hitungTotalTambahan();
+  });
 };
 
 // ===== BAYAR PINJAMAN FUNCTIONS =====
@@ -7314,9 +7433,10 @@ window.bukaEditNominalBayar = (id, currentBayar, sisaSebelumBayar) => {
   $('editNominalSubtitle').textContent = 'Ubah jumlah pembayaran';
   $('editNominalSisa').textContent = fmt(sisa + currentBayar); // Sisa sebelum bayar ini
   $('editNominalInput').value = currentBayar;
+  $('editNominalDisplay').value = currentBayar > 0 ? 'Rp ' + fmt(currentBayar) : '';
   $('editNominalHint').innerHTML = `
     Nominal saat ini: <b>Rp ${fmt(currentBayar)}</b><br>
-    <span style="color: var(--muted);">Ketik 0 untuk membatalkan pembayaran</span>
+    <span style="color: var(--muted);">Input 0 untuk membatalkan pembayaran</span>
   `;
   
   // Show popup
@@ -7328,11 +7448,6 @@ window.bukaEditNominalBayar = (id, currentBayar, sisaSebelumBayar) => {
     sheet.classList.add('entering');
     requestAnimationFrame(() => sheet.classList.remove('entering'));
   }
-  
-  // Focus input
-  setTimeout(() => $('editNominalInput').focus(), 100);
-  
-  _initKeyboardHandler();
 };
 
 window.simpanEditNominalBayar = async () => {
@@ -7465,11 +7580,13 @@ window.hapusBayar = async (id) => {
       if(!items.length) { container.innerHTML = ''; emptyMsg.style.display = 'block'; }
       else {
         emptyMsg.style.display = 'none';
+        window._tamValues = {};
         const saved = _rcTambahan[nama] || {};
         const savedItems = saved.items || {};
         container.innerHTML = items.map((t, i) => {
           const key = _tamKey(t);
           const qty = savedItems[key] ? savedItems[key].qty : '';
+          window._tamValues[i] = qty !== '' ? qty : 0;
           const harga = t.harga || 0;
           const ph = harga > 0 ? `qty... (@ ${fmt(harga)})` : 'qty... (⚠ harga 0)';
           const fs = t.jenis.length > 14 ? '11px' : '13px';
@@ -7478,7 +7595,13 @@ window.hapusBayar = async (id) => {
               <div style="font-size:${fs};font-weight:800;letter-spacing:.03em;line-height:1.2;">${t.jenis}</div>
               <div style="font-size:9px;font-weight:600;opacity:.8;margin-top:3px;">Rp ${fmt(harga)}/hari</div>
             </div>
-            <input type="number" id="tamItem_${i}" data-idx="${i}" placeholder="${ph}" min="0" inputmode="numeric" value="${qty}" oninput="hitungTotalTambahan()" style="padding:13px 14px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:14px;font-family:inherit;color:var(--text);outline:none;width:100%;appearance:none;-webkit-appearance:none;">
+            <div class="popup-input-trigger" onclick="bukaNumpadGenTam(${i})" style="margin-top:0;">
+              <input type="text" id="tamItem_${i}" data-idx="${i}" readonly
+                placeholder="${ph}" inputmode="none"
+                class="popup-input-no-keyboard"
+                style="font-size:13px;padding:13px 14px;border-radius:12px;cursor:pointer;"
+                value="${qty !== '' ? qty + ' hari' : ''}">
+            </div>
           </div>`;
         }).join('');
       }
@@ -7510,17 +7633,17 @@ window.hapusBayar = async (id) => {
       }
     };
 
+    window._tamValues = {}; // {index: qty}
+
     window.hitungTotalTambahan = () => {
       const items = window._tamCurrentItems || [];
       let total = 0;
-      let hasError = false;
       items.forEach((t, i) => {
-        const el = document.getElementById('tamItem_' + i);
-        let qty = parseInt(el ? el.value : 0) || 0;
+        let qty = parseInt(window._tamValues[i] ?? 0) || 0;
         // ✅ FIX 6: Validasi qty
-        if(qty < 0) { qty = 0; if(el) el.value = 0; }
-        if(qty > 31) { qty = 31; if(el) el.value = 31; showToast('⚠ Maksimal 31 hari!'); }
-        if(!Number.isInteger(qty)) { qty = Math.floor(qty); if(el) el.value = qty; }
+        if(qty < 0) { qty = 0; window._tamValues[i] = 0; }
+        if(qty > 31) { qty = 31; window._tamValues[i] = 31; showToast('⚠ Maksimal 31 hari!'); }
+        if(!Number.isInteger(qty)) { qty = Math.floor(qty); window._tamValues[i] = qty; }
         total += qty * (t.harga || 0);
       });
       const el = $('tamTotalDisplay');
@@ -7549,8 +7672,7 @@ window.hapusBayar = async (id) => {
       let total = 0;
       const savedItems = {};
       items.forEach((t, i) => {
-        const el = document.getElementById('tamItem_' + i);
-        const qty = parseInt(el ? el.value : 0) || 0;
+        const qty = parseInt(window._tamValues[i] ?? 0) || 0;
         if(qty > 0 && (t.harga || 0) === 0) { showToast(`⚠ Harga "${t.jenis}" belum diset!`); }
         const jumlah = qty * (t.harga || 0);
         total += jumlah;
@@ -8559,7 +8681,9 @@ window.hapusBayar = async (id) => {
       document.getElementById('ep_id').value = p.id;
       document.getElementById('ep_nama').value = p.nama;
       document.getElementById('ep_jenis').value = p.jenis || '(lainnya)';
-      document.getElementById('ep_nominal').value = p.nominal || 0;
+      const nom = p.nominal || 0;
+      document.getElementById('ep_nominal').value = nom;
+      document.getElementById('ep_nominal_display').value = nom > 0 ? 'Rp ' + fmt(nom) : '';
       bukaPopup('editPinjamanPopup');
     };
 
