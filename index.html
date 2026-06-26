@@ -3892,12 +3892,13 @@
       transition: opacity 0.15s ease;
     }
     /* 7. contain dihapus — menyebabkan lag pada animasi popup */
-    /* 8. Z-index yang masuk akal */
-    .rc-overlay { z-index: 1000 !important; }
-    .popup { z-index: 1000 !important; }
-    .numpad-overlay { z-index: 1001 !important; }
-    #tambahanPopup { z-index: 1002 !important; }
-    #slipPopup { z-index: 1003 !important; }
+    /* 8. Z-index — harus di atas .page (z-index:9999) */
+    .rc-overlay { z-index: 99999 !important; }
+    .popup { z-index: 99999 !important; }
+    #pinjamanPopup { z-index: 99999 !important; }
+    .numpad-overlay { z-index: 999999 !important; }
+    #tambahanPopup { z-index: 999999 !important; }
+    #slipPopup { z-index: 9999999 !important; }
 
     /* ===== PWA INSTALL MODAL ===== */
     #pwaInstallModal {
