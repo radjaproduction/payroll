@@ -3877,14 +3877,10 @@
     .numpad-overlay.active .numpad-sheet {
       transform: translateY(0);
     }
-    /* 5. Popup sheet — gunakan transition, bukan entering class */
+    /* 5. Popup sheet — JS handle transform via inline style, CSS hanya transition */
     .popup-sheet {
-      transform: translateY(100%);
       transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                   max-height 0.15s ease;
-    }
-    .popup.active .popup-sheet {
-      transform: translateY(0);
     }
     .popup-sheet.entering {
       transform: translateY(100%) !important;
@@ -4554,7 +4550,7 @@
 
 <!-- ===== POPUP PINJAMAN DENGAN NUMPAD ===== -->
 <div class="popup" id="pinjamanPopup">
-  <div class="popup-sheet pin-sheet entering">
+  <div class="popup-sheet pin-sheet">
     
     <div class="popup-header">
       <div class="popup-header-bg popup-header-blue">
@@ -4677,7 +4673,7 @@
 
 <!-- ===== POPUP BAYAR PINJAMAN DENGAN NUMPAD ===== -->
 <div class="popup" id="bayarPopup">
-  <div class="popup-sheet bayar-sheet entering">
+  <div class="popup-sheet bayar-sheet">
     
     <div class="popup-header">
       <div class="popup-header-bg" style="background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%);">
@@ -4859,7 +4855,7 @@
 
 <!-- ===== POPUP EDIT BAYAR ===== -->
 <div class="popup" id="editBayarPopup">
-  <div class="popup-sheet entering">
+  <div class="popup-sheet">
     
     <div class="popup-header">
       <div class="popup-header-bg" style="background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #FCD34D 100%);">
@@ -4896,7 +4892,7 @@
 
 <!-- ===== POPUP EDIT NOMINAL BAYAR (Inline) ===== -->
 <div class="popup" id="editNominalBayarPopup">
-  <div class="popup-sheet entering">
+  <div class="popup-sheet">
     
     <div class="popup-header">
       <div class="popup-header-bg" style="background: linear-gradient(135deg, #1A56DB 0%, #4B8EF8 50%, #6BA3FF 100%);">
@@ -5959,12 +5955,15 @@ window.bukaPinjaman = () => {
   
   const popup = $('pinjamanPopup');
   const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) { sheet.style.willChange = 'transform'; sheet.style.transform = 'translateY(100%)'; }
-  popup.style.display = 'flex';
+  if (sheet) {
+    sheet.classList.add('entering');
+    sheet.style.willChange = 'transform';
+  }
+  popup.classList.add('active');
   if (sheet) {
     sheet.offsetHeight;
     requestAnimationFrame(() => {
-      sheet.style.transform = 'translateY(0)';
+      sheet.classList.remove('entering');
       setTimeout(() => { sheet.style.willChange = 'auto'; }, 300);
     });
   }
@@ -5975,14 +5974,14 @@ window.tutupPopupPinjaman = () => {
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
     sheet.style.willChange = 'transform';
-    sheet.style.transform = 'translateY(100%)';
+    sheet.classList.add('entering');
     setTimeout(() => {
-      popup.style.display = 'none';
-      sheet.style.transform = '';
+      popup.classList.remove('active');
+      sheet.classList.remove('entering');
       sheet.style.willChange = 'auto';
     }, 250);
   } else {
-    popup.style.display = 'none';
+    popup.classList.remove('active');
   }
 };
 
