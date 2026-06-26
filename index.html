@@ -9154,55 +9154,120 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     }
 
     /**
-     * Generate ESC/POS commands untuk slip gaji (58mm)
+     * Lebar kertas thermal 58mm = 32 karakter per baris (font normal).
+     */
+    const PAPER_WIDTH = 32;
+
+    /**
+     * Bersihkan karakter yang tidak ada di charset printer thermal
+     * (em dash, en dash, smart quotes, dll) agar tidak tercetak sebagai
+     * karakter aneh/kotak.
+     */
+    function _cleanText(str) {
+      return String(str ?? '')
+        .replace(/[\u2012-\u2015\u2212]/g, '-')   // semua jenis dash -> "-"
+        .replace(/[\u2018\u2019]/g, "'")          // smart single quote
+        .replace(/[\u201C\u201D]/g, '"')          // smart double quote
+        .replace(/\u2026/g, '...')                // ellipsis
+        .replace(/[^\x00-\x7E]/g, '?');           // sisanya yg non-ASCII jadi "?"
+    }
+
+    /**
+     * Baris dua kolom: teks kiri rata kiri, teks kanan rata kanan,
+     * dengan padding spasi manual (bukan command alignment ESC/POS).
+     */
+    function _row2(left, right, width = PAPER_WIDTH) {
+      left = _cleanText(left);
+      right = _cleanText(right);
+      const space = width - left.length - right.length;
+      if (space <= 1) {
+        // Kalau kepanjangan, taruh kanan di baris baru, rata kanan
+        const pad = Math.max(0, width - right.length);
+        return left + '\x0A' + ' '.repeat(pad) + right;
+      }
+      return left + ' '.repeat(space) + right;
+    }
+
+    /** Garis pembatas penuh lebar kertas */
+    function _line(ch = '-', width = PAPER_WIDTH) {
+      return ch.repeat(width);
+    }
+
+    /** Teks rata tengah secara manual (presisi, tidak bergantung command ESC a) */
+    function _center(text, width = PAPER_WIDTH) {
+      text = _cleanText(text);
+      if (text.length >= width) return text;
+      const pad = Math.floor((width - text.length) / 2);
+      return ' '.repeat(pad) + text;
+    }
+
+    /**
+     * Generate ESC/POS commands untuk slip gaji (58mm / 32 kolom)
      */
     function generateESCPOS(nama, data, periode) {
       const ESC = '\x1B', GS = '\x1D', LF = '\x0A';
-      const CENTER = ESC + 'a\x01', LEFT = ESC + 'a\x00', RIGHT = ESC + 'a\x02';
       const BOLD_ON = ESC + 'E\x01', BOLD_OFF = ESC + 'E\x00';
       const DOUBLE_ON = ESC + '!\x30', DOUBLE_OFF = ESC + '!\x00';
       const CUT = GS + 'V\x01', INIT = ESC + '@';
 
-      let out = INIT + CENTER + BOLD_ON + DOUBLE_ON;
-      out += 'RADJA PRODUCTION' + LF;
-      out += DOUBLE_OFF + BOLD_OFF + 'SLIP GAJI' + LF;
-      out += '==============================' + LF + LEFT;
-      out += 'Nama  : ' + nama + LF;
-      out += 'Bagian: ' + (data.bagian || '-') + LF;
-      out += 'Periode: ' + periode + LF;
-      out += '------------------------------' + LF;
+      nama = _cleanText(nama);
+      periode = _cleanText(periode);
 
-      // Pekerjaan
+      let out = INIT;
+
+      // ===== HEADER =====
+      out += BOLD_ON + DOUBLE_ON;
+      out += _center('RADJA PRODUCTION', 16) + LF;
+      out += DOUBLE_OFF + BOLD_OFF;
+      out += _center('* SLIP GAJI KARYAWAN *') + LF;
+      out += _line('=') + LF;
+
+      // ===== INFO PEGAWAI =====
+      out += BOLD_ON + 'Nama   ' + BOLD_OFF + ': ' + nama + LF;
+      out += BOLD_ON + 'Bagian ' + BOLD_OFF + ': ' + (_cleanText(data.bagian) || '-') + LF;
+      out += BOLD_ON + 'Periode' + BOLD_OFF + ': ' + LF;
+      out += '  ' + periode + LF;
+      out += _line('-') + LF;
+
+      // ===== PEKERJAAN =====
       if (data.items?.length > 0) {
-        out += BOLD_ON + 'PEKERJAAN:' + BOLD_OFF + LF;
+        out += BOLD_ON + '>> PEKERJAAN' + BOLD_OFF + LF;
         data.items.forEach(item => {
-          const jenis = (item.jenis || '-').substring(0, 20);
-          out += jenis + LF;
-          out += '  ' + (item.qty||0) + ' x Rp ' + fmt(item.harga||0);
-          out += RIGHT + 'Rp ' + fmt(item.jumlah||0) + LEFT + LF;
+          const jenis = _cleanText(item.jenis || '-').substring(0, PAPER_WIDTH);
+          const rincian = (item.qty || 0) + ' x Rp ' + fmt(item.harga || 0);
+          out += ' ' + jenis + LF;
+          out += _row2('   ' + rincian, 'Rp ' + fmt(item.jumlah || 0)) + LF;
         });
-        out += '------------------------------' + LF;
-        out += RIGHT + 'Subtotal: Rp ' + fmt(data.subtotal) + LEFT + LF;
+        out += _line('-') + LF;
+        out += BOLD_ON + _row2('Subtotal', 'Rp ' + fmt(data.subtotal)) + BOLD_OFF + LF;
       }
 
-      // Tambahan & Potongan
+      // ===== TAMBAHAN =====
       if (data.tamTotal > 0) {
-        out += BOLD_ON + 'TAMBAHAN:' + BOLD_OFF + LF;
-        out += RIGHT + '+ Rp ' + fmt(data.tamTotal) + LEFT + LF;
-      }
-      if (data.potongan > 0) {
-        out += BOLD_ON + 'POTONGAN:' + BOLD_OFF + LF;
-        out += RIGHT + '- Rp ' + fmt(data.potongan) + LEFT + LF;
+        out += _line('-') + LF;
+        out += BOLD_ON + '>> TAMBAHAN' + BOLD_OFF + LF;
+        out += _row2('Total Tambahan', '+Rp ' + fmt(data.tamTotal)) + LF;
       }
 
-      // Total Bersih
-      out += '===============================' + LF;
-      out += BOLD_ON + DOUBLE_ON + CENTER + 'TOTAL BERSIH' + LF;
-      out += 'Rp ' + fmt(data.total) + LF;
-      out += DOUBLE_OFF + BOLD_OFF + LEFT;
-      out += '===============================' + LF;
-      out += CENTER + 'Dicetak: ' + new Date().toLocaleString('id-ID') + LF;
-      out += 'Terima kasih' + LF + LF + LF + CUT;
+      // ===== POTONGAN =====
+      if (data.potongan > 0) {
+        out += _line('-') + LF;
+        out += BOLD_ON + '>> POTONGAN' + BOLD_OFF + LF;
+        out += _row2('Total Potongan', '-Rp ' + fmt(data.potongan)) + LF;
+      }
+
+      // ===== TOTAL BERSIH =====
+      out += _line('=') + LF;
+      out += BOLD_ON + DOUBLE_ON;
+      out += _center('TOTAL BERSIH', 16) + LF;
+      out += _center('Rp ' + fmt(data.total), 16) + LF;
+      out += DOUBLE_OFF + BOLD_OFF;
+      out += _line('=') + LF;
+
+      // ===== FOOTER =====
+      out += _center('Dicetak: ' + _cleanText(new Date().toLocaleString('id-ID'))) + LF;
+      out += _center('~ Terima kasih ~') + LF;
+      out += LF + LF + LF + CUT;
 
       return out;
     }
@@ -9231,7 +9296,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       if (!checkboxes.length) { showToast('Pilih minimal satu pegawai!'); return; }
 
       const dari = _getISO('rekapMulai'), sampai = _getISO('rekapAkhir');
-      const periode = (_tgl.rekapMulai || '--') + ' — ' + (_tgl.rekapAkhir || '--');
+      const periode = (_tgl.rekapMulai || '--') + ' - ' + (_tgl.rekapAkhir || '--');
       let combined = '';
       let count = 0;
 
