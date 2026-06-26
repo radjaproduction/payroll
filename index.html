@@ -4,6 +4,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payroll Radja</title>
+  <script>
+    // ===== GLOBAL ERROR WATCHDOG =====
+    // Menangkap error JS fatal (termasuk modul yang gagal di-import, misal CDN
+    // esm.sh diblokir/lambat/down) dan menampilkannya sebagai kotak pesan di
+    // layar, supaya aplikasi tidak terlihat "diam" tanpa penjelasan saat
+    // sebenarnya ada error yang menghentikan seluruh script utama.
+    (function () {
+      var shown = false;
+      function showFatalError(msg, detail) {
+        if (shown) return; // cukup tampilkan sekali
+        shown = true;
+        var box = document.createElement('div');
+        box.style.cssText = 'position:fixed;inset:0;z-index:99999999;background:#1A1A1A;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;font-family:sans-serif;text-align:center;gap:12px;';
+        box.innerHTML =
+          '<div style="font-size:40px;">⚠️</div>' +
+          '<div style="font-size:16px;font-weight:800;">Aplikasi Gagal Memuat</div>' +
+          '<div style="font-size:13px;color:#ccc;max-width:320px;line-height:1.5;">' + msg + '</div>' +
+          '<div style="font-size:11px;color:#888;max-width:320px;word-break:break-all;margin-top:8px;">' + (detail || '') + '</div>' +
+          '<button onclick="location.reload()" style="margin-top:16px;background:#4B8EF8;color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;">Muat Ulang</button>';
+        document.body.appendChild(box);
+      }
+      window.addEventListener('error', function (e) {
+        var src = (e && e.filename) || '';
+        var msg = (e && e.message) || '';
+        // Error dari module import / script eksternal gagal load
+        if (src.indexOf('esm.sh') !== -1 || /Failed to resolve module|Failed to fetch dynamically imported module/i.test(msg)) {
+          showFatalError('Gagal memuat komponen database (Supabase) dari internet. Cek koneksi internet kamu, atau koneksi sedang diblokir oleh jaringan/WiFi.', msg + ' | ' + src);
+        }
+      }, true);
+      window.addEventListener('unhandledrejection', function (e) {
+        var reason = (e && e.reason && (e.reason.message || e.reason.toString())) || '';
+        if (/esm\.sh|fetch|network|Failed to resolve module/i.test(reason)) {
+          showFatalError('Gagal memuat komponen database (Supabase) dari internet. Cek koneksi internet kamu, atau koneksi sedang diblokir oleh jaringan/WiFi.', reason);
+        }
+      });
+      // Jaring pengaman terakhir: kalau setelah beberapa detik fungsi inti
+      // (cetakSlip, cetakMassal) belum terdefinisi sama sekali, berarti
+      // script utama gagal total — tampilkan pesan generik.
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          if (typeof window.cetakSlip !== 'function' && typeof window.cetakMassal !== 'function') {
+            showFatalError('Aplikasi tidak berhasil memuat seluruh komponennya (kemungkinan koneksi internet bermasalah atau ada pemblokiran jaringan). Coba muat ulang atau periksa koneksi internet.', 'init-watchdog: core functions missing');
+          }
+        }, 6000);
+      });
+    })();
+  </script>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#1A2A8C">
   <meta name="mobile-web-app-capable" content="yes">
@@ -5163,13 +5210,49 @@
     </div>
   </div>
 
-  <script type="module">
+  <script>
+    // ===== LOADER SUPABASE-JS DENGAN FALLBACK CDN GANDA =====
+    // Sebelumnya pakai: <script type="module"> + import dari https://esm.sh/...
+    // Masalahnya: esm.sh adalah satu-satunya sumber, dan jika domain ini
+    // diblokir/lambat/down di sisi network, SELURUH script module gagal
+    // total tanpa pesan error apapun ke user (semua fungsi termasuk cetak
+    // jadi tidak terdefinisi). Solusi: pakai plain <script src> classic
+    // (sesuai rekomendasi resmi Supabase) yang mengekspos variabel global
+    // `window.supabase`. Ditulis lewat document.write supaya browser
+    // menunggu (blocking) script ini selesai sebelum melanjutkan ke script
+    // berikutnya — menjaga urutan eksekusi sama seperti kode asli.
+    //
+    // Jika CDN pertama (jsDelivr) gagal, browser akan otomatis lanjut
+    // mengeksekusi onerror di bawah untuk mencoba CDN kedua (unpkg) secara
+    // synchronous juga, sebelum melanjutkan ke script app utama.
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+          onerror="document.write('\u003cscript src=\u0022https://unpkg.com/@supabase/supabase-js@2\u0022 onerror=\u0022window._sbLoadFailed=true\u0022\u003e\u003c/script\u003e')">
+  </script>
+  <script>
+    if (!window.supabase && !window._sbLoadFailed) {
+      // Tunda sedikit untuk memberi waktu CDN kedua (yang ditulis via
+      // document.write di atas) selesai diparsing dan dieksekusi.
+      // Pada umumnya document.write bersifat blocking, jadi titik ini
+      // seharusnya sudah punya window.supabase terisi jika salah satu CDN
+      // berhasil.
+    }
+    if (!window.supabase) {
+      var box = document.createElement('div');
+      box.style.cssText = 'position:fixed;inset:0;z-index:99999999;background:#1A1A1A;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;font-family:sans-serif;text-align:center;gap:12px;';
+      box.innerHTML = '<div style="font-size:40px;">⚠️</div><div style="font-size:16px;font-weight:800;">Gagal Memuat Database</div><div style="font-size:13px;color:#ccc;max-width:320px;">Tidak bisa mengambil komponen Supabase dari internet (CDN jsDelivr maupun unpkg gagal diakses). Cek koneksi internet kamu lalu muat ulang.</div><button onclick="location.reload()" style="margin-top:16px;background:#4B8EF8;color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;">Muat Ulang</button>';
+      document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(box); });
+      if (document.body) document.body.appendChild(box);
+    }
+  </script>
+  <script>
     // ===== SUPABASE INIT =====
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    // createClient diambil dari window.supabase (diisi oleh script loader di atas)
+    const { createClient } = window.supabase || {};
 
     const SUPABASE_URL = "https://jziegbpuudswljwasctn.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6aWVnYnB1dWRzd2xqd2FzY3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyMTMwNTQsImV4cCI6MjA5Nzc4OTA1NH0.ywgjRyZv3UxtYgbvVvoLr_Hf02u5wW8yP2v054WD98s";
-    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = createClient ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
     const COL = {
       master: 'payroll_master',
