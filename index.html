@@ -3567,6 +3567,262 @@
     ::-webkit-scrollbar { width:4px; height:4px }
     ::-webkit-scrollbar-track { background:transparent }
     ::-webkit-scrollbar-thumb { background:rgba(26,86,219,.20); border-radius:4px }
+
+    /* ===== CUSTOM NUMPAD ===== */
+    .numpad-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 43, 110, 0.4);
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+      z-index: 100000;
+      padding: 0;
+    }
+
+    .numpad-overlay.active {
+      display: flex;
+    }
+
+    .numpad-sheet {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 24px 24px 0 0;
+      padding: 16px 16px calc(16px + var(--safe-bottom));
+      box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
+      animation: slideUp 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .numpad-display {
+      background: linear-gradient(135deg, #F0F7FF, #E0EAFF);
+      border: 2px solid rgba(26, 86, 219, 0.15);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      text-align: right;
+    }
+
+    .numpad-display-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .numpad-display-value {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--primary3);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      min-height: 40px;
+    }
+
+    .numpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .numpad-btn {
+      padding: 18px 8px;
+      border: 2px solid #E8EEF5;
+      border-radius: 16px;
+      background: #F7F9FC;
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.1s;
+      text-align: center;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .numpad-btn:active {
+      transform: scale(0.95);
+      background: var(--primaryDim);
+      border-color: var(--primary);
+      color: var(--primary3);
+    }
+
+    .numpad-btn.action {
+      background: linear-gradient(135deg, var(--primary3), var(--primary));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 2px 8px rgba(26, 86, 219, 0.25);
+    }
+
+    .numpad-btn.action:active {
+      opacity: 0.9;
+      transform: scale(0.95);
+    }
+
+    .numpad-btn.danger {
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .numpad-btn.danger:active {
+      opacity: 0.9;
+    }
+
+    .numpad-btn.wide {
+      grid-column: span 2;
+    }
+
+    .numpad-btn.zero {
+      grid-column: span 2;
+    }
+
+    .numpad-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .numpad-confirm {
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary3), var(--primary));
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .numpad-confirm:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+    }
+
+    .numpad-confirm:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: var(--muted);
+      box-shadow: none;
+    }
+
+    .numpad-cancel {
+      padding: 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      background: var(--card2);
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .numpad-cancel:active {
+      transform: scale(0.97);
+      border-color: var(--primary);
+      color: var(--primary3);
+    }
+
+    /* Input field yang tidak memicu keyboard */
+    .popup-input-no-keyboard {
+      width: 100%;
+      padding: 12px 14px 12px 44px;
+      border: 2px solid #DDE4F0;
+      border-radius: 12px;
+      background: #F7F9FC;
+      font-size: 16px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      color: #1A2340;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+      caret-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .popup-input-no-keyboard:focus {
+      border-color: #4B8EF8;
+      box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
+      background: #fff;
+    }
+
+    /* Bayar jenis input no keyboard */
+    .bayar-pinj-input-no-keyboard {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #DDE4F0;
+      border-radius: 10px;
+      background: #F7F9FC;
+      font-size: 13px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      color: #1A2340;
+      outline: none;
+      transition: border-color 0.15s;
+      cursor: pointer;
+      caret-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      text-align: right;
+    }
+
+    .bayar-pinj-input-no-keyboard:focus {
+      border-color: #4B8EF8;
+    }
+
+    /* Bayar sheet tidak naik saat numpad */
+    .bayar-sheet.no-push {
+      max-height: 85vh !important;
+      max-height: 85dvh !important;
+      transform: translateY(0) !important;
+      transition: none !important;
+    }
+
+    .pin-sheet.no-push {
+      max-height: 85vh !important;
+      max-height: 85dvh !important;
+      transform: translateY(0) !important;
+      transition: none !important;
+    }
+
+    /* Hide quick amounts (diganti numpad) */
+    .popup-quick.hidden-force {
+      display: none !important;
+    }
+
+    /* Input wrapper untuk trigger numpad */
+    .popup-input-trigger {
+      position: relative;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .popup-input-trigger::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
   </style>
 </head>
 <body>
@@ -4140,9 +4396,9 @@
     </div>
   </div>
 
- <!-- POPUP PINJAMAN -->
+<!-- ===== POPUP PINJAMAN DENGAN NUMPAD ===== -->
 <div class="popup" id="pinjamanPopup">
-  <div class="popup-sheet entering">
+  <div class="popup-sheet pin-sheet entering">
     
     <div class="popup-header">
       <div class="popup-header-bg popup-header-blue">
@@ -4155,7 +4411,7 @@
             <div class="popup-header-subtitle">Catat pinjaman pegawai</div>
           </div>
         </div>
-        <button class="popup-header-close" onclick="tutupPopup('pinjamanPopup')">
+        <button class="popup-header-close" onclick="tutupPopupPinjaman()">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -4211,24 +4467,16 @@
           <i class="fa-solid fa-money-bill-wave"></i>
           Jumlah Pinjaman
         </label>
-        <div class="popup-input-wrap">
+        <div class="popup-input-trigger" onclick="bukaNumpad('pinjaman')">
           <span class="popup-input-prefix">Rp</span>
-          <input type="number" id="pin_nominal" placeholder="0" min="1" disabled 
-            oninput="cekSimpanPin()" inputmode="numeric" pattern="[0-9]*" 
-            autocomplete="off" autocorrect="off" class="popup-input">
+          <input type="text" id="pin_nominal_display" readonly placeholder="Ketuk untuk input..." 
+            class="popup-input-no-keyboard" inputmode="none">
+          <input type="hidden" id="pin_nominal" value="">
         </div>
-        <div class="popup-hint" id="pinNominalHint">Masukkan jumlah pinjaman</div>
+        <div class="popup-hint" id="pinNominalHint">Ketuk field di atas untuk membuka numpad</div>
       </div>
 
-      <div class="popup-quick hidden" id="pinQuickAmounts">
-        <div class="popup-quick-label">Pilih nominal cepat:</div>
-        <div class="popup-quick-grid">
-          <button onclick="setPinNominal(100000, event)" class="popup-quick-btn">100rb</button>
-          <button onclick="setPinNominal(200000, event)" class="popup-quick-btn">200rb</button>
-          <button onclick="setPinNominal(300000, event)" class="popup-quick-btn">300rb</button>
-          <button onclick="setPinNominal(500000, event)" class="popup-quick-btn">500rb</button>
-        </div>
-      </div>
+      <!-- Quick amounts dihapus, diganti numpad -->
     </div>
 
     <div class="popup-footer">
@@ -4236,17 +4484,45 @@
         <i class="fa-solid fa-floppy-disk"></i>
         <span>Simpan Pinjaman</span>
       </button>
-      <button class="popup-btn-ghost" onclick="tutupPopup('pinjamanPopup')">Batal</button>
+      <button class="popup-btn-ghost" onclick="tutupPopupPinjaman()">Batal</button>
     </div>
 
   </div>
 </div>
 
-<!-- ===== POPUP BAYAR PINJAMAN ===== -->
+<!-- ===== NUMPAD OVERLAY ===== -->
+<div class="numpad-overlay" id="numpadOverlay">
+  <div class="numpad-sheet">
+    <div class="numpad-display">
+      <div class="numpad-display-label" id="numpadLabel">Jumlah Pinjaman</div>
+      <div class="numpad-display-value" id="numpadDisplay">0</div>
+    </div>
+    <div class="numpad-grid">
+      <button class="numpad-btn" onclick="numpadInput('1')">1</button>
+      <button class="numpad-btn" onclick="numpadInput('2')">2</button>
+      <button class="numpad-btn" onclick="numpadInput('3')">3</button>
+      <button class="numpad-btn" onclick="numpadInput('4')">4</button>
+      <button class="numpad-btn" onclick="numpadInput('5')">5</button>
+      <button class="numpad-btn" onclick="numpadInput('6')">6</button>
+      <button class="numpad-btn" onclick="numpadInput('7')">7</button>
+      <button class="numpad-btn" onclick="numpadInput('8')">8</button>
+      <button class="numpad-btn" onclick="numpadInput('9')">9</button>
+      <button class="numpad-btn wide" onclick="numpadInput('0')">0</button>
+      <button class="numpad-btn" onclick="numpadBackspace()">
+        <i class="fa-solid fa-delete-left"></i>
+      </button>
+    </div>
+    <div class="numpad-actions">
+      <button class="numpad-cancel" onclick="tutupNumpad()">Batal</button>
+      <button class="numpad-confirm" onclick="numpadConfirm()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== POPUP BAYAR PINJAMAN DENGAN NUMPAD ===== -->
 <div class="popup" id="bayarPopup">
   <div class="popup-sheet bayar-sheet entering">
     
-    <!-- HEADER HIJAU -->
     <div class="popup-header">
       <div class="popup-header-bg" style="background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%);">
         <div class="popup-header-content">
@@ -4258,7 +4534,7 @@
             <div class="popup-header-subtitle">Proses pembayaran pinjaman</div>
           </div>
         </div>
-        <button class="popup-header-close" onclick="tutupPopup('bayarPopup')">
+        <button class="popup-header-close" onclick="tutupPopupBayar()">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -4269,10 +4545,9 @@
       </div>
     </div>
 
-    <!-- BODY -->
     <div class="popup-body">
       
-      <!-- Info Pendapatan (muncul setelah pilih nama) -->
+      <!-- Info Pendapatan -->
       <div class="popup-info" id="bayarPendapatanCard" style="display: none; background: linear-gradient(135deg, #D1FAE5 0%, #ECFDF5 100%); border: 1.5px solid rgba(16, 185, 129, 0.15);">
         <div class="popup-info-icon" style="background: #059669;">
           <i class="fa-solid fa-wallet"></i>
@@ -4326,17 +4601,45 @@
 
     </div>
 
-    <!-- FOOTER -->
     <div class="popup-footer">
       <button class="popup-btn-primary" id="btnSimpanBayar" disabled onclick="simpanBayar()" style="background: linear-gradient(135deg, #059669, #10B981); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.28);">
         <i class="fa-solid fa-check"></i>
         <span>Simpan Pembayaran</span>
       </button>
-      <button class="popup-btn-ghost" onclick="tutupPopup('bayarPopup')">
+      <button class="popup-btn-ghost" onclick="tutupPopupBayar()">
         Batal
       </button>
     </div>
 
+  </div>
+</div>
+
+<!-- ===== NUMPAD OVERLAY BAYAR ===== -->
+<div class="numpad-overlay" id="numpadBayarOverlay">
+  <div class="numpad-sheet">
+    <div class="numpad-display">
+      <div class="numpad-display-label" id="numpadBayarLabel">Jumlah Bayar</div>
+      <div class="numpad-display-value" id="numpadBayarDisplay">0</div>
+    </div>
+    <div class="numpad-grid">
+      <button class="numpad-btn" onclick="numpadBayarInput('1')">1</button>
+      <button class="numpad-btn" onclick="numpadBayarInput('2')">2</button>
+      <button class="numpad-btn" onclick="numpadBayarInput('3')">3</button>
+      <button class="numpad-btn" onclick="numpadBayarInput('4')">4</button>
+      <button class="numpad-btn" onclick="numpadBayarInput('5')">5</button>
+      <button class="numpad-btn" onclick="numpadBayarInput('6')">6</button>
+      <button class="numpad-btn" onclick="numpadBayarInput('7')">7</button>
+      <button class="numpad-btn" onclick="numpadBayarInput('8')">8</button>
+      <button class="numpad-btn" onclick="numpadBayarInput('9')">9</button>
+      <button class="numpad-btn wide" onclick="numpadBayarInput('0')">0</button>
+      <button class="numpad-btn" onclick="numpadBayarBackspace()">
+        <i class="fa-solid fa-delete-left"></i>
+      </button>
+    </div>
+    <div class="numpad-actions">
+      <button class="numpad-cancel" onclick="tutupNumpadBayar()">Batal</button>
+      <button class="numpad-confirm" onclick="numpadBayarConfirm()">OK</button>
+    </div>
   </div>
 </div>
 
@@ -5314,36 +5617,30 @@
       finally { hideLoading(); }
     };
 
-// ===== POPUP PINJAMAN — ZERO DELAY + KEYBOARD PUSH UP =====
+// ===== STATE NUMPAD =====
+let _numpadTarget = null; // 'pinjaman' | 'bayar'
+let _numpadValue = '';
+let _numpadMaxValue = null;
+let _numpadCallback = null;
+let _numpadBayarIndex = null;
 
-// State untuk keyboard
-let _pinKeyboardHeight = 0;
-let _pinViewportHandler = null;
+// ===== PINJAMAN FUNCTIONS =====
 
 window.bukaPinjaman = () => {
-  // Reset form
   resetSelect('pin_nama', MASTER.pegawai, '-- Pilih Pegawai --');
   resetSelect('pin_jenis', MASTER.jenisPinjaman, '-- Pilih Jenis --');
   
   $('pin_jenis').disabled = true;
-  $('pin_nominal').disabled = true;
+  $('pin_nominal_display').value = '';
   $('pin_nominal').value = '';
-  $('pinNominalHint').textContent = 'Masukkan jumlah pinjaman';
+  $('pinNominalHint').textContent = 'Ketuk field di atas untuk membuka numpad';
   $('pinNominalHint').style.color = '#7B8DB0';
   setDis('btnSimpanPin', true);
   
-  // Hide field
   $('pinJenisGroup').className = 'popup-form-group hidden';
   $('pinNominalGroup').className = 'popup-form-group hidden';
-  $('pinQuickAmounts').className = 'popup-quick hidden';
   
-  // Show popup
   const popup = $('pinjamanPopup');
-  if (!popup) {
-    console.error('pinjamanPopup not found!');
-    return;
-  }
-  
   popup.style.display = 'flex';
   
   const sheet = popup.querySelector('.popup-sheet');
@@ -5351,22 +5648,12 @@ window.bukaPinjaman = () => {
     sheet.classList.add('entering');
     requestAnimationFrame(() => requestAnimationFrame(() => {
       sheet.classList.remove('entering');
-      // BUGFIX: Init keyboard SETELAH animasi entering selesai
-      _initKeyboardHandler();
     }));
-  } else {
-    _initKeyboardHandler();
   }
 };
 
-window.tutupPopup = (id) => {
-  const popup = document.getElementById(id);
-  if (!popup) return;
-  
-  // BUGFIX: Matikan keyboard handler DULU sebelum animasi tutup,
-  // supaya handler tidak menimpa transform saat animasi berjalan.
-  _removeKeyboardHandler();
-
+window.tutupPopupPinjaman = () => {
+  const popup = $('pinjamanPopup');
   const sheet = popup.querySelector('.popup-sheet');
   if (sheet) {
     sheet.style.transform = 'translateY(100%)';
@@ -5380,89 +5667,6 @@ window.tutupPopup = (id) => {
   }
 };
 
-// ===== KEYBOARD PUSH UP HANDLER =====
-// Dipakai oleh bukaPinjaman(), bukaBayar(), dan tutupPopup()
-function _initKeyboardHandler() {
-  // Selalu remove listener lama dulu (cegah double listener)
-  _removeKeyboardHandler();
-
-  // Cari sheet aktif - cek semua popup yang visible
-  const _getActiveSheet = () => {
-    const popups = document.querySelectorAll('.popup');
-    for (const p of popups) {
-      const display = p.style.display || getComputedStyle(p).display;
-      if (display === 'flex' || display === 'block') {
-        const sheet = p.querySelector('.popup-sheet');
-        if (sheet) return sheet;
-      }
-    }
-    return null;
-  };
-
-  if (window.visualViewport) {
-    _pinViewportHandler = () => {
-      const vv = window.visualViewport;
-      // Tinggi keyboard = selisih innerHeight dengan visualViewport.height
-      const keyboardHeight = window.innerHeight - vv.height;
-      _pinKeyboardHeight = keyboardHeight;
-      const sheet = _getActiveSheet();
-      // Guard: jangan jalankan kalau sheet masih dalam animasi entering
-      if (!sheet || sheet.classList.contains('entering')) return;
-
-      if (keyboardHeight > 80) {
-        sheet.classList.add('keyboard-active');
-        // BUGFIX: Jangan tambahkan vv.offsetTop — nilainya tidak konsisten
-        // di berbagai Android/browser dan menyebabkan posisi bergeser.
-        // Cukup push sejauh tinggi keyboard saja.
-        sheet.style.transform = `translateY(-${keyboardHeight}px)`;
-        // Scroll field aktif ke tengah
-        const activeEl = document.activeElement;
-        if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-          setTimeout(() => activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
-        }
-      } else {
-        sheet.classList.remove('keyboard-active');
-        sheet.style.transform = '';
-      }
-    };
-    window.visualViewport.addEventListener('resize', _pinViewportHandler);
-    window.visualViewport.addEventListener('scroll', _pinViewportHandler);
-  } else {
-    // Fallback: window resize
-    const _initWindowHeight = window.innerHeight;
-    _pinViewportHandler = () => {
-      const currentHeight = window.innerHeight;
-      const heightDiff = _initWindowHeight - currentHeight;
-      const sheet = _getActiveSheet();
-      // Guard: jangan jalankan kalau sheet masih dalam animasi entering
-      if (!sheet || sheet.classList.contains('entering')) return;
-      if (heightDiff > 80) {
-        sheet.classList.add('keyboard-active');
-        sheet.style.transform = `translateY(-${heightDiff}px)`;
-      } else {
-        sheet.classList.remove('keyboard-active');
-        sheet.style.transform = '';
-      }
-    };
-    window.addEventListener('resize', _pinViewportHandler);
-  }
-}
-
-function _removeKeyboardHandler() {
-  if (window.visualViewport && _pinViewportHandler) {
-    window.visualViewport.removeEventListener('resize', _pinViewportHandler);
-    window.visualViewport.removeEventListener('scroll', _pinViewportHandler);
-  } else if (_pinViewportHandler) {
-    window.removeEventListener('resize', _pinViewportHandler);
-  }
-  _pinViewportHandler = null;
-  // Reset transform semua sheet (jaga-jaga)
-  document.querySelectorAll('.popup-sheet').forEach(sheet => {
-    sheet.classList.remove('keyboard-active');
-    sheet.style.transform = '';
-  });
-}
-
 window.onPinNama = () => {
   const nama = $('pin_nama').value;
   $('pin_nama').style.color = nama ? '#1A2340' : '#7B8DB0';
@@ -5470,21 +5674,18 @@ window.onPinNama = () => {
   if (!nama) {
     resetSelect('pin_jenis', MASTER.jenisPinjaman, '-- Pilih Jenis --');
     $('pin_jenis').disabled = true;
+    $('pin_nominal_display').value = '';
     $('pin_nominal').value = '';
-    $('pin_nominal').disabled = true;
+    $('pin_nominal_display').disabled = true;
     setDis('btnSimpanPin', true);
     
     $('pinJenisGroup').className = 'popup-form-group hidden';
     $('pinNominalGroup').className = 'popup-form-group hidden';
-    $('pinQuickAmounts').className = 'popup-quick hidden';
     return;
   }
   
-  // Aktifkan jenis — show dengan animasi
   $('pin_jenis').disabled = false;
   $('pinJenisGroup').className = 'popup-form-group visible';
-  
-  // Focus INSTANT (no setTimeout)
   $('pin_jenis').focus();
 };
 
@@ -5493,19 +5694,14 @@ window.onPinJenis = () => {
   $('pin_jenis').style.color = jenis ? '#1A2340' : '#7B8DB0';
   
   if (!jenis) {
+    $('pin_nominal_display').value = '';
     $('pin_nominal').value = '';
-    $('pin_nominal').disabled = true;
     setDis('btnSimpanPin', true);
     $('pinNominalGroup').className = 'popup-form-group hidden';
-    $('pinQuickAmounts').className = 'popup-quick hidden';
     return;
   }
   
-  $('pin_nominal').disabled = false;
   $('pinNominalGroup').className = 'popup-form-group visible';
-  $('pinQuickAmounts').className = 'popup-quick visible';
-  
-  $('pin_nominal').focus();
 };
 
 window.cekSimpanPin = () => {
@@ -5515,30 +5711,11 @@ window.cekSimpanPin = () => {
   
   const hint = $('pinNominalHint');
   if (nominal > 0) {
-    hint.textContent = 'Rp ' + fmt(nominal);
-    hint.style.color = 'var(--primary3)';
-    hint.style.fontWeight = '700';
+    hint.innerHTML = '<span style="color:var(--primary3);font-weight:800;">Rp ' + fmt(nominal) + '</span>';
   } else {
-    hint.textContent = 'Masukkan jumlah pinjaman';
-    hint.style.color = 'var(--muted)';
-    hint.style.fontWeight = '500';
+    hint.textContent = 'Ketuk field di atas untuk membuka numpad';
+    hint.style.color = '#7B8DB0';
   }
-};
-
-window.setPinNominal = (amount, ev) => {
-  $('pin_nominal').value = amount;
-  cekSimpanPin();
-  
-  // Highlight button
-  document.querySelectorAll('.popup-quick-btn').forEach(btn => btn.classList.remove('active'));
-  const target = ev && ev.target ? ev.target : null;
-  if (target) target.classList.add('active');
-  
-  // Update hint
-  const hint = $('pinNominalHint');
-  hint.textContent = 'Rp ' + fmt(amount);
-  hint.style.color = 'var(--primary3)';
-  hint.style.fontWeight = '700';
 };
 
 window.simpanPinjaman = async () => {
@@ -5568,7 +5745,7 @@ window.simpanPinjaman = async () => {
     });
     
     showToast('✅ Pinjaman tersimpan!');
-    tutupPopup('pinjamanPopup');
+    tutupPopupPinjaman();
     
   } catch (e) {
     showToast('❌ Gagal: ' + e.message);
@@ -5579,11 +5756,43 @@ window.simpanPinjaman = async () => {
   }
 };
 
-    // ===== BAYAR PINJAMAN — ZERO DELAY + KEYBOARD PUSH =====
+// ===== NUMPAD PINJAMAN =====
 
-// ===== BAYAR PINJAMAN — FIX =====
+window.bukaNumpad = (target) => {
+  _numpadTarget = target;
+  _numpadValue = $('pin_nominal').value || '';
+  
+  $('numpadLabel').textContent = 'Jumlah Pinjaman';
+  $('numpadDisplay').textContent = _numpadValue ? fmt(parseInt(_numpadValue)) : '0';
+  
+  $('numpadOverlay').classList.add('active');
+};
 
-// ===== BAYAR PINJAMAN — FIX =====
+window.numpadInput = (digit) => {
+  if (_numpadValue.length >= 12) return; // Max 12 digit
+  _numpadValue += digit;
+  $('numpadDisplay').textContent = fmt(parseInt(_numpadValue));
+};
+
+window.numpadBackspace = () => {
+  _numpadValue = _numpadValue.slice(0, -1);
+  $('numpadDisplay').textContent = _numpadValue ? fmt(parseInt(_numpadValue)) : '0';
+};
+
+window.numpadConfirm = () => {
+  const val = parseInt(_numpadValue) || 0;
+  $('pin_nominal').value = val;
+  $('pin_nominal_display').value = val > 0 ? 'Rp ' + fmt(val) : '';
+  cekSimpanPin();
+  tutupNumpad();
+};
+
+window.tutupNumpad = () => {
+  $('numpadOverlay').classList.remove('active');
+  _numpadValue = '';
+};
+
+// ===== BAYAR PINJAMAN FUNCTIONS =====
 
 window.bukaBayar = () => {
   const data = getRekapPinjamanLocal();
@@ -5603,25 +5812,21 @@ window.bukaBayar = () => {
     return;
   }
   
-  // Reset form
   resetSelect('bayar_nama', list, '-- Pilih Pegawai --');
   $('bayar_nilai').value = '-';
   $('bayar_jenis_list').innerHTML = '';
   setDis('btnSimpanBayar', true);
   $('btnSimpanBayar').innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
   
-  // Reset toggle
   _bayarLuarGaji = false;
   const lgTrack = $('lgTrack');
   const lgThumb = $('lgThumb');
   if (lgTrack) lgTrack.classList.remove('lg-active');
   if (lgThumb) lgThumb.style.left = '2px';
   
-  // Hide info & total
   $('bayarPendapatanCard').style.display = 'none';
   $('bayarTotalGroup').style.display = 'none';
   
-  // Show popup dari BAWAH
   const popup = $('bayarPopup');
   popup.style.display = 'flex';
   
@@ -5630,22 +5835,23 @@ window.bukaBayar = () => {
     sheet.classList.add('entering');
     requestAnimationFrame(() => requestAnimationFrame(() => {
       sheet.classList.remove('entering');
-      // BUGFIX: Init keyboard SETELAH animasi entering selesai,
-      // supaya handler tidak push sheet dari posisi yang salah.
-      _initKeyboardHandler();
     }));
-  } else {
-    _initKeyboardHandler();
   }
 };
 
-window.toggleLuarGaji = () => {
-  _bayarLuarGaji = !_bayarLuarGaji;
-  const lgTrack = $('lgTrack');
-  if (lgTrack) lgTrack.classList.toggle('lg-active');
-  
-  _bayarJenisData.forEach((p, i) => onBayarJenisInput(i, p.sisa));
-  cekSimpanBayar();
+window.tutupPopupBayar = () => {
+  const popup = $('bayarPopup');
+  const sheet = popup.querySelector('.popup-sheet');
+  if (sheet) {
+    sheet.style.transform = 'translateY(100%)';
+    setTimeout(() => {
+      popup.style.display = 'none';
+      sheet.style.transform = '';
+      sheet.classList.add('entering');
+    }, 250);
+  } else {
+    popup.style.display = 'none';
+  }
 };
 
 window.onBayarNama = () => {
@@ -5660,17 +5866,15 @@ window.onBayarNama = () => {
     return;
   }
   
-  // Show info & total
   $('bayarPendapatanCard').style.display = 'flex';
   $('bayarTotalGroup').style.display = 'block';
   
-  // Hitung pendapatan
   const dari = _getISO('rekapMulai');
   const sampai = _getISO('rekapAkhir');
   const res = getRincianLocal(nama, dari, sampai);
   const tam = _rcTambahan[nama];
   const tamTgl = tam?._tanggalISO || '';
-  const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
+  const tamDalamRange = !tamTgl || ((!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai));
   const tamTotalFromItems2 = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
   const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems2) : 0;
   
@@ -5690,7 +5894,6 @@ window.onBayarNama = () => {
   $('bayarPendapatanVal').textContent = fmt(_bayarPendapatanBersih);
   $('bayar_nilai').value = 'Rp ' + fmt(_sisaPerNama[nama] || 0);
   
-  // Generate list
   _bayarJenisData = getRekapPinjamanPerJenisLocal(nama);
   const container = $('bayar_jenis_list');
   
@@ -5704,11 +5907,14 @@ window.onBayarNama = () => {
         </div>
         <div>
           <div class="bayar-pinj-label">Bayar</div>
-          <input type="number" id="bayar_input_${i}" placeholder="0" min="0" inputmode="numeric" 
-            oninput="onBayarJenisInput(${i}, ${p.sisa})" class="bayar-pinj-input">
+          <div class="popup-input-trigger" onclick="bukaNumpadBayar(${i}, ${p.sisa})">
+            <input type="text" id="bayar_input_display_${i}" readonly placeholder="Ketuk..." 
+              class="bayar-pinj-input-no-keyboard" inputmode="none">
+            <input type="hidden" id="bayar_input_${i}" value="">
+          </div>
         </div>
       </div>
-      <button onclick="pelunasanPenuh(${i}, ${p.sisa})" class="bayar-pinj-lunas">
+      <button onclick="pelunasanPenuhNumpad(${i}, ${p.sisa})" class="bayar-pinj-lunas">
         <i class="fa-solid fa-circle-check"></i> Pelunasan Penuh
       </button>
       <div class="bayar-pinj-info" id="bayar_info_${i}">
@@ -5721,10 +5927,7 @@ window.onBayarNama = () => {
   cekSimpanBayar();
 };
 
-window.pelunasanPenuh = (i, sisaAsli) => {
-  const el = $('bayar_input_' + i);
-  if (!el) return;
-  
+window.pelunasanPenuhNumpad = (i, sisaAsli) => {
   let totalLain = 0;
   _bayarJenisData.forEach((p, j) => {
     if (j === i) return;
@@ -5734,7 +5937,8 @@ window.pelunasanPenuh = (i, sisaAsli) => {
   const sisaPendapatan = Math.max(0, _bayarPendapatanBersih - totalLain);
   const maxBayar = _bayarLuarGaji ? sisaAsli : Math.min(sisaAsli, sisaPendapatan);
   
-  el.value = maxBayar;
+  $('bayar_input_' + i).value = maxBayar;
+  $('bayar_input_display_' + i).value = maxBayar > 0 ? 'Rp ' + fmt(maxBayar) : '';
   onBayarJenisInput(i, sisaAsli);
   
   if (!_bayarLuarGaji && maxBayar < sisaAsli) {
@@ -5743,8 +5947,7 @@ window.pelunasanPenuh = (i, sisaAsli) => {
 };
 
 window.onBayarJenisInput = (i, sisaAsli) => {
-  const el = $('bayar_input_' + i);
-  const val = parseInt(el?.value) || 0;
+  const val = parseInt($('bayar_input_' + i)?.value) || 0;
   
   const infoEl = $('bayar_info_' + i);
   const hasilEl = $('bayar_sisa_hasil_' + i);
@@ -5844,7 +6047,7 @@ window.simpanBayar = async () => {
     }
     
     showToast('✅ Pembayaran tersimpan!');
-    tutupPopup('bayarPopup');
+    tutupPopupBayar();
     btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
     btn.disabled = false;
     
@@ -5858,6 +6061,51 @@ window.simpanBayar = async () => {
     btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
     btn.disabled = false;
   }
+};
+
+// ===== NUMPAD BAYAR =====
+
+window.bukaNumpadBayar = (index, maxVal) => {
+  _numpadBayarIndex = index;
+  _numpadValue = $('bayar_input_' + index).value || '';
+  _numpadMaxValue = maxVal;
+  
+  const jenis = _bayarJenisData[index]?.jenis || 'Bayar';
+  $('numpadBayarLabel').textContent = jenis;
+  $('numpadBayarDisplay').textContent = _numpadValue ? fmt(parseInt(_numpadValue)) : '0';
+  
+  $('numpadBayarOverlay').classList.add('active');
+};
+
+window.numpadBayarInput = (digit) => {
+  if (_numpadValue.length >= 12) return;
+  _numpadValue += digit;
+  $('numpadBayarDisplay').textContent = fmt(parseInt(_numpadValue));
+};
+
+window.numpadBayarBackspace = () => {
+  _numpadValue = _numpadValue.slice(0, -1);
+  $('numpadBayarDisplay').textContent = _numpadValue ? fmt(parseInt(_numpadValue)) : '0';
+};
+
+window.numpadBayarConfirm = () => {
+  const val = parseInt(_numpadValue) || 0;
+  const index = _numpadBayarIndex;
+  
+  $('bayar_input_' + index).value = val;
+  $('bayar_input_display_' + index).value = val > 0 ? 'Rp ' + fmt(val) : '';
+  
+  const sisaAsli = _bayarJenisData[index]?.sisa || 0;
+  onBayarJenisInput(index, sisaAsli);
+  
+  tutupNumpadBayar();
+};
+
+window.tutupNumpadBayar = () => {
+  $('numpadBayarOverlay').classList.remove('active');
+  _numpadValue = '';
+  _numpadMaxValue = null;
+  _numpadBayarIndex = null;
 };
     // ===== SETTING =====
     window.openSetting = () => {
