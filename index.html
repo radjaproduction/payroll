@@ -247,10 +247,10 @@
       font-size:22px; flex-shrink:0;
     }
     /* Per-card icon colors */
-    .menu-card.card-input .m-icon { background: #EEF3FF; color: var(--primary3); }
-    .menu-card.card-pinjaman .m-icon { background: #D1FAE5; color: #059669; }
-    .menu-card.card-bayar .m-icon { background: #FEF3C7; color: #D97706; }
-    .menu-card.card-rekap .m-icon { background: #EDE9FE; color: #7C3AED; }
+    .menu-card.card-input .m-icon { background: var(--primary3); color: #EEF3FF; }
+    .menu-card.card-pinjaman .m-icon { background: #059669; color: #D1FAE5; }
+    .menu-card.card-bayar .m-icon { background: #D97706; color: #FEF3C7; }
+    .menu-card.card-rekap .m-icon { background: #7C3AED; color: #EDE9FE; }
 
     /* Label color accent */
     .menu-card.card-input .m-label { color: var(--primary3); }
@@ -310,14 +310,15 @@
       min-height:80px;
     }
     .menu-card-sm:active { transform:scale(.97); box-shadow:none }
-    .menu-card-sm.card-setting .m-icon { background:#FFE4F0; color:#E11D78; }
-    .menu-card-sm.card-harga .m-icon { background:#CCFBF1; color:#0D9488; }
+    .menu-card-sm.card-setting .m-icon { background:#E11D78; color:#FFE4F0; }
+    .menu-card-sm.card-harga .m-icon { background:#0D9488; color:#CCFBF1; }
     .menu-card-sm .m-icon {
       width:42px; height:42px;
       border-radius:14px;
       display:flex; align-items:center; justify-content:center;
       font-size:18px;
     }
+
     .menu-card-sm .m-label { font-size:13px; font-weight:800; color:var(--text); letter-spacing:.01em }
     .menu-card-sm.card-setting .m-label { color:#E11D78; }
     .menu-card-sm.card-harga .m-label { color:#0D9488; }
