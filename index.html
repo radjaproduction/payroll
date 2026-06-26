@@ -4025,7 +4025,11 @@
           </div>
           <div>
             <div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Qty</div>
-            <input type="number" id="inp_qty" placeholder="input qty..." min="1" disabled oninput="onInpQty()" inputmode="numeric" style="width:100%;padding:17px 14px;border:1.5px solid var(--muted);border-radius:13px;background:var(--card2);font-size:16px;font-family:inherit;font-weight:600;color:#7B8DB0;outline:none;text-align:left;">
+            <div class="popup-input-trigger" id="inp_qty_trigger" onclick="bukaNumpadQty('input')" style="opacity:0.4;pointer-events:none;">
+              <input type="text" id="inp_qty_display" readonly placeholder="ketuk qty..." inputmode="none"
+                style="width:100%;padding:17px 14px;border:1.5px solid var(--muted);border-radius:13px;background:var(--card2);font-size:16px;font-family:inherit;font-weight:600;color:#7B8DB0;outline:none;text-align:left;cursor:pointer;caret-color:transparent;-webkit-user-select:none;user-select:none;">
+              <input type="hidden" id="inp_qty" value="">
+            </div>
           </div>
         </div>
 
@@ -4614,6 +4618,35 @@
   </div>
 </div>
 
+<!-- ===== NUMPAD OVERLAY QTY ===== -->
+<div class="numpad-overlay" id="numpadQtyOverlay">
+  <div class="numpad-sheet">
+    <div class="numpad-display">
+      <div class="numpad-display-label" id="numpadQtyLabel">Qty</div>
+      <div class="numpad-display-value" id="numpadQtyDisplay">0</div>
+    </div>
+    <div class="numpad-grid">
+      <button class="numpad-btn" onclick="numpadQtyInput('1')">1</button>
+      <button class="numpad-btn" onclick="numpadQtyInput('2')">2</button>
+      <button class="numpad-btn" onclick="numpadQtyInput('3')">3</button>
+      <button class="numpad-btn" onclick="numpadQtyInput('4')">4</button>
+      <button class="numpad-btn" onclick="numpadQtyInput('5')">5</button>
+      <button class="numpad-btn" onclick="numpadQtyInput('6')">6</button>
+      <button class="numpad-btn" onclick="numpadQtyInput('7')">7</button>
+      <button class="numpad-btn" onclick="numpadQtyInput('8')">8</button>
+      <button class="numpad-btn" onclick="numpadQtyInput('9')">9</button>
+      <button class="numpad-btn wide" onclick="numpadQtyInput('0')">0</button>
+      <button class="numpad-btn" onclick="numpadQtyBackspace()">
+        <i class="fa-solid fa-delete-left"></i>
+      </button>
+    </div>
+    <div class="numpad-actions">
+      <button class="numpad-cancel" onclick="tutupNumpadQty()">Batal</button>
+      <button class="numpad-confirm" onclick="numpadQtyConfirm()">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== NUMPAD OVERLAY BAYAR ===== -->
 <div class="numpad-overlay" id="numpadBayarOverlay">
   <div class="numpad-sheet">
@@ -4888,7 +4921,14 @@
       <button class="close-btn" onclick="tutupPopup('editQtyPopup')"><i class="fa-solid fa-xmark"></i></button>
       <div class="popup-title">Edit Qty</div>
       <input type="hidden" id="edit_qty_id"><input type="hidden" id="edit_qty_harga">
-      <div class="form-group"><label>Qty Baru</label><input type="number" id="edit_qty_val" placeholder="0" min="1" inputmode="numeric"></div>
+      <div class="form-group">
+        <label>Qty Baru</label>
+        <div class="popup-input-trigger" onclick="bukaNumpadQty('edit')">
+          <input type="text" id="edit_qty_display" readonly placeholder="Ketuk untuk input..." inputmode="none"
+            class="popup-input-no-keyboard" style="padding-left:14px;">
+          <input type="hidden" id="edit_qty_val" value="">
+        </div>
+      </div>
       <div class="btn-group">
         <button class="btn btn-primary" onclick="simpanEditQty()">Simpan Perubahan</button>
         <button class="btn btn-ghost" onclick="tutupPopup('editQtyPopup')">Batal</button>
@@ -5391,8 +5431,8 @@
       bagianEl.style.color = '#7B8DB0';
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
       resetSelect('inp_brand', [], '-- Pilih Brand --', true);
-      $('inp_qty').value = '';
-      $('inp_qty').disabled = true;
+      $('inp_qty').value = ''; $('inp_qty_display').value = '';
+      $('inp_qty_trigger').style.opacity = '0.4'; $('inp_qty_trigger').style.pointerEvents = 'none';
       setDis('btnTambahInput', true); _styleBtnTambah(false);
       _stagingList = [];
       _renderStaging();
@@ -5411,8 +5451,8 @@
         bagianEl.style.color = '#7B8DB0';
         resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
         resetSelect('inp_brand', [], '-- Pilih Brand --', true);
-        $('inp_qty').value = '';
-        $('inp_qty').disabled = true;
+        $('inp_qty').value = ''; $('inp_qty_display').value = '';
+        $('inp_qty_trigger').style.opacity = '0.4'; $('inp_qty_trigger').style.pointerEvents = 'none';
         setDis('btnTambahInput', true); _styleBtnTambah(false);
         _renderStaging();
       }
@@ -5454,7 +5494,7 @@
       const brandsForBagian = [...new Set(MASTER.hargaList.filter(h => (!peg.bagian || !h.bagian || h.bagian === peg.bagian)).map(h => h.brand))].filter(Boolean).sort();
       resetSelect('inp_brand', brandsForBagian, '-- Pilih Brand --', !nama || !brandsForBagian.length);
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
-      $('inp_qty').value = ''; $('inp_qty').disabled = true;
+      $('inp_qty').value = ''; $('inp_qty_display').value = ''; $('inp_qty_trigger').style.opacity = '0.4'; $('inp_qty_trigger').style.pointerEvents = 'none';
       setDis('btnTambahInput', true); _styleBtnTambah && _styleBtnTambah(false);
     };
 
@@ -5463,21 +5503,21 @@
       const bagian = $('inp_bagian').value;
       const pekerjaanList = [...new Set(MASTER.hargaList.filter(h => h.brand === brand && (!bagian || !h.bagian || h.bagian === bagian) && h.pekerjaan).map(h => h.pekerjaan))].sort();
       resetSelect('inp_jenis', pekerjaanList, '-- Pilih Pekerjaan --', !brand || !pekerjaanList.length);
-      $('inp_qty').value = ''; $('inp_qty').disabled = true;
+      $('inp_qty').value = ''; $('inp_qty_display').value = ''; $('inp_qty_trigger').style.opacity = '0.4'; $('inp_qty_trigger').style.pointerEvents = 'none';
       setDis('btnTambahInput', true); _styleBtnTambah && _styleBtnTambah(false);
     };
 
     window.onInpJenis = () => {
       const brand = $('inp_brand').value;
       const jenis = $('inp_jenis').value; $('inp_jenis').style.color = jenis ? '#1A2340' : '#7B8DB0';
-      $('inp_qty').value = '';
-      $('inp_qty').disabled = true;
+      $('inp_qty').value = ''; $('inp_qty_display').value = '';
+      $('inp_qty_trigger').style.opacity = '0.4'; $('inp_qty_trigger').style.pointerEvents = 'none';
       setDis('btnTambahInput', true); 
       _styleBtnTambah && _styleBtnTambah(false);
       if(brand && jenis) {
         const key = brand + '|' + jenis;
         const hargaVal = MASTER.harga[key] || 0;
-        if(hargaVal) { $('inp_qty').disabled = false; $('inp_qty').style.color = '#7B8DB0'; }
+        if(hargaVal) { $('inp_qty_trigger').style.opacity = '1'; $('inp_qty_trigger').style.pointerEvents = 'auto'; }
       }
     };
 
@@ -5486,10 +5526,60 @@
       const jenis = $('inp_jenis').value;
       const key = brand + '|' + jenis;
       const harga = MASTER.harga[key] || 0;
-      const qty = parseInt($('inp_qty').value) || 0; $('inp_qty').style.color = qty > 0 ? '#1A2340' : '#7B8DB0';
-      if(qty < 1 && $('inp_qty').value !== '') { showToast('⚠ QTY minimal 1!'); setDis('btnTambahInput', true); _styleBtnTambah(false); return; }
+      const qty = parseInt($('inp_qty').value) || 0;
+      $('inp_qty_display').style.color = qty > 0 ? '#1A2340' : '#7B8DB0';
       if(qty > 0 && harga > 0) { setDis('btnTambahInput', false); _styleBtnTambah(true); }
       else { setDis('btnTambahInput', true); _styleBtnTambah(false); }
+    };
+
+    // ===== NUMPAD QTY =====
+    let _numpadQtyTarget = null; // 'input' | 'edit'
+    let _numpadQtyValue = '';
+
+    window.bukaNumpadQty = (target) => {
+      _numpadQtyTarget = target;
+      if (target === 'input') {
+        _numpadQtyValue = $('inp_qty').value || '';
+        $('numpadQtyLabel').textContent = 'Qty';
+      } else {
+        _numpadQtyValue = $('edit_qty_val').value || '';
+        $('numpadQtyLabel').textContent = 'Qty Baru';
+      }
+      $('numpadQtyDisplay').textContent = _numpadQtyValue || '0';
+      $('numpadQtyOverlay').classList.add('active');
+    };
+
+    window.numpadQtyInput = (digit) => {
+      if (_numpadQtyValue.length >= 6) return; // Max 6 digit qty
+      if (_numpadQtyValue === '0') _numpadQtyValue = '';
+      _numpadQtyValue += digit;
+      $('numpadQtyDisplay').textContent = _numpadQtyValue || '0';
+    };
+
+    window.numpadQtyBackspace = () => {
+      _numpadQtyValue = _numpadQtyValue.slice(0, -1);
+      $('numpadQtyDisplay').textContent = _numpadQtyValue || '0';
+    };
+
+    window.numpadQtyConfirm = () => {
+      const val = parseInt(_numpadQtyValue) || 0;
+      if (_numpadQtyTarget === 'input') {
+        $('inp_qty').value = val || '';
+        $('inp_qty_display').value = val > 0 ? val : '';
+        $('inp_qty_display').style.color = val > 0 ? '#1A2340' : '#7B8DB0';
+        if (val < 1) { showToast('⚠ QTY minimal 1!'); }
+        onInpQty();
+      } else {
+        $('edit_qty_val').value = val || '';
+        $('edit_qty_display').value = val > 0 ? val : '';
+      }
+      tutupNumpadQty();
+    };
+
+    window.tutupNumpadQty = () => {
+      $('numpadQtyOverlay').classList.remove('active');
+      _numpadQtyValue = '';
+      _numpadQtyTarget = null;
     };
 
     // Styling helper untuk tombol tambah
@@ -5582,7 +5672,7 @@
       resetSelect('inp_brand', [...new Set(MASTER.hargaList.filter(h => (!bagian || !h.bagian || h.bagian === bagian) && h.brand).map(h => h.brand))].sort(), '-- Pilih Brand --', false);
       resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
       $('inp_qty').value = '';
-      $('inp_qty').disabled = true; $('inp_qty').style.color = '#7B8DB0';
+      $('inp_qty').value = ''; $('inp_qty_display').value = ''; $('inp_qty_trigger').style.opacity = '0.4'; $('inp_qty_trigger').style.pointerEvents = 'none';
       setDis('btnTambahInput', true);
       _styleBtnTambah(false);
       showToast('✅ Item ditambahkan!');
@@ -5610,7 +5700,7 @@
         const bagianEl = $('inp_bagian'); bagianEl.value = ''; bagianEl.style.color = '#7B8DB0';
         resetSelect('inp_jenis', [], '-- Pilih Pekerjaan --', true);
         resetSelect('inp_brand', [], '-- Pilih Brand --', true);
-        $('inp_qty').value = ''; $('inp_qty').disabled = true; $('inp_qty').style.color = '#7B8DB0';
+        $('inp_qty').value = ''; $('inp_qty').value = ''; $('inp_qty_display').value = ''; $('inp_qty_trigger').style.opacity = '0.4'; $('inp_qty_trigger').style.pointerEvents = 'none';
         setDis('btnTambahInput', true); _styleBtnTambah(false);
         _qsNeedsRefresh = true;
       } catch(e) { showToast('❌ Gagal: '+e.message); btn.textContent = 'SIMPAN'; btn.disabled = false; }
@@ -8417,8 +8507,10 @@ window.hapusBayar = async (id) => {
       $('edit_qty_id').value = id;
       $('edit_qty_harga').value = harga;
       $('edit_qty_val').value = currentQty;
+      $('edit_qty_display').value = currentQty > 0 ? currentQty : '';
       bukaPopup('editQtyPopup');
-      setTimeout(() => $('edit_qty_val').focus(), 100);
+      // Buka numpad otomatis setelah popup muncul
+      setTimeout(() => bukaNumpadQty('edit'), 200);
     };
 
     window.simpanEditQty = async () => {
