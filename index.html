@@ -602,6 +602,41 @@
   text-align: center;
 }
 
+.popup-label-row {
+  justify-content: space-between;
+}
+
+.popup-label-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: #4B8EF8;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.popup-label-action.hidden {
+  display: none !important;
+}
+
+.popup-label-action:active {
+  opacity: 0.6;
+}
+
+.popup-field-locked .popup-select:disabled {
+  background: #EEF3FF;
+  border-color: #C7D7F5;
+  color: #4B5E8A;
+  opacity: 0.85;
+}
+
 /* ===== SELECT ===== */
 .popup-select-wrap {
   position: relative;
@@ -705,6 +740,10 @@
   margin-top: 4px;
   font-weight: 500;
   padding-left: 4px;
+}
+
+.popup-hint.hidden {
+  display: none !important;
 }
 
 /* ===== QUICK AMOUNTS ===== */
@@ -978,6 +1017,174 @@
 .popup-btn-ghost:active {
   transform: scale(0.97);
   border-color: #4B8EF8;
+  color: #1A56DB;
+}
+
+/* ===== TAMBAH PINJAMAN BARU (ADD-MORE) ===== */
+.popup-add-more-row {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 14px;
+}
+
+.popup-add-more-row.hidden {
+  display: none !important;
+}
+
+.popup-btn-add-more {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 2px dashed #4B8EF8;
+  border-radius: 14px;
+  background: rgba(75, 142, 248, 0.08);
+  color: #1A56DB;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.popup-btn-add-more:active {
+  transform: scale(0.96);
+  background: rgba(75, 142, 248, 0.16);
+}
+
+.popup-btn-add-more-pulse {
+  animation: pinAddMorePulse 0.3s ease-in-out 2;
+}
+
+@keyframes pinAddMorePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35);
+    border-color: #4B8EF8;
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.18);
+    border-color: #DC2626;
+  }
+}
+
+.popup-btn-add-more i {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1A56DB;
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pin-draft-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.pin-draft-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F7F9FC;
+  border: 1.5px solid #E3E9F3;
+  border-radius: 12px;
+  padding: 10px 12px;
+  animation: popupFieldShow 0.2s ease-out;
+}
+
+.pin-draft-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(75, 142, 248, 0.12);
+  color: #1A56DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.pin-draft-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pin-draft-item-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1A2340;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pin-draft-item-meta {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7B8DB0;
+  margin-top: 1px;
+}
+
+.pin-draft-item-amount {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1A56DB;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pin-draft-item-remove {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: #FDE8E8;
+  color: #DC2626;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pin-draft-item-remove:active {
+  transform: scale(0.9);
+}
+
+.pin-draft-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(75, 142, 248, 0.08);
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+.pin-draft-total.hidden {
+  display: none !important;
+}
+
+.pin-draft-total-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1A56DB;
+}
+
+.pin-draft-total-value {
+  font-size: 15px;
+  font-weight: 900;
   color: #1A56DB;
 }
 
@@ -3896,8 +4103,11 @@
     .rc-overlay { z-index: 99999 !important; }
     .popup { z-index: 99999 !important; }
     #pinjamanPopup { z-index: 99999 !important; }
-    .numpad-overlay { z-index: 999999 !important; }
     #tambahanPopup { z-index: 999999 !important; }
+    /* Numpad generik (bukaNumpadGen) dipanggil DI ATAS popup lain
+       (pinjaman, bayar, tambahan, edit nominal) — z-index-nya wajib
+       lebih tinggi dari semua popup tersebut agar tidak tertutup. */
+    .numpad-overlay { z-index: 9999990 !important; }
     #slipPopup { z-index: 9999999 !important; }
 
     /* ===== PWA INSTALL MODAL ===== */
@@ -4613,9 +4823,11 @@
       </div>
 
       <div class="popup-form-group" id="pinNamaGroup">
-        <label class="popup-label">
-          <i class="fa-solid fa-user"></i>
-          Nama Pegawai
+        <label class="popup-label popup-label-row">
+          <span><i class="fa-solid fa-user"></i> Nama Pegawai</span>
+          <button type="button" class="popup-label-action hidden" id="btnGantiPegawaiPin" onclick="gantiPegawaiPinjaman()">
+            <i class="fa-solid fa-rotate-left"></i> Ganti Pegawai
+          </button>
         </label>
         <div class="popup-select-wrap">
           <select id="pin_nama" onchange="onPinNama()" class="popup-select">
@@ -4625,6 +4837,7 @@
             <i class="fa-solid fa-chevron-down"></i>
           </div>
         </div>
+        <div class="popup-hint hidden" id="pinNamaLockedHint"><i class="fa-solid fa-lock"></i> Nama terkunci selama ada pinjaman di daftar</div>
       </div>
 
       <div class="popup-form-group hidden" id="pinJenisGroup">
@@ -4657,6 +4870,20 @@
       </div>
 
       <!-- Quick amounts dihapus, diganti numpad -->
+
+      <!-- ===== DAFTAR PINJAMAN DRAFT (BELUM DISIMPAN) ===== -->
+      <div class="pin-draft-list" id="pinDraftList"></div>
+      <div class="pin-draft-total hidden" id="pinDraftTotal">
+        <span class="pin-draft-total-label"><i class="fa-solid fa-layer-group"></i> Total Pinjaman</span>
+        <span class="pin-draft-total-value" id="pinDraftTotalValue">Rp 0</span>
+      </div>
+
+      <div class="popup-add-more-row hidden" id="pinAddMoreRow">
+        <button type="button" class="popup-btn-add-more" id="btnTambahPinjamanBaru" onclick="tambahPinjamanBaru()">
+          <i class="fa-solid fa-plus"></i>
+          <span>Tambah Pinjaman Baru</span>
+        </button>
+      </div>
     </div>
 
     <div class="popup-footer">
@@ -5008,7 +5235,7 @@
   </div>
 
   <!-- ===== TAMBAHAN POPUP ===== -->
-  <div class="rc-overlay" id="tambahanPopup" style="z-index:9999998;">
+  <div class="rc-overlay" id="tambahanPopup">
     <div class="rc-card" style="max-width:400px;">
       <div class="rc-head">
         <div class="rc-nama" id="tamNama" style="font-size:32px;">-</div>
@@ -5203,19 +5430,19 @@
       return (crypto.randomUUID ? crypto.randomUUID().replace(/-/g,'') : ('id' + Date.now() + Math.random().toString(36).slice(2)));
     }
 
-    function collection(_db, name) {
+    function sbTable(_db, name) {
       return { __table: name };
     }
 
-    function doc(_db, name, id) {
-      // dukung pemanggilan doc(db, name, id) maupun doc(collectionRef, id)
+    function sbDoc(_db, name, id) {
+      // dukung pemanggilan sbDoc(db, name, id) maupun sbDoc(collectionRef, id)
       if (typeof name === 'object' && name && name.__table) {
         return { __table: name.__table, __id: id };
       }
       return { __table: name, __id: id };
     }
 
-    function serverTimestamp() {
+    function sbTimestamp() {
       return new Date().toISOString();
     }
 
@@ -5225,14 +5452,14 @@
       return e;
     }
 
-    async function addDoc(collRef, data) {
+    async function sbInsert(collRef, data) {
       const id = _genId();
       const { error } = await sb.from(collRef.__table).insert({ id, data });
       if (error) throw _mkError(error, 'supabase/insert-failed');
       return { id };
     }
 
-    async function setDoc(docRef, data, options) {
+    async function sbUpsert(docRef, data, options) {
       const merge = options && options.merge;
       if (merge) {
         const { data: existing } = await sb.from(docRef.__table).select('data').eq('id', docRef.__id).maybeSingle();
@@ -5245,7 +5472,7 @@
       }
     }
 
-    async function updateDoc(docRef, partialData) {
+    async function sbUpdate(docRef, partialData) {
       const { data: existing, error: getErr } = await sb.from(docRef.__table).select('data').eq('id', docRef.__id).maybeSingle();
       if (getErr) throw _mkError(getErr, 'supabase/update-failed');
       const merged = Object.assign({}, existing ? existing.data : {}, partialData);
@@ -5253,12 +5480,12 @@
       if (error) throw _mkError(error, 'supabase/update-failed');
     }
 
-    async function deleteDoc(docRef) {
+    async function sbDelete(docRef) {
       const { error } = await sb.from(docRef.__table).delete().eq('id', docRef.__id);
       if (error) throw _mkError(error, 'supabase/delete-failed');
     }
 
-    async function getDocs(collRef) {
+    async function sbGetAll(collRef) {
       const { data: rows, error } = await sb.from(collRef.__table).select('id, data');
       if (error) throw _mkError(error, 'supabase/get-failed');
       const docs = (rows || []).map(r => ({
@@ -5271,7 +5498,7 @@
       };
     }
 
-    function onSnapshot(collRef, onNext, onError, queryModifier) {
+    function sbWatch(collRef, onNext, onError, queryModifier) {
       const table = collRef.__table;
 
       function pushSnapshot(rows) {
@@ -5430,7 +5657,7 @@
 
     // ===== SUPABASE LISTENERS =====
     function initMasterListener() {
-      onSnapshot(collection(db, COL.master), snap => {
+      sbWatch(sbTable(db, COL.master), snap => {
         const m = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[] };
         _masterDocIds = {};
         snap.forEach(d => {
@@ -5455,7 +5682,7 @@
         if($('listPopup').classList.contains('active')) renderListBody();
       }, err => _showDbError('⚠ Gagal membaca data master.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
 
-      onSnapshot(collection(db, COL.harga), snap => {
+      sbWatch(sbTable(db, COL.harga), snap => {
         _hargaDocIds = {};
         MASTER.harga = {};
         MASTER.hargaList = [];
@@ -5468,7 +5695,7 @@
           if(data.type === 'tambahan_item') {
             const key = 'tambahan_item|' + (data.bagian||'') + '|' + (data.jenis||'');
             if(!MASTER.tambahanItemList) MASTER.tambahanItemList = [];
-            if(_hargaDocIds[key]) { const oldDocId = _hargaDocIds[key]; deleteDoc(doc(db, COL.harga, oldDocId)).catch(()=>{}); const existIdx = MASTER.tambahanItemList.findIndex(t => t.id === oldDocId); if(existIdx >= 0) MASTER.tambahanItemList.splice(existIdx, 1); }
+            if(_hargaDocIds[key]) { const oldDocId = _hargaDocIds[key]; sbDelete(sbDoc(db, COL.harga, oldDocId)).catch(()=>{}); const existIdx = MASTER.tambahanItemList.findIndex(t => t.id === oldDocId); if(existIdx >= 0) MASTER.tambahanItemList.splice(existIdx, 1); }
             _hargaDocIds[key] = d.id;
             MASTER.tambahanItemList.push({ id:d.id, bagian:data.bagian||'', jenis:data.jenis||'', harga:data.harga||0 });
             return;
@@ -5487,9 +5714,9 @@
     }
 
     function initDataListeners() {
-      onSnapshot(collection(db, COL.input), snap => { _CACHE.input = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.input = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_input.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
-      onSnapshot(collection(db, COL.pinjaman), snap => { _CACHE.pinjaman = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.pinjaman = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_pinjaman.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
-      onSnapshot(collection(db, COL.bayar), snap => { _CACHE.bayar = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.bayar = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_bayar.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      sbWatch(sbTable(db, COL.input), snap => { _CACHE.input = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.input = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_input.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      sbWatch(sbTable(db, COL.pinjaman), snap => { _CACHE.pinjaman = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.pinjaman = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_pinjaman.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      sbWatch(sbTable(db, COL.bayar), snap => { _CACHE.bayar = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.bayar = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_bayar.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
       // Hanya butuh data ~2 minggu terakhir untuk rekap, jadi filter di server
       // (sebelumnya download SELURUH histori 'tambahan' lalu baru disaring di JS,
       // ini yang paling bikin loading lama kalau datanya sudah banyak)
@@ -5499,7 +5726,7 @@
       const _duaMingguLalu00 = new Date(_senin00); _duaMingguLalu00.setDate(_senin00.getDate() - 7);
       const _cutoffTambahanISO = _duaMingguLalu00.toISOString().slice(0,10);
 
-      onSnapshot(collection(db, 'tambahan'), snap => {
+      sbWatch(sbTable(db, 'tambahan'), snap => {
         _rcTambahan = {};
         const _today = new Date();
         const _day = _today.getDay() || 7;
@@ -5963,7 +6190,7 @@
         const tanggal = fmtTgl(new Date());
         const tanggalISO = new Date().toISOString().slice(0,10);
         for(const item of _stagingList) {
-          await addDoc(collection(db, COL.input), { tanggal, tanggalISO, nama:item.nama, bagian:item.bagian, jenis:item.jenis, brand:item.brand, qty:item.qty, harga:item.harga, jumlah:item.jumlah, waktu:serverTimestamp() });
+          await sbInsert(sbTable(db, COL.input), { tanggal, tanggalISO, nama:item.nama, bagian:item.bagian, jenis:item.jenis, brand:item.brand, qty:item.qty, harga:item.harga, jumlah:item.jumlah, waktu:sbTimestamp() });
         }
         const n = _stagingList.length;
         _stagingList = [];
@@ -5990,12 +6217,29 @@ let _numpadMaxValue = null;
 let _numpadCallback = null;
 let _numpadBayarIndex = null;
 
+// ===== STATE DRAFT PINJAMAN (multi-entry sebelum simpan) =====
+let _pinDraftList = []; // [{nama, jenis, nominal}]
+
+// Isi dropdown Jenis Pinjaman untuk pegawai tertentu, sambil
+// menyembunyikan jenis yang sudah ada di draft list untuk pegawai itu
+// (mencegah pilih jenis yang sama dua kali).
+function populatePinJenisForNama(nama) {
+  const dipakai = _pinDraftList.filter(p => p.nama === nama).map(p => p.jenis);
+  const tersedia = MASTER.jenisPinjaman.filter(j => !dipakai.includes(j));
+  resetSelect('pin_jenis', tersedia, '-- Pilih Jenis --');
+}
+
 // ===== PINJAMAN FUNCTIONS =====
 
 window.bukaPinjaman = () => {
   resetSelect('pin_nama', MASTER.pegawai, '-- Pilih Pegawai --');
   resetSelect('pin_jenis', MASTER.jenisPinjaman, '-- Pilih Jenis --');
   
+  $('pin_nama').disabled = false;
+  $('pinNamaGroup').classList.remove('popup-field-locked');
+  $('btnGantiPegawaiPin').classList.add('hidden');
+  $('pinNamaLockedHint').classList.add('hidden');
+
   $('pin_jenis').disabled = true;
   $('pin_nominal_display').value = '';
   $('pin_nominal').value = '';
@@ -6006,6 +6250,10 @@ window.bukaPinjaman = () => {
   
   $('pinJenisGroup').className = 'popup-form-group hidden';
   $('pinNominalGroup').className = 'popup-form-group hidden';
+  $('pinAddMoreRow').className = 'popup-add-more-row hidden';
+
+  _pinDraftList = [];
+  renderPinDraftList();
   
   const popup = $('pinjamanPopup');
   const sheet = popup.querySelector('.popup-sheet');
@@ -6049,14 +6297,16 @@ window.onPinNama = () => {
     $('pin_nominal_display').value = '';
     $('pin_nominal').value = '';
     $('pin_nominal_display').disabled = true;
-    setDis('btnSimpanPin', true);
+    setDis('btnSimpanPin', _pinDraftList.length === 0);
     
     $('pinJenisGroup').className = 'popup-form-group hidden';
     $('pinNominalGroup').className = 'popup-form-group hidden';
+    $('pinAddMoreRow').className = 'popup-add-more-row hidden';
     return;
   }
   
   $('pin_jenis').disabled = false;
+  populatePinJenisForNama(nama);
   $('pinJenisGroup').className = 'popup-form-group visible';
   $('pin_jenis').focus();
 };
@@ -6068,8 +6318,9 @@ window.onPinJenis = () => {
   if (!jenis) {
     $('pin_nominal_display').value = '';
     $('pin_nominal').value = '';
-    setDis('btnSimpanPin', true);
+    setDis('btnSimpanPin', _pinDraftList.length === 0);
     $('pinNominalGroup').className = 'popup-form-group hidden';
+    $('pinAddMoreRow').className = 'popup-add-more-row hidden';
     return;
   }
   
@@ -6079,7 +6330,7 @@ window.onPinJenis = () => {
 window.cekSimpanPin = () => {
   const nominal = parseInt($('pin_nominal').value) || 0;
   const ok = !!$('pin_jenis').value && nominal > 0;
-  setDis('btnSimpanPin', !ok);
+  setDis('btnSimpanPin', !ok && _pinDraftList.length === 0);
   
   const hint = $('pinNominalHint');
   if (nominal > 0) {
@@ -6088,14 +6339,183 @@ window.cekSimpanPin = () => {
     hint.textContent = 'Ketuk field di atas untuk membuka numpad';
     hint.style.color = '#7B8DB0';
   }
+
+  $('pinAddMoreRow').className = 'popup-add-more-row' + (ok ? '' : ' hidden');
+  updateSimpanPinLabel();
+};
+
+// Buka kembali kunci Nama Pegawai. Karena draft list yang sudah ada
+// melekat pada nama sebelumnya, admin harus konfirmasi karena daftar
+// tersebut akan dikosongkan saat ganti pegawai.
+window.gantiPegawaiPinjaman = () => {
+  bukaConfirm({
+    icon: '<i class="fa-solid fa-rotate-left"></i>',
+    iconBg: 'rgba(75, 142, 248, 0.12)',
+    iconColor: '#1A56DB',
+    title: 'Ganti Pegawai?',
+    msg: `Daftar pinjaman yang sudah ditambahkan (<b>${_pinDraftList.length} entri</b>) untuk pegawai ini akan dihapus. Lanjutkan ganti pegawai?`,
+    okLabel: 'Ya, Ganti Pegawai',
+    okBg: 'linear-gradient(135deg, #1A56DB, #4B8EF8)',
+    callback: () => {
+      _pinDraftList = [];
+      renderPinDraftList();
+
+      resetSelect('pin_nama', MASTER.pegawai, '-- Pilih Pegawai --');
+      $('pin_nama').disabled = false;
+      $('pinNamaGroup').classList.remove('popup-field-locked');
+      $('btnGantiPegawaiPin').classList.add('hidden');
+      $('pinNamaLockedHint').classList.add('hidden');
+
+      $('pin_jenis').disabled = true;
+      $('pin_nominal_display').value = '';
+      $('pin_nominal').value = '';
+      $('pinNominalHint').textContent = 'Ketuk field di atas untuk membuka numpad';
+      $('pinNominalHint').style.color = '#7B8DB0';
+
+      $('pinJenisGroup').className = 'popup-form-group hidden';
+      $('pinNominalGroup').className = 'popup-form-group hidden';
+      $('pinAddMoreRow').className = 'popup-add-more-row hidden';
+
+      setDis('btnSimpanPin', true);
+      updateSimpanPinLabel();
+    }
+  });
+};
+
+// ===== TAMBAH PINJAMAN BARU (multi-entry) =====
+window.tambahPinjamanBaru = () => {
+  const nama = $('pin_nama').value;
+  const jenis = $('pin_jenis').value;
+  const nominal = parseInt($('pin_nominal').value) || 0;
+
+  if (!nama || !jenis || nominal < 1) {
+    showToast('⚠ Lengkapi semua field dahulu!');
+    return;
+  }
+
+  _pinDraftList.push({ nama, jenis, nominal });
+  renderPinDraftList();
+  showToast('✅ Ditambahkan ke daftar');
+
+  // Kunci Nama Pegawai (readonly) supaya tidak bisa diganti di tengah
+  // sesi input — mencegah entri pinjaman lain "salah nempel" ke pegawai
+  // yang berbeda dari yang sudah ada di daftar.
+  $('pin_nama').disabled = true;
+  $('pinNamaGroup').classList.add('popup-field-locked');
+  $('btnGantiPegawaiPin').classList.remove('hidden');
+  $('pinNamaLockedHint').classList.remove('hidden');
+
+  // Jenis & nominal dikosongkan untuk entri berikutnya, dropdown jenis
+  // difilter supaya jenis yang sudah dipakai pegawai ini tidak muncul lagi.
+  populatePinJenisForNama(nama);
+  $('pin_jenis').disabled = false;
+  $('pin_jenis').style.color = '#7B8DB0';
+  $('pin_nominal_display').value = '';
+  $('pin_nominal').value = '';
+  $('pinNominalHint').textContent = 'Ketuk field di atas untuk membuka numpad';
+  $('pinNominalHint').style.color = '#7B8DB0';
+
+  $('pinJenisGroup').className = 'popup-form-group visible';
+  $('pinNominalGroup').className = 'popup-form-group hidden';
+  $('pinAddMoreRow').className = 'popup-add-more-row hidden';
+
+  setDis('btnSimpanPin', false);
+  updateSimpanPinLabel();
+  $('pin_jenis').focus();
+};
+
+window.hapusPinDraft = (idx) => {
+  _pinDraftList.splice(idx, 1);
+  renderPinDraftList();
+
+  // Jika daftar jadi kosong, tidak ada lagi alasan mengunci nama
+  // pegawai — buka kembali supaya admin bisa pilih pegawai lain.
+  if (_pinDraftList.length === 0) {
+    $('pin_nama').disabled = false;
+    $('pinNamaGroup').classList.remove('popup-field-locked');
+    $('btnGantiPegawaiPin').classList.add('hidden');
+    $('pinNamaLockedHint').classList.add('hidden');
+  } else {
+    // Masih ada entri lain untuk nama yang sama: dropdown jenis perlu
+    // disegarkan supaya jenis yang baru terhapus muncul lagi sebagai opsi.
+    const namaAktif = $('pin_nama').value;
+    if (namaAktif) populatePinJenisForNama(namaAktif);
+  }
+
+  const formOk = !!$('pin_jenis').value && (parseInt($('pin_nominal').value) || 0) > 0;
+  setDis('btnSimpanPin', !formOk && _pinDraftList.length === 0);
+  updateSimpanPinLabel();
+};
+
+window.updateSimpanPinLabel = () => {
+  const btn = $('btnSimpanPin');
+  if (!btn) return;
+  const n = _pinDraftList.length;
+  btn.innerHTML = n > 0
+    ? '<i class="fa-solid fa-floppy-disk"></i><span>Simpan ' + n + ' Pinjaman</span>'
+    : '<i class="fa-solid fa-floppy-disk"></i><span>Simpan Pinjaman</span>';
+};
+
+window.renderPinDraftList = () => {
+  const wrap = $('pinDraftList');
+  const totalWrap = $('pinDraftTotal');
+  if (!wrap) return;
+
+  if (_pinDraftList.length === 0) {
+    wrap.innerHTML = '';
+    if (totalWrap) totalWrap.className = 'pin-draft-total hidden';
+    return;
+  }
+
+  wrap.innerHTML = _pinDraftList.map((p, i) => `
+    <div class="pin-draft-item">
+      <div class="pin-draft-item-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+      <div class="pin-draft-item-info">
+        <div class="pin-draft-item-name">${p.nama}</div>
+        <div class="pin-draft-item-meta">${p.jenis}</div>
+      </div>
+      <div class="pin-draft-item-amount">Rp ${fmt(p.nominal)}</div>
+      <button type="button" class="pin-draft-item-remove" onclick="hapusPinDraft(${i})">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  `).join('');
+
+  const total = _pinDraftList.reduce((s, p) => s + p.nominal, 0);
+  if (totalWrap) {
+    totalWrap.className = 'pin-draft-total';
+    $('pinDraftTotalValue').textContent = 'Rp ' + fmt(total);
+  }
 };
 
 window.simpanPinjaman = async () => {
   const nama = $('pin_nama').value;
   const jenis = $('pin_jenis').value;
   const nominal = parseInt($('pin_nominal').value) || 0;
-  
-  if (!nama || !jenis || nominal < 1) {
+  const formTerisiLengkap = !!nama && !!jenis && nominal >= 1;
+
+  // Jika sudah ada entri di daftar TAPI form yang sedang diisi belum
+  // ditekan "Tambah Pinjaman Baru", jangan diam-diam ikut menyimpannya.
+  // Minta admin menyelesaikan entri tersebut dulu.
+  if (_pinDraftList.length > 0 && formTerisiLengkap) {
+    showToast('⚠ Tekan "Tambah Pinjaman Baru" dulu untuk menyelesaikan entri ini');
+    const addBtn = document.getElementById('btnTambahPinjamanBaru');
+    if (addBtn) {
+      addBtn.classList.add('popup-btn-add-more-pulse');
+      setTimeout(() => addBtn.classList.remove('popup-btn-add-more-pulse'), 900);
+      addBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+
+  // Gabungkan draft list + form yang sedang diisi (kasus entri tunggal,
+  // tanpa draft list sama sekali, boleh langsung simpan tanpa menekan Tambah)
+  const items = [..._pinDraftList];
+  if (formTerisiLengkap) {
+    items.push({ nama, jenis, nominal });
+  }
+
+  if (items.length === 0) {
     showToast('⚠ Lengkapi semua field!');
     return;
   }
@@ -6107,22 +6527,25 @@ window.simpanPinjaman = async () => {
   showLoading('Menyimpan...');
   
   try {
-    await addDoc(collection(db, COL.pinjaman), {
-      tanggal: fmtTgl(new Date()),
-      tanggalISO: new Date().toISOString().slice(0, 10),
-      nama,
-      jenis,
-      nominal,
-      waktu: serverTimestamp()
-    });
-    
+    for (const item of items) {
+      await sbInsert(sbTable(db, COL.pinjaman), {
+        tanggal: fmtTgl(new Date()),
+        tanggalISO: new Date().toISOString().slice(0, 10),
+        nama: item.nama,
+        jenis: item.jenis,
+        nominal: item.nominal,
+        waktu: sbTimestamp()
+      });
+    }
+
+    _pinDraftList = [];
     btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i><span>Simpan Pinjaman</span>';
-    showToast('✅ Pinjaman tersimpan!');
+    showToast(items.length > 1 ? `✅ ${items.length} pinjaman tersimpan!` : '✅ Pinjaman tersimpan!');
     tutupPopupPinjaman();
     
   } catch (e) {
     showToast('❌ Gagal: ' + e.message);
-    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i><span>Simpan Pinjaman</span>';
+    updateSimpanPinLabel();
     btn.disabled = false;
   } finally {
     hideLoading();
@@ -6481,7 +6904,7 @@ window.simpanBayar = async () => {
   
   try {
     for (const b of toBayar) {
-      await addDoc(collection(db, COL.bayar), {
+      await sbInsert(sbTable(db, COL.bayar), {
         tanggal: fmtTgl(new Date()),
         tanggalISO: new Date().toISOString().slice(0, 10),
         nama,
@@ -6489,7 +6912,7 @@ window.simpanBayar = async () => {
         sisaSebelum: b.sisa,
         bayar: b.bayar,
         luarGaji: _bayarLuarGaji,
-        waktu: serverTimestamp()
+        waktu: sbTimestamp()
       });
     }
     
@@ -6633,7 +7056,7 @@ window.tutupNumpadBayar = () => {
         if(MASTER.pegawai.includes(nama)){ showToast('⚠ Pegawai sudah ada!'); return; }
         showLoading('Menyimpan...');
         try {
-          await addDoc(collection(db, COL.master), { type:'pegawai', nama, bagian, subbagian:'', waktu:serverTimestamp() });
+          await sbInsert(sbTable(db, COL.master), { type:'pegawai', nama, bagian, subbagian:'', waktu:sbTimestamp() });
           showToast('✅ Pegawai ditambahkan!');
           const dd = $('set_peg_dropdown');
           const opt = document.createElement('option'); opt.value = nama; opt.textContent = nama;
@@ -6651,7 +7074,7 @@ window.tutupNumpadBayar = () => {
         const docId = _masterDocIds['pegawai|'+nama];
         if(!docId){ showToast('❌ Data tidak ditemukan!'); return; }
         showLoading('Menyimpan...');
-        try { await updateDoc(doc(db, COL.master, docId), { bagian, subbagian }); showToast('✅ Data pegawai diupdate!'); $('set_peg_dropdown').value = ''; $('set_peg_bagian_ro').textContent = '—'; _pegMode = 'select'; _applyPegMode(); }
+        try { await sbUpdate(sbDoc(db, COL.master, docId), { bagian, subbagian }); showToast('✅ Data pegawai diupdate!'); $('set_peg_dropdown').value = ''; $('set_peg_bagian_ro').textContent = '—'; _pegMode = 'select'; _applyPegMode(); }
         catch(e){ showToast('❌ Gagal: '+e.message); }
         finally { hideLoading(); }
       }
@@ -6675,11 +7098,11 @@ window.tutupNumpadBayar = () => {
           showLoading('Menghapus data ' + nama + '...');
           try {
             const allDels = [];
-            allDels.push(deleteDoc(doc(db, COL.master, docId)));
-            const inputSnap = await getDocs(collection(db, COL.input)); inputSnap.forEach(d => { if(d.data().nama === nama) allDels.push(deleteDoc(doc(db, COL.input, d.id))); });
-            const pinSnap = await getDocs(collection(db, COL.pinjaman)); pinSnap.forEach(d => { if(d.data().nama === nama) allDels.push(deleteDoc(doc(db, COL.pinjaman, d.id))); });
-            const bayarSnap = await getDocs(collection(db, COL.bayar)); bayarSnap.forEach(d => { if(d.data().nama === nama) allDels.push(deleteDoc(doc(db, COL.bayar, d.id))); });
-            const tamSnap = await getDocs(collection(db, 'tambahan')); tamSnap.forEach(d => { if(d.data().nama === nama) allDels.push(deleteDoc(doc(db, 'tambahan', d.id))); });
+            allDels.push(sbDelete(sbDoc(db, COL.master, docId)));
+            const inputSnap = await sbGetAll(sbTable(db, COL.input)); inputSnap.forEach(d => { if(d.data().nama === nama) allDels.push(sbDelete(sbDoc(db, COL.input, d.id))); });
+            const pinSnap = await sbGetAll(sbTable(db, COL.pinjaman)); pinSnap.forEach(d => { if(d.data().nama === nama) allDels.push(sbDelete(sbDoc(db, COL.pinjaman, d.id))); });
+            const bayarSnap = await sbGetAll(sbTable(db, COL.bayar)); bayarSnap.forEach(d => { if(d.data().nama === nama) allDels.push(sbDelete(sbDoc(db, COL.bayar, d.id))); });
+            const tamSnap = await sbGetAll(sbTable(db, 'tambahan')); tamSnap.forEach(d => { if(d.data().nama === nama) allDels.push(sbDelete(sbDoc(db, 'tambahan', d.id))); });
             await Promise.all(allDels);
             _CACHE.input = _CACHE.input.filter(r => r.nama !== nama);
             _CACHE.pinjaman = _CACHE.pinjaman.filter(r => r.nama !== nama);
@@ -6785,12 +7208,12 @@ window.tutupNumpadBayar = () => {
         for(const r of rows) {
           const key = brand + '|' + r.pekerjaan;
           if(_hargaDocIds[key]) {
-            await updateDoc(doc(db, COL.harga, _hargaDocIds[key]), { brand, bagian, pekerjaan:r.pekerjaan, harga:r.harga });
+            await sbUpdate(sbDoc(db, COL.harga, _hargaDocIds[key]), { brand, bagian, pekerjaan:r.pekerjaan, harga:r.harga });
             // Update MASTER.hargaList in-place
             const idx = MASTER.hargaList.findIndex(h => h.id === _hargaDocIds[key]);
             if(idx >= 0) { MASTER.hargaList[idx].harga = r.harga; MASTER.hargaList[idx].bagian = bagian; }
           } else {
-            const res = await addDoc(collection(db, COL.harga), { brand, bagian, pekerjaan:r.pekerjaan, harga:r.harga, waktu:serverTimestamp() });
+            const res = await sbInsert(sbTable(db, COL.harga), { brand, bagian, pekerjaan:r.pekerjaan, harga:r.harga, waktu:sbTimestamp() });
             // Tambah ke MASTER.hargaList dan _hargaDocIds
             _hargaDocIds[key] = res.id;
             MASTER.hargaList.push({ id:res.id, brand, bagian, pekerjaan:r.pekerjaan, harga:r.harga });
@@ -6885,7 +7308,7 @@ window.tutupNumpadBayar = () => {
       try {
         const item = MASTER.hargaList.find(h => h.id === id);
         if(!item) { showToast('❌ Data tidak ditemukan!'); return; }
-        await updateDoc(doc(db, COL.harga, id), { pekerjaan: newNama, harga: newHarga });
+        await sbUpdate(sbDoc(db, COL.harga, id), { pekerjaan: newNama, harga: newHarga });
         // Update MASTER in-place
         const oldKey = item.brand + '|' + item.pekerjaan;
         const newKey = item.brand + '|' + newNama;
@@ -6912,7 +7335,7 @@ window.tutupNumpadBayar = () => {
           MASTER.hargaList = MASTER.hargaList.filter(h => h.id !== id);
           renderDaftarHarga();
           showToast('🗑 Harga berhasil dihapus!');
-          deleteDoc(doc(db, COL.harga, id)).catch(e => showToast('❌ Gagal hapus: ' + e.message));
+          sbDelete(sbDoc(db, COL.harga, id)).catch(e => showToast('❌ Gagal hapus: ' + e.message));
         }
       });
     };
@@ -6985,8 +7408,8 @@ window.tutupNumpadBayar = () => {
       if(!harga){ inp.value=''; return; }
       try {
         const key = 'tambahan_item|' + bagian + '|' + jenis;
-        if(_hargaDocIds[key]) { await updateDoc(doc(db, COL.harga, _hargaDocIds[key]), { harga }); }
-        else { const ref = await addDoc(collection(db, COL.harga), { type:'tambahan_item', bagian, jenis, harga, waktu:serverTimestamp() }); _hargaDocIds[key] = ref.id; if(!MASTER.tambahanItemList) MASTER.tambahanItemList = []; MASTER.tambahanItemList.push({ id:ref.id, bagian, jenis, harga }); }
+        if(_hargaDocIds[key]) { await sbUpdate(sbDoc(db, COL.harga, _hargaDocIds[key]), { harga }); }
+        else { const ref = await sbInsert(sbTable(db, COL.harga), { type:'tambahan_item', bagian, jenis, harga, waktu:sbTimestamp() }); _hargaDocIds[key] = ref.id; if(!MASTER.tambahanItemList) MASTER.tambahanItemList = []; MASTER.tambahanItemList.push({ id:ref.id, bagian, jenis, harga }); }
         const idx = (MASTER.tambahanItemList||[]).findIndex(t=>t.bagian===bagian&&t.jenis===jenis);
         if(idx>=0) MASTER.tambahanItemList[idx].harga = harga;
         showToast('✅ Harga disimpan!');
@@ -6999,7 +7422,7 @@ window.tutupNumpadBayar = () => {
       showLoading('Menghapus...');
       try {
         const key = 'tambahan_item|' + bagian + '|' + jenis;
-        if(_hargaDocIds[key]) { await deleteDoc(doc(db, COL.harga, _hargaDocIds[key])); delete _hargaDocIds[key]; }
+        if(_hargaDocIds[key]) { await sbDelete(sbDoc(db, COL.harga, _hargaDocIds[key])); delete _hargaDocIds[key]; }
         if(MASTER.tambahanItemList) { MASTER.tambahanItemList = MASTER.tambahanItemList.filter(t=>!(t.bagian===bagian&&t.jenis===jenis)); }
         showToast('🗑 Dihapus!');
         _renderTamDaftarBagian(bagian);
@@ -7017,8 +7440,8 @@ window.tutupNumpadBayar = () => {
       showLoading('Menyimpan...');
       try {
         const key = 'tambahan_item|' + bagian + '|' + jenis;
-        if(_hargaDocIds[key]) { await updateDoc(doc(db, COL.harga, _hargaDocIds[key]), { harga }); const idx = (MASTER.tambahanItemList||[]).findIndex(t=>t.bagian===bagian&&t.jenis===jenis); if(idx>=0) MASTER.tambahanItemList[idx].harga = harga; }
-        else { const ref = await addDoc(collection(db, COL.harga), { type:'tambahan_item', bagian, jenis, harga, waktu:serverTimestamp() }); _hargaDocIds[key] = ref.id; if(!MASTER.tambahanItemList) MASTER.tambahanItemList = []; MASTER.tambahanItemList.push({ id:ref.id, bagian, jenis, harga }); }
+        if(_hargaDocIds[key]) { await sbUpdate(sbDoc(db, COL.harga, _hargaDocIds[key]), { harga }); const idx = (MASTER.tambahanItemList||[]).findIndex(t=>t.bagian===bagian&&t.jenis===jenis); if(idx>=0) MASTER.tambahanItemList[idx].harga = harga; }
+        else { const ref = await sbInsert(sbTable(db, COL.harga), { type:'tambahan_item', bagian, jenis, harga, waktu:sbTimestamp() }); _hargaDocIds[key] = ref.id; if(!MASTER.tambahanItemList) MASTER.tambahanItemList = []; MASTER.tambahanItemList.push({ id:ref.id, bagian, jenis, harga }); }
         showToast('✅ Item ditambahkan!');
         $('tam_new_nama').value = ''; $('tam_new_harga').value = '';
         const fb = $('tam_form_baru'); if(fb) fb.style.display = 'none';
@@ -7121,7 +7544,7 @@ window.tutupNumpadBayar = () => {
       showLoading('Menghapus...');
       try {
         const docId=_masterDocIds[listType+'|'+value];
-        if(docId) await deleteDoc(doc(db,COL.master,docId));
+        if(docId) await sbDelete(sbDoc(db,COL.master,docId));
         showToast('✅ Dihapus');
       } catch(e){ showToast('❌ Gagal'); }
       finally { hideLoading(); }
@@ -7135,10 +7558,10 @@ window.tutupNumpadBayar = () => {
         if(listType==='subbagian') {
           const bi=$('listSubBagianInduk').value;
           if(!bi){ hideLoading(); showToast('⚠ Pilih bagian induk!'); return; }
-          await addDoc(collection(db,COL.master), { type:'subbagian', nama:val, bagianInduk:bi, waktu:serverTimestamp() });
+          await sbInsert(sbTable(db,COL.master), { type:'subbagian', nama:val, bagianInduk:bi, waktu:sbTimestamp() });
         } else {
           if(getListData().includes(val)){ hideLoading(); showToast('⚠ Data sudah ada!'); return; }
-          await addDoc(collection(db,COL.master), { type:listType, nama:val, waktu:serverTimestamp() });
+          await sbInsert(sbTable(db,COL.master), { type:listType, nama:val, waktu:sbTimestamp() });
         }
         $('listAddInput').value='';
         showToast('✅ Ditambahkan');
@@ -7487,10 +7910,11 @@ window.bukaBayarForNama = function(nama) {
 };
 
 window.bukaPinjamanForNama = function(nama) {
-  // Pre-select nama di popup pinjaman
+  bukaPinjaman();
+  // Pre-select nama di popup pinjaman (dipanggil SETELAH bukaPinjaman
+  // supaya tidak ditimpa ulang oleh reset default-nya)
   $('pin_nama').value = nama;
   onPinNama();
-  bukaPinjaman();
 };
 
 window.toggleCheckAllRekap = function(cb) {
@@ -7646,13 +8070,13 @@ window.hapusSemuaPinjaman = async (nama) => {
         // Hapus semua pinjaman
         const pinjamanDocs = _CACHE.pinjaman.filter(p => p.nama === nama);
         for (const p of pinjamanDocs) {
-          await deleteDoc(doc(db, COL.pinjaman, p.id));
+          await sbDelete(sbDoc(db, COL.pinjaman, p.id));
         }
         
         // Hapus semua bayar
         const bayarDocs = _CACHE.bayar.filter(b => b.nama === nama);
         for (const b of bayarDocs) {
-          await deleteDoc(doc(db, COL.bayar, b.id));
+          await sbDelete(sbDoc(db, COL.bayar, b.id));
         }
         
         showToast('🗑 Pinjaman & pembayaran ' + nama + ' dihapus');
@@ -7720,13 +8144,13 @@ window.simpanEditNominalBayar = async () => {
   try {
     if (newNominal === 0) {
       // Kalau 0, hapus pembayaran
-      await deleteDoc(doc(db, COL.bayar, _editBayarCurrentId));
+      await sbDelete(sbDoc(db, COL.bayar, _editBayarCurrentId));
       showToast('🗑 Pembayaran dibatalkan (nominal di 0 kan)');
     } else {
       // Kalau > 0, update nominal
-      await updateDoc(doc(db, COL.bayar, _editBayarCurrentId), { 
+      await sbUpdate(sbDoc(db, COL.bayar, _editBayarCurrentId), { 
         bayar: newNominal,
-        updatedAt: serverTimestamp()
+        updatedAt: sbTimestamp()
       });
       showToast('✅ Pembayaran berhasil diupdate');
     }
@@ -7771,7 +8195,7 @@ window.hapusBayar = async (id) => {
   showLoading('Menghapus...');
   
   try {
-    await deleteDoc(doc(db, COL.bayar, id));
+    await sbDelete(sbDoc(db, COL.bayar, id));
     
     showToast('🗑 Pembayaran dihapus');
     tutupPopup('editNominalBayarPopup');
@@ -7967,7 +8391,7 @@ window.hapusBayar = async (id) => {
       try {
         const docId = `${nama.replace(/\s+/g,'_')}_${new Date().toISOString().split('T')[0]}`;
         const tam = _rcTambahan[nama];
-        const payload = { nama, total: tam.total || 0, tanggal: new Date(), tanggalISO: new Date().toISOString().slice(0,10), weekId: _getWeekId(new Date()), updatedAt: serverTimestamp(), itemsJSON: JSON.stringify(tam.items || {}) };
+        const payload = { nama, total: tam.total || 0, tanggal: new Date(), tanggalISO: new Date().toISOString().slice(0,10), weekId: _getWeekId(new Date()), updatedAt: sbTimestamp(), itemsJSON: JSON.stringify(tam.items || {}) };
         const items = tam.items || {};
         const _findQty = (jenis) => { const e = Object.entries(items).find(([k]) => k.toUpperCase().endsWith('|' + jenis)); return e ? (e[1].qty || 0) : 0; };
         const _findJumlah = (jenis) => { const e = Object.entries(items).find(([k]) => k.toUpperCase().endsWith('|' + jenis)); return e ? (e[1].jumlah || 0) : 0; };
@@ -7979,7 +8403,7 @@ window.hapusBayar = async (id) => {
         payload.jumlahLembur = _findJumlah('LEMBUR');
         payload.hariBonus = _findQty('BONUS');
         payload.jumlahBonus = _findJumlah('BONUS');
-        await setDoc(doc(db, 'tambahan', docId), payload, { merge: true });
+        await sbUpsert(sbDoc(db, 'tambahan', docId), payload, { merge: true });
         return true;
       } catch(e) { console.error('❌ Gagal simpan tambahan:', e); showToast('⚠️ Gagal simpan ke database: ' + e.message); return false; }
     }
@@ -8900,7 +9324,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       if (!id || newQty < 1) { showToast('Qty tidak valid!'); return; }
       showLoading('Memperbarui Qty...');
       try {
-        await updateDoc(doc(db, COL.input, id), { qty: newQty, jumlah: newQty * harga });
+        await sbUpdate(sbDoc(db, COL.input, id), { qty: newQty, jumlah: newQty * harga });
         showToast('Qty berhasil diperbarui!');
         tutupPopup('editQtyPopup');
       } catch(e) { showToast('Gagal: ' + e.message); }
@@ -8952,7 +9376,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       if(nominal < 0){ showToast('Nominal tidak boleh negatif'); return; }
       showLoading('Menyimpan perubahan...');
       try {
-        await updateDoc(doc(db, COL.pinjaman, id), { nominal });
+        await sbUpdate(sbDoc(db, COL.pinjaman, id), { nominal });
         tutupPopup('editPinjamanPopup');
         showToast('✅ Pinjaman berhasil diperbarui');
         setTimeout(() => { muatRekapPinjaman(); }, 300);
@@ -8974,10 +9398,10 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       showLoading('Menghapus pinjaman...');
       try {
         const pinDoc = _CACHE.pinjaman.find(p => p.id === id);
-        await deleteDoc(doc(db, COL.pinjaman, id));
+        await sbDelete(sbDoc(db, COL.pinjaman, id));
         if(pinDoc) {
           const relatedBayar = _CACHE.bayar.filter(b => b.nama === pinDoc.nama && b.jenisPinjaman === (pinDoc.jenis || '(lainnya)'));
-          for(const b of relatedBayar) { await deleteDoc(doc(db, COL.bayar, b.id)); }
+          for(const b of relatedBayar) { await sbDelete(sbDoc(db, COL.bayar, b.id)); }
         }
         tutupPopup('editPinjamanPopup');
         showToast('🗑 Pinjaman & riwayat bayar berhasil dihapus');
@@ -9016,7 +9440,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
           okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
           callback: () => {
             showLoading('Menghapus pinjaman...');
-            deleteDoc(doc(db, COL.pinjaman, p.id))
+            sbDelete(sbDoc(db, COL.pinjaman, p.id))
               .then(() => {
                 showToast('🗑 Pinjaman berhasil dihapus');
                 setTimeout(() => {
@@ -9080,7 +9504,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
           okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
           callback: () => {
             showLoading('Menghapus pinjaman...');
-            deleteDoc(doc(db, COL.pinjaman, id))
+            sbDelete(sbDoc(db, COL.pinjaman, id))
               .then(() => {
                 showToast('🗑 Pinjaman berhasil dihapus');
                 setTimeout(() => {
