@@ -4658,9 +4658,14 @@
           <div id="tam_daftar_bagian" style="margin-bottom:10px;"></div>
           <div id="tam_form_baru" style="display:none;">
             <div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Tambah Item Baru</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:10px;">
-              <input type="text" id="tam_new_nama" placeholder="Nama (cth: LEMBUR)" oninput="this.value=this.value.toUpperCase();cekSimpanTambahanBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-transform:uppercase;">
-              <input type="number" id="tam_new_harga" placeholder="Harga (Rp)" inputmode="numeric" oninput="cekSimpanTambahanBaru()" style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;">
+            <div style="display:grid;grid-template-columns:1fr 90px 64px auto;gap:6px;align-items:center;margin-bottom:10px;">
+              <input type="text" id="tam_new_nama" placeholder="Nama (cth: LEMBUR)" oninput="this.value=this.value.toUpperCase();cekSimpanTambahanBaru()" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="padding:11px 10px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-transform:uppercase;">
+              <input type="number" id="tam_new_harga" placeholder="Harga" inputmode="numeric" oninput="cekSimpanTambahanBaru()" style="padding:11px 8px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;">
+              <select id="tam_new_satuan" style="width:64px;padding:11px 4px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:11px;font-family:inherit;font-weight:700;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;text-align:center;">
+                <option value="HARI">HARI</option>
+                <option value="PCS">PCS</option>
+                <option value="JAM">JAM</option>
+              </select>
               <button onclick="simpanTambahanBaru()" id="btnTamSimpanBaru" disabled style="width:38px;height:42px;border-radius:12px;border:none;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-check"></i></button>
             </div>
           </div>
@@ -5245,7 +5250,7 @@
       <div class="rc-body" style="padding:16px 20px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
           <div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;">TAMBAHAN</div>
-          <div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;">QTY / HARI</div>
+          <div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;">QTY / SATUAN</div>
         </div>
         <div id="tamItemRows"></div>
         <div id="tamEmptyMsg" style="display:none;padding:20px 0;text-align:center;color:var(--muted);font-size:13px;font-weight:600;">
@@ -5697,7 +5702,7 @@
             if(!MASTER.tambahanItemList) MASTER.tambahanItemList = [];
             if(_hargaDocIds[key]) { const oldDocId = _hargaDocIds[key]; sbDelete(sbDoc(db, COL.harga, oldDocId)).catch(()=>{}); const existIdx = MASTER.tambahanItemList.findIndex(t => t.id === oldDocId); if(existIdx >= 0) MASTER.tambahanItemList.splice(existIdx, 1); }
             _hargaDocIds[key] = d.id;
-            MASTER.tambahanItemList.push({ id:d.id, bagian:data.bagian||'', jenis:data.jenis||'', harga:data.harga||0 });
+            MASTER.tambahanItemList.push({ id:d.id, bagian:data.bagian||'', jenis:data.jenis||'', harga:data.harga||0, satuan:data.satuan||'HARI' });
             return;
           }
           if(data.brand) {
@@ -6649,13 +6654,14 @@ window.bukaNumpadGenEpNominal = () => {
 window.bukaNumpadGenTam = (idx) => {
   const items = window._tamCurrentItems || [];
   const t = items[idx];
-  const label = t ? `${t.jenis} (hari)` : 'Jumlah Hari';
+  const satuan = (t && t.satuan) || 'HARI';
+  const label = t ? `${t.jenis} (${satuan.toLowerCase()})` : 'Jumlah';
   const cur = window._tamValues[idx] || 0;
   bukaNumpadGen(label, cur > 0 ? String(cur) : '', (val) => {
-    if(val > 31) { val = 31; showToast('⚠ Maksimal 31 hari!'); }
+    if(satuan.toUpperCase() === 'HARI' && val > 31) { val = 31; showToast('⚠ Maksimal 31 hari!'); }
     window._tamValues[idx] = val;
     const el = document.getElementById('tamItem_' + idx);
-    if(el) el.value = val > 0 ? val + ' hari' : '';
+    if(el) el.value = val > 0 ? val + ' ' + satuan.toLowerCase() : '';
     hitungTotalTambahan();
   });
 };
@@ -7361,18 +7367,21 @@ window.tutupNumpadBayar = () => {
       const items = (MASTER.tambahanItemList||[]).filter(t => t.bagian === bagian);
       const existingJenis = items.map(t => t.jenis);
       const defaultMissing = TAM_DEFAULT.filter(j => !existingJenis.includes(j));
+      const _satOpts = (sel) => ['HARI','PCS','JAM'].map(s => `<option value="${s}" ${s===sel?'selected':''}>${s}</option>`).join('');
       let html = '';
       items.sort((a,b) => a.jenis.localeCompare(b.jenis)).forEach(t => {
-        html += `<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:8px;" data-tam-id="${t.id||''}" data-tam-jenis="${t.jenis}">
-          <div style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:700;color:var(--text2);">${t.jenis}</div>
-          <input type="number" class="tam-edit-harga" value="${t.harga||''}" placeholder="Rp" inputmode="numeric" onchange="simpanEditTambahan(this, '${bagian}', '${t.jenis}')" style="width:110px;padding:11px 10px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:right;">
+        html += `<div style="display:grid;grid-template-columns:1fr 90px 64px auto;gap:6px;align-items:center;margin-bottom:8px;" data-tam-id="${t.id||''}" data-tam-jenis="${t.jenis}">
+          <div style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:700;color:var(--text2);overflow:hidden;text-overflow:ellipsis;">${t.jenis}</div>
+          <input type="number" class="tam-edit-harga" value="${t.harga||''}" placeholder="Rp" inputmode="numeric" onchange="simpanEditTambahan(this, '${bagian}', '${t.jenis}')" style="width:90px;padding:11px 8px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:right;">
+          <select class="tam-edit-satuan" onchange="simpanSatuanTambahan(this, '${bagian}', '${t.jenis}')" style="width:64px;padding:11px 4px;border:1.5px solid var(--muted);border-radius:12px;background:var(--card2);font-size:11px;font-family:inherit;font-weight:700;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;text-align:center;">${_satOpts(t.satuan||'HARI')}</select>
           <button onclick="hapusTambahan('${bagian}','${t.jenis}')" style="width:38px;height:42px;border-radius:12px;border:1.5px solid var(--red);background:transparent;color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-trash"></i></button>
         </div>`;
       });
       defaultMissing.forEach(jenis => {
-        html += `<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:8px;">
-          <div style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:700;color:var(--muted);">${jenis}</div>
-          <input type="number" class="tam-edit-harga" placeholder="Rp" inputmode="numeric" onchange="simpanEditTambahan(this, '${bagian}', '${jenis}')" style="width:110px;padding:11px 10px;border:1.5px dashed var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:right;">
+        html += `<div style="display:grid;grid-template-columns:1fr 90px 64px auto;gap:6px;align-items:center;margin-bottom:8px;">
+          <div style="padding:11px 12px;border:1.5px solid var(--muted);border-radius:12px;background:var(--bg2);font-size:13px;font-family:inherit;font-weight:700;color:var(--muted);overflow:hidden;text-overflow:ellipsis;">${jenis}</div>
+          <input type="number" class="tam-edit-harga" placeholder="Rp" inputmode="numeric" onchange="simpanEditTambahan(this, '${bagian}', '${jenis}')" style="width:90px;padding:11px 8px;border:1.5px dashed var(--muted);border-radius:12px;background:var(--card2);font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:right;">
+          <select class="tam-edit-satuan" disabled style="width:64px;padding:11px 4px;border:1.5px dashed var(--muted);border-radius:12px;background:var(--card2);font-size:11px;font-family:inherit;font-weight:700;color:var(--muted);outline:none;appearance:none;-webkit-appearance:none;text-align:center;">${_satOpts('HARI')}</select>
           <div style="width:38px;height:42px;"></div>
         </div>`;
       });
@@ -7409,10 +7418,22 @@ window.tutupNumpadBayar = () => {
       try {
         const key = 'tambahan_item|' + bagian + '|' + jenis;
         if(_hargaDocIds[key]) { await sbUpdate(sbDoc(db, COL.harga, _hargaDocIds[key]), { harga }); }
-        else { const ref = await sbInsert(sbTable(db, COL.harga), { type:'tambahan_item', bagian, jenis, harga, waktu:sbTimestamp() }); _hargaDocIds[key] = ref.id; if(!MASTER.tambahanItemList) MASTER.tambahanItemList = []; MASTER.tambahanItemList.push({ id:ref.id, bagian, jenis, harga }); }
+        else { const ref = await sbInsert(sbTable(db, COL.harga), { type:'tambahan_item', bagian, jenis, harga, satuan:'HARI', waktu:sbTimestamp() }); _hargaDocIds[key] = ref.id; if(!MASTER.tambahanItemList) MASTER.tambahanItemList = []; MASTER.tambahanItemList.push({ id:ref.id, bagian, jenis, harga, satuan:'HARI' }); }
         const idx = (MASTER.tambahanItemList||[]).findIndex(t=>t.bagian===bagian&&t.jenis===jenis);
         if(idx>=0) MASTER.tambahanItemList[idx].harga = harga;
         showToast('✅ Harga disimpan!');
+        renderDaftarTambahan();
+      } catch(e){ showToast('❌ Gagal: '+e.message); }
+    };
+
+    window.simpanSatuanTambahan = async (sel, bagian, jenis) => {
+      const satuan = sel.value || 'HARI';
+      try {
+        const key = 'tambahan_item|' + bagian + '|' + jenis;
+        if(_hargaDocIds[key]) { await sbUpdate(sbDoc(db, COL.harga, _hargaDocIds[key]), { satuan }); }
+        const idx = (MASTER.tambahanItemList||[]).findIndex(t=>t.bagian===bagian&&t.jenis===jenis);
+        if(idx>=0) MASTER.tambahanItemList[idx].satuan = satuan;
+        showToast('✅ Satuan disimpan!');
         renderDaftarTambahan();
       } catch(e){ showToast('❌ Gagal: '+e.message); }
     };
@@ -7435,15 +7456,16 @@ window.tutupNumpadBayar = () => {
       const bagian = $('tam_bagian_sel')?.value;
       const jenis = $('tam_new_nama')?.value.trim().toUpperCase();
       const harga = parseInt($('tam_new_harga')?.value)||0;
+      const satuan = $('tam_new_satuan')?.value || 'HARI';
       if(!bagian){ showToast('⚠ Pilih Bagian!'); return; }
       if(!jenis || !harga){ showToast('⚠ Isi nama & harga!'); return; }
       showLoading('Menyimpan...');
       try {
         const key = 'tambahan_item|' + bagian + '|' + jenis;
-        if(_hargaDocIds[key]) { await sbUpdate(sbDoc(db, COL.harga, _hargaDocIds[key]), { harga }); const idx = (MASTER.tambahanItemList||[]).findIndex(t=>t.bagian===bagian&&t.jenis===jenis); if(idx>=0) MASTER.tambahanItemList[idx].harga = harga; }
-        else { const ref = await sbInsert(sbTable(db, COL.harga), { type:'tambahan_item', bagian, jenis, harga, waktu:sbTimestamp() }); _hargaDocIds[key] = ref.id; if(!MASTER.tambahanItemList) MASTER.tambahanItemList = []; MASTER.tambahanItemList.push({ id:ref.id, bagian, jenis, harga }); }
+        if(_hargaDocIds[key]) { await sbUpdate(sbDoc(db, COL.harga, _hargaDocIds[key]), { harga, satuan }); const idx = (MASTER.tambahanItemList||[]).findIndex(t=>t.bagian===bagian&&t.jenis===jenis); if(idx>=0) { MASTER.tambahanItemList[idx].harga = harga; MASTER.tambahanItemList[idx].satuan = satuan; } }
+        else { const ref = await sbInsert(sbTable(db, COL.harga), { type:'tambahan_item', bagian, jenis, harga, satuan, waktu:sbTimestamp() }); _hargaDocIds[key] = ref.id; if(!MASTER.tambahanItemList) MASTER.tambahanItemList = []; MASTER.tambahanItemList.push({ id:ref.id, bagian, jenis, harga, satuan }); }
         showToast('✅ Item ditambahkan!');
-        $('tam_new_nama').value = ''; $('tam_new_harga').value = '';
+        $('tam_new_nama').value = ''; $('tam_new_harga').value = ''; if($('tam_new_satuan')) $('tam_new_satuan').value = 'HARI';
         const fb = $('tam_form_baru'); if(fb) fb.style.display = 'none';
         const btn = $('btnTamTambahItem'); if(btn) btn.textContent = '+ Tambah Item Lain';
         setDis('btnTamSimpanBaru', true);
@@ -7473,7 +7495,7 @@ window.tutupNumpadBayar = () => {
         grouped[bag].sort((a,b)=>a.jenis.localeCompare(b.jenis)).forEach(t => {
           html += `<div style="background:var(--card2);border-radius:12px;padding:10px 14px;margin-bottom:6px;border:1px solid var(--muted);display:flex;justify-content:space-between;align-items:center;">
             <div style="font-size:13px;font-weight:700;color:var(--text);">${t.jenis||'-'}</div>
-            <div style="font-size:13px;font-weight:800;color:var(--text);">Rp ${fmt(t.harga)}</div>
+            <div style="font-size:13px;font-weight:800;color:var(--text);">Rp ${fmt(t.harga)} <span style="font-size:10px;font-weight:700;color:var(--muted);">/${(t.satuan||'HARI').toLowerCase()}</span></div>
           </div>`;
         });
         html += `</div>`;
@@ -7724,7 +7746,7 @@ window.tutupNumpadBayar = () => {
     if (tam && tam.items) {
       tambahanHTML = Object.values(tam.items).filter(it => (it.jumlah > 0) || (it.qty > 0 && it.harga > 0)).map(it => {
         const jumlahTampil = it.jumlah > 0 ? it.jumlah : (it.qty || 0) * (it.harga || 0);
-        return `<div class="rekap-breakdown-row"><span>${it.jenis} <small>(${it.qty} hari)</small></span><span class="positive">+Rp ${fmt(jumlahTampil)}</span></div>`;
+        return `<div class="rekap-breakdown-row"><span>${it.jenis} <small>(${it.qty} ${(it.satuan||'HARI').toLowerCase()})</small></span><span class="positive">+Rp ${fmt(jumlahTampil)}</span></div>`;
       }).join('');
     }
     
@@ -8259,19 +8281,20 @@ window.hapusBayar = async (id) => {
           const qty = savedItems[key] ? savedItems[key].qty : '';
           window._tamValues[i] = qty !== '' ? qty : 0;
           const harga = t.harga || 0;
+          const satuan = (t.satuan || 'HARI').toLowerCase();
           const ph = harga > 0 ? `qty... (@ ${fmt(harga)})` : 'qty... (⚠ harga 0)';
           const fs = t.jenis.length > 14 ? '11px' : '13px';
           return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;align-items:center;">
             <div style="background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;border-radius:12px;padding:12px 10px;text-align:center;">
               <div style="font-size:${fs};font-weight:800;letter-spacing:.03em;line-height:1.2;">${t.jenis}</div>
-              <div style="font-size:9px;font-weight:600;opacity:.8;margin-top:3px;">Rp ${fmt(harga)}/hari</div>
+              <div style="font-size:9px;font-weight:600;opacity:.8;margin-top:3px;">Rp ${fmt(harga)}/${satuan}</div>
             </div>
             <div class="popup-input-trigger" onclick="bukaNumpadGenTam(${i})" style="margin-top:0;">
               <input type="text" id="tamItem_${i}" data-idx="${i}" readonly
                 placeholder="${ph}" inputmode="none"
                 class="popup-input-no-keyboard"
                 style="font-size:13px;padding:13px 14px;border-radius:12px;cursor:pointer;"
-                value="${qty !== '' ? qty + ' hari' : ''}">
+                value="${qty !== '' ? qty + ' ' + satuan : ''}">
             </div>
           </div>`;
         }).join('');
@@ -8313,7 +8336,8 @@ window.hapusBayar = async (id) => {
         let qty = parseInt(window._tamValues[i] ?? 0) || 0;
         // ✅ FIX 6: Validasi qty
         if(qty < 0) { qty = 0; window._tamValues[i] = 0; }
-        if(qty > 31) { qty = 31; window._tamValues[i] = 31; showToast('⚠ Maksimal 31 hari!'); }
+        const _sat = (t.satuan || 'HARI').toUpperCase();
+        if(_sat === 'HARI' && qty > 31) { qty = 31; window._tamValues[i] = 31; showToast('⚠ Maksimal 31 hari!'); }
         if(!Number.isInteger(qty)) { qty = Math.floor(qty); window._tamValues[i] = qty; }
         total += qty * (t.harga || 0);
       });
@@ -8349,7 +8373,7 @@ window.hapusBayar = async (id) => {
         total += jumlah;
         if(qty > 0) {
           const key = _tamKey(t);
-          savedItems[key] = { jenis: t.jenis, harga: t.harga || 0, qty, jumlah };
+          savedItems[key] = { jenis: t.jenis, harga: t.harga || 0, qty, jumlah, satuan: t.satuan || 'HARI' };
         }
       });
       const _todayISO = new Date().toISOString().slice(0,10);
@@ -8486,7 +8510,7 @@ window.hapusBayar = async (id) => {
           row.innerHTML = `
             <div class="slip-item-left">
               <div class="slip-item-name">${it.jenis}</div>
-              <div class="slip-item-meta">${it.qty} hari × Rp ${fmt(it.harga)}</div>
+              <div class="slip-item-meta">${it.qty} ${(it.satuan||'HARI').toLowerCase()} × Rp ${fmt(it.harga)}</div>
               <div class="slip-item-meta" style="font-size:6px;color:#aaa;">${tam._tanggalISO || ''}</div>
             </div>
             <div class="slip-item-right">
@@ -8603,7 +8627,7 @@ window.hapusBayar = async (id) => {
       Object.values(tam.items).forEach(it => {
         const jumlahIt = it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0);
         if(jumlahIt > 0) { 
-          tamHTMLCetak += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(jumlahIt)}</span></div>`; 
+          tamHTMLCetak += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} ${(it.satuan||'HARI').toLowerCase()})</span><span>+ ${fmt(jumlahIt)}</span></div>`; 
         } 
       });
     }
@@ -8689,7 +8713,7 @@ window.hapusBayar = async (id) => {
         Object.values(tam.items).forEach(it => {
           const jumlahIt = it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0);
           if(jumlahIt > 0) { 
-            tamHTMLMassal += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} hari)</span><span>+ ${fmt(jumlahIt)}</span></div>`; 
+            tamHTMLMassal += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} ${(it.satuan||'HARI').toLowerCase()})</span><span>+ ${fmt(jumlahIt)}</span></div>`; 
           } 
         });
       }
