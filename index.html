@@ -4743,6 +4743,15 @@
   </div>
 </div>
 
+<!-- Bar Pilih Semua (muncul saat mode pilih aktif) -->
+<div id="selectAllBar" style="display:none; padding:0 16px 10px; align-items:center; justify-content:space-between;">
+  <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800; color:var(--text); cursor:pointer;">
+    <input type="checkbox" id="checkAllRekapCard" onchange="toggleCheckAllRekap(this)" style="width:18px;height:18px;accent-color:var(--primary3);cursor:pointer;">
+    Pilih Semua
+  </label>
+  <span id="selectAllCount" style="font-size:11px; font-weight:700; color:var(--muted);"></span>
+</div>
+
 <!-- GANTI: Legend (compact, horizontal) -->
 <div id="legendaPinjaman" style="margin:0 16px 8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
   <span style="font-size:9px; font-weight:800; color:var(--muted); letter-spacing:.07em; text-transform:uppercase;">Status:</span>
@@ -7622,6 +7631,7 @@ window.tutupNumpadBayar = () => {
 
     window.gantiTab = tab => {
       currentTab = tab;
+      batalModePilih(); // reset ke mode normal setiap ganti tab, biar Cetak/Thermal ga nyangkut
       $('tabPegawai').classList.toggle('active', tab==='pegawai');
       $('tabPinjaman').classList.toggle('active', tab==='pinjaman');
       $('tabPegawai').style.background = tab==='pegawai' ? 'linear-gradient(135deg, var(--primary3), var(--primary))' : 'transparent';
@@ -7637,8 +7647,6 @@ window.tutupNumpadBayar = () => {
       $('rekapCardList').style.display = tab==='pegawai' ? 'flex' : 'none';
       $('rekapTitle').textContent = tab==='pegawai' ? 'Rekap Pegawai' : 'Rekap Pinjaman';
       $('rekapDateBox').style.display = tab==='pegawai' ? '' : 'none';
-      $('btnCetakMassal').style.display = tab==='pegawai' ? '' : 'none';
-      const _btnTM = $('btnThermalMassal'); if(_btnTM) _btnTM.style.display = tab==='pegawai' ? '' : 'none';
       const legendaEl = $('legendaPinjaman');
       if(legendaEl) legendaEl.style.display = tab==='pegawai' ? 'flex' : 'none';
       if(tab==='pegawai') muatRekapPegawai();
@@ -7886,17 +7894,26 @@ window.toggleCardExpand = function(idx) {
 };
 
 window.onCardSelect = function(checkbox, nama) {
+  updateSelectAllUI();
+};
+
+function updateSelectAllUI() {
   const allChecked = document.querySelectorAll('.row-check-rekap:checked').length;
   const total = document.querySelectorAll('.row-check-rekap').length;
-  const checkAll = $('checkAllRekap');
-  if (checkAll) {
-    checkAll.checked = allChecked === total && total > 0;
-    checkAll.indeterminate = allChecked > 0 && allChecked < total;
-  }
+  ['checkAllRekap', 'checkAllRekapCard'].forEach(id => {
+    const el = $(id);
+    if (el) {
+      el.checked = allChecked === total && total > 0;
+      el.indeterminate = allChecked > 0 && allChecked < total;
+    }
+  });
   // Update label cetak
   const label = $('cetakMassalLabel');
   if (label) label.textContent = allChecked > 0 ? `Cetak (${allChecked})` : 'Cetak';
-};
+  // Update counter di bar Pilih Semua
+  const countEl = $('selectAllCount');
+  if (countEl) countEl.textContent = allChecked > 0 ? `${allChecked} dipilih` : '';
+}
 
 window.masukModePilih = function() {
   // Uncheck semua dulu
@@ -7910,6 +7927,10 @@ window.masukModePilih = function() {
   const _btnTM2 = $('btnThermalMassal'); if(_btnTM2) _btnTM2.style.display = 'flex';
   const label = $('cetakMassalLabel');
   if (label) label.textContent = 'Cetak';
+  // Tampilkan bar Pilih Semua
+  const bar = $('selectAllBar'); if (bar) bar.style.display = 'flex';
+  const cAll = $('checkAllRekapCard'); if (cAll) { cAll.checked = false; cAll.indeterminate = false; }
+  const countEl = $('selectAllCount'); if (countEl) countEl.textContent = '';
 };
 
 window.batalModePilih = function() {
@@ -7919,6 +7940,8 @@ window.batalModePilih = function() {
   $('btnBatalPilih').style.display = 'none';
   $('btnCetakMassal').style.display = 'none';
   const _btnTM3 = $('btnThermalMassal'); if(_btnTM3) _btnTM3.style.display = 'none';
+  // Sembunyikan bar Pilih Semua
+  const bar = $('selectAllBar'); if (bar) bar.style.display = 'none';
 };
 
 window.bukaBayarForNama = function(nama) {
@@ -7941,6 +7964,10 @@ window.bukaPinjamanForNama = function(nama) {
 
 window.toggleCheckAllRekap = function(cb) {
   document.querySelectorAll('.row-check-rekap').forEach(el => el.checked = cb.checked);
+  // Sinkronkan pasangan checkbox "pilih semua" lainnya (tabel & card pakai id berbeda)
+  const other = $(cb.id === 'checkAllRekap' ? 'checkAllRekapCard' : 'checkAllRekap');
+  if (other) other.checked = cb.checked;
+  updateSelectAllUI();
 };
 
     function muatRekapPinjaman() {
