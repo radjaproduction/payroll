@@ -40,7 +40,7 @@ jobs:
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Sesuaikan ke './www' atau './build' jika folder hasil build web kamu berbeda
+          path: './dist' # Ubah ke './www' jika output build web Capacitor kamu foldernya bernama www
 
       - name: Deploy to GitHub Pages
         id: deployment
