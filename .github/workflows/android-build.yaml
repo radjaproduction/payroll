@@ -14,11 +14,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
-# Set agar semua perintah 'run' berjalan di dalam subfolder proyek jika jalurnya bergeser
-defaults:
-  run:
-    working-directory: .
-
 jobs:
   # 1. JOB UNTUK DEPLOY WEBSITE KE GITHUB PAGES
   deploy-pages:
@@ -37,26 +32,15 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        run: |
-          if [ -f package.json ]; then
-            npm install
-          else
-            cd payroll && npm install
-          fi
+        run: npm install
 
       - name: Build Web Assets
-        run: |
-          if [ -f package.json ]; then
-            npm run build
-          else
-            cd payroll && npm run build
-          fi
+        run: npm run build
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Jika package.json ada di dalam folder payroll, arahkan ke payroll/dist atau payroll/www
-          path: './dist' 
+          path: './dist' # Sesuaikan ke './www' atau './build' jika folder hasil build web kamu berbeda
 
       - name: Deploy to GitHub Pages
         id: deployment
@@ -82,31 +66,17 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        run: |
-          if [ -f package.json ]; then
-            npm install
-          else
-            cd payroll && npm install
-          fi
+        run: npm install
 
       - name: Build Web Assets & Sync Capacitor
-        run: |
-          if [ -f package.json ]; then
-            npm run cap:sync
-          else
-            cd payroll && npm run cap:sync
-          fi
+        run: npm run cap:sync
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build Android APK
         run: |
-          if [ -d "android" ]; then
-            cd android
-          else
-            cd payroll/android
-          fi
+          cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
@@ -114,6 +84,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Sri_Rejeki_Toko_Roti_Debug_APK
-          path: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            payroll/android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
