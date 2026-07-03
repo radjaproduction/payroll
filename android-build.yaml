@@ -34,7 +34,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Mengcompile web aset (biasanya folder dist, build, atau www)
       - name: Build Web Assets
         run: npm run build
 
