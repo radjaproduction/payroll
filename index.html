@@ -2,6 +2,12 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://esm.sh;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    connect-src 'self' https://jziegbpuudswljwasctn.supabase.co wss://jziegbpuudswljwasctn.supabase.co;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payroll Radja</title>
   <link rel="manifest" href="./manifest.json">
@@ -15,4223 +21,8 @@
   <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <style>
-    /* ===== ROOT VARIABLES – DEEP BLUE THEME ===== */
-    :root {
-      --bg: #F2F5FA;
-      --bg2: #E8EEF5;
-      --card: #FFFFFF;
-      --card2: #F7F9FC;
-      --primary: #4B8EF8;
-      --primary2: #6BA3FF;
-      --primary3: #1A56DB;
-      --primaryDim: #E0EAFF;
-      --primaryDark: #0D2B6E;
-      --text: #1A2340;
-      --text2: #2C3A5A;
-      --muted: #7B8DB0;
-      --border: #DDE4F0;
-      --shadow: 0 4px 20px rgba(26, 86, 219, 0.12);
-      --shadow2: 0 8px 36px rgba(26, 86, 219, 0.18);
-      --red: #EF4444;
-      --green: #10B981;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-
-      /* Home header gradient */
-      --header-grad: linear-gradient(160deg, #1A2A8C 0%, #2347D8 55%, #3B7BF8 100%);
-      /* Card accent colors */
-      --accent-green: #22C55E;
-      --accent-orange: #F59E0B;
-      --accent-purple: #8B5CF6;
-      --accent-teal: #14B8A6;
-    }
-
-    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent }
-    html, body {
-      width:100%; height:100vh; height:100dvh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      overflow:hidden;
-    }
-
-    /* ===== LOADING ===== */
-    .loading-overlay {
-      position:fixed; inset:0;
-      background:rgba(242,245,250,.96);
-      display:none; justify-content:center; align-items:center;
-      z-index:9999999; flex-direction:column; gap:14px;
-    }
-    .loading-overlay.active { display:flex }
-    .spin-ring {
-      width:44px; height:44px;
-      border:4px solid var(--muted);
-      border-top-color: var(--primary);
-      border-radius:50%;
-      animation:spin .7s linear infinite;
-    }
-    @keyframes spin { to { transform:rotate(360deg) } }
-    .loading-text { color:var(--primary3); font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
-
-    /* ===== TOAST ===== */
-    .toast {
-      position:fixed; top:calc(18px + var(--safe-top)); left:50%;
-      transform:translateX(-50%) translateY(-80px);
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-      color:#fff;
-      padding:11px 24px; border-radius:99px;
-      font-size:13px; font-weight:600;
-      z-index:9999999;
-      transition:.35s cubic-bezier(.34,1.56,.64,1);
-      opacity:0; white-space:nowrap; pointer-events:none;
-      box-shadow:var(--shadow2);
-    }
-    .toast.show { transform:translateX(-50%) translateY(0); opacity:1 }
-
-    /* ===== HOME PAGE ===== */
-    .home-page {
-      width:100%; height:100vh; height:100dvh;
-      display:flex; flex-direction:column;
-      background: var(--bg);
-      overflow:hidden;
-    }
-
-    /* HOME HEADER (blue gradient, like reference image) */
-    .home-header {
-      background: var(--header-grad);
-      padding: 0 18px 24px;
-      padding-top: calc(16px + var(--safe-top));
-      flex-shrink: 0;
-      position: relative;
-      overflow: hidden;
-      border-radius: 0 0 32px 32px;
-    }
-    .home-header::before {
-      content:'';
-      position:absolute; top:-40px; right:-40px;
-      width:180px; height:180px;
-      border-radius:50%;
-      background: rgba(255,255,255,.06);
-    }
-    .home-header::after {
-      content:'';
-      position:absolute; top:20px; right:30px;
-      width:100px; height:100px;
-      border-radius:50%;
-      background: rgba(255,255,255,.04);
-    }
-
-    /* BRAND ROW inside header */
-    .home-brand {
-      display:flex; align-items:center; gap:12px;
-      margin-bottom: 20px;
-      position: relative; z-index:1;
-    }
-    .brand-icon {
-      width:46px; height:46px;
-      background:rgba(255,255,255,.20);
-      border-radius:14px;
-      display:flex; align-items:center; justify-content:center;
-      color:#fff; font-size:20px; flex-shrink:0;
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,.25);
-    }
-    .brand-title { font-size:20px; font-weight:900; color:#fff; line-height:1; letter-spacing:-.01em }
-    .brand-sub { font-size:11px; color:rgba(255,255,255,.7); font-weight:500; margin-top:2px; }
-    .brand-badge {
-      display:flex; align-items:center; gap:4px;
-      font-size:9px; color:rgba(255,255,255,.8);
-      font-weight:700; letter-spacing:.06em; margin-top:4px;
-    }
-    .brand-badge i { color:#22C55E; }
-
-    /* SUMMARY CARDS (inside blue header) */
-    .summary-row {
-      display:grid; grid-template-columns:1fr 1fr; gap:12px;
-      position:relative; z-index:1;
-    }
-    .summary-card {
-      border-radius:20px; padding:16px;
-      display:flex; flex-direction:column; gap:8px;
-    }
-    .summary-card.blue-card {
-      background: rgba(255,255,255,.15);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,.25);
-      color:#fff;
-      position:relative; overflow:hidden;
-    }
-    .summary-card.blue-card::after {
-      content:'';
-      position:absolute;
-      bottom:-12px; right:-8px;
-      width:60px; height:60px;
-      background:rgba(255,255,255,.08);
-      border-radius:50%;
-    }
-    .summary-card.blue-card .sc-icon {
-      background:rgba(255,255,255,.25);
-      color:#fff;
-    }
-    .summary-card.green-card {
-      background: linear-gradient(135deg, #1EAA6A, #22C55E);
-      color:#fff;
-      box-shadow: 0 6px 20px rgba(34,197,94,.30);
-    }
-    .summary-card.green-card .sc-icon {
-      background:rgba(255,255,255,.25);
-      color:#fff;
-    }
-    .sc-icon {
-      width:36px; height:36px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-size:16px;
-    }
-    .sc-val { font-size:18px; font-weight:800; line-height:1.2; word-break:break-all; }
-    .sc-label { font-size:9px; font-weight:700; opacity:.85; letter-spacing:.04em; text-transform:uppercase; }
-
-    /* SCROLL BODY */
-    .home-body {
-      flex:1; overflow-y:auto; overflow-x:hidden;
-      padding: 16px 14px;
-      padding-bottom: calc(20px + var(--safe-bottom));
-      display:flex; flex-direction:column;
-      gap:10px;
-    }
-
-    /* MENU CARDS – full-width row style (like reference) */
-    .menu-section-title {
-      font-size:11px; font-weight:800; color:var(--muted);
-      letter-spacing:.08em; text-transform:uppercase;
-      margin-bottom:2px; padding-left:2px;
-    }
-    .menu-grid {
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      width:100%;
-    }
-    .menu-grid-bottom {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      width:100%;
-    }
-
-    /* MENU CARD – row layout like reference image */
-    .menu-card {
-      background:#fff;
-      border-radius:20px;
-      padding:20px 22px;
-      box-shadow: 0 2px 12px rgba(26,86,219,.08);
-      border:1px solid rgba(26,86,219,.06);
-      display:flex;
-      flex-direction:row;
-      align-items:center;
-      gap:16px;
-      cursor:pointer;
-      transition:transform .15s, box-shadow .15s;
-      position:relative;
-      overflow:hidden;
-      width:100%;
-      min-height:64px;
-    }
-    .menu-card:active { transform:scale(.98); box-shadow:none }
-
-    .menu-card .m-icon {
-      width:48px; height:48px;
-      border-radius:16px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:22px; flex-shrink:0;
-    }
-    /* Per-card icon colors */
-    .menu-card.card-input .m-icon { background: var(--primary3); color: #EEF3FF; }
-    .menu-card.card-pinjaman .m-icon { background: #059669; color: #D1FAE5; }
-    .menu-card.card-bayar .m-icon { background: #D97706; color: #FEF3C7; }
-    .menu-card.card-rekap .m-icon { background: #7C3AED; color: #EDE9FE; }
-
-    /* Label color accent */
-    .menu-card.card-input .m-label { color: var(--primary3); }
-    .menu-card.card-pinjaman .m-label { color: #059669; }
-    .menu-card.card-bayar .m-label { color: #D97706; }
-    .menu-card.card-rekap .m-label { color: #7C3AED; }
-
-    .menu-card .m-text { flex:1; min-width:0 }
-    .menu-card .m-label { font-size:15px; font-weight:800; letter-spacing:.01em }
-    .menu-card .m-sub { font-size:11px; color:var(--muted); font-weight:500; margin-top:2px }
-    .menu-card .m-arrow {
-      width:32px; height:32px;
-      border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-size:12px; flex-shrink:0;
-    }
-    .menu-card.card-input .m-arrow { background:#EEF3FF; color:var(--primary3); }
-    .menu-card.card-pinjaman .m-arrow { background:#D1FAE5; color:#059669; }
-    .menu-card.card-bayar .m-arrow { background:#FEF3C7; color:#D97706; }
-    .menu-card.card-rekap .m-arrow { background:#EDE9FE; color:#7C3AED; }
-
-    /* REKAP background decoration */
-    /* .menu-card.card-rekap {
-      background: linear-gradient(135deg, #ffffff, #ffffff);
-      border-color: rgba(255, 255, 255, 0.12);
-    } */
-
-    /* HIGHLIGHTED MENU CARD (old, keep for backward compat) */
-    .menu-card.highlight {
-      background:linear-gradient(135deg, var(--primary3), var(--primary)) !important;
-      box-shadow:0 6px 20px rgba(26,86,219,.30) !important;
-      border-color:transparent !important;
-    }
-    .menu-card.highlight .m-icon {
-      background:rgba(255,255,255,.22) !important;
-      color:#fff !important;
-    }
-    .menu-card.highlight .m-label { color:#fff !important; }
-    .menu-card.highlight .m-sub { color:rgba(255,255,255,.75) !important; }
-
-    /* SMALL MENU CARDS (Setting & Harga) */
-    .menu-card-sm {
-      background:#fff;
-      border-radius:20px;
-      padding:20px 18px;
-      box-shadow: 0 2px 12px rgba(26,86,219,.08);
-      border:1px solid rgba(26,86,219,.06);
-      display:flex;
-      flex-direction:column;
-      align-items:flex-start;
-      gap:8px;
-      cursor:pointer;
-      transition:transform .15s, box-shadow .15s;
-      position:relative;
-      overflow:hidden;
-      width:100%;
-      min-height:80px;
-    }
-    .menu-card-sm:active { transform:scale(.97); box-shadow:none }
-    .menu-card-sm.card-setting .m-icon { background:#E11D78; color:#FFE4F0; }
-    .menu-card-sm.card-harga .m-icon { background:#0D9488; color:#CCFBF1; }
-    .menu-card-sm .m-icon {
-      width:42px; height:42px;
-      border-radius:14px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:18px;
-    }
-
-    .menu-card-sm .m-label { font-size:13px; font-weight:800; color:var(--text); letter-spacing:.01em }
-    .menu-card-sm.card-setting .m-label { color:#E11D78; }
-    .menu-card-sm.card-harga .m-label { color:#0D9488; }
-    .menu-card-sm .m-sub { font-size:10px; color:var(--muted); font-weight:500 }
-    .menu-card-sm .m-arrow-sm {
-      position:absolute; top:14px; right:14px;
-      width:26px; height:26px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-size:10px;
-    }
-    .menu-card-sm.card-setting .m-arrow-sm { background:#FFE4F0; color:#E11D78; }
-    .menu-card-sm.card-harga .m-arrow-sm { background:#CCFBF1; color:#0D9488; }
-
-    /* ===== BOTTOM NAVIGATION BAR ===== */
-    /* EXIT ROW */
-    .exit-row { display:flex; gap:10px; flex-shrink:0; min-height:52px }
-    .exit-btn {
-      flex:1; border:none; background:#fff;
-      border-radius:18px; padding:15px;
-      font-size:13px; font-weight:700; color:var(--muted);
-      cursor:pointer; font-family:inherit;
-      box-shadow:var(--shadow);
-      display:flex; align-items:center; justify-content:center;
-      gap:8px; transition:color .2s;
-      border:1.5px solid var(--muted);
-    }
-    .exit-btn:active { color:var(--red) }
-
-    /* ===== CSS POPUP UNIVERSAL — SEMUA POPUP DARI BAWAH ===== */
-/* ============================================================
-   ===== CSS POPUP SYSTEM — PINJAMAN & BAYAR =====
-   ============================================================ */
-
-/* ===== OVERLAY ===== */
-.popup {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 43, 110, 0.55);
-  display: none;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 99999;
-  padding: 0;
-  animation: popupOverlayIn 0.25s ease;
-}
-
-@keyframes popupOverlayIn {
-  from { background: rgba(13, 43, 110, 0); }
-  to   { background: rgba(13, 43, 110, 0.55); }
-}
-
-.popup.active {
-  display: flex;
-}
-
-/* ===== SHEET (DARI BAWAH) ===== */
-.popup-sheet {
-  width: 100%;
-  max-width: 480px;
-  background: #fff;
-  border-radius: 20px 20px 0 0;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  max-height: 85vh;
-  max-height: 85dvh;
-  transform: translateY(0);
-  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
-}
-
-.popup-sheet.entering {
-  transform: translateY(100%);
-}
-
-/* ===== HEADER ===== */
-.popup-header {
-  position: relative;
-  flex-shrink: 0;
-  z-index: 2;
-}
-
-.popup-header-bg {
-  padding: 16px 20px 24px;
-  position: relative;
-  overflow: hidden;
-}
-
-.popup-header-blue {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-}
-
-.popup-header-green {
-  background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%);
-}
-
-.popup-header-bg::after {
-  content: '';
-  position: absolute;
-  top: -40%;
-  right: -10%;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  pointer-events: none;
-}
-
-.popup-header-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-  z-index: 1;
-}
-
-.popup-header-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.popup-header-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.popup-header-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.popup-header-subtitle {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-.popup-header-close {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.1s;
-  z-index: 2;
-}
-
-.popup-header-close:active {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* ===== WAVE ===== */
-.popup-header-wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 16px;
-  line-height: 0;
-}
-
-.popup-header-wave svg {
-  width: 100%;
-  height: 100%;
-  fill: #fff;
-}
-
-/* ===== BODY ===== */
-.popup-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 18px;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-
-/* ===== INFO CARD ===== */
-.popup-info {
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.popup-info-blue {
-  background: linear-gradient(135deg, #E0EAFF 0%, #F0F7FF 100%);
-  border: 1.5px solid rgba(26, 86, 219, 0.12);
-}
-
-.popup-info-green {
-  background: linear-gradient(135deg, #D1FAE5 0%, #ECFDF5 100%);
-  border: 1.5px solid rgba(16, 185, 129, 0.15);
-}
-
-.popup-info-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 11px;
-  flex-shrink: 0;
-}
-
-.popup-info-icon-blue { background: #1A56DB; }
-.popup-info-icon-green { background: #059669; }
-
-.popup-info-text {
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.5;
-  padding-top: 2px;
-}
-
-.popup-info-text-blue { color: #1A56DB; }
-.popup-info-text-green { color: #059669; }
-
-/* ===== FORM GROUPS ===== */
-.popup-form-group {
-  margin-bottom: 14px;
-}
-
-.popup-form-group.hidden {
-  display: none !important;
-}
-
-.popup-form-group.visible {
-  display: block !important;
-  animation: popupFieldShow 0.2s ease-out;
-}
-
-@keyframes popupFieldShow {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.popup-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #7B8DB0;
-  margin-bottom: 6px;
-}
-
-.popup-label i {
-  color: #4B8EF8;
-  font-size: 11px;
-  width: 14px;
-  text-align: center;
-}
-
-.popup-label-row {
-  justify-content: space-between;
-}
-
-.popup-label-action {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  border: none;
-  background: none;
-  color: #4B8EF8;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  padding: 2px 0;
-}
-
-.popup-label-action.hidden {
-  display: none !important;
-}
-
-.popup-label-action:active {
-  opacity: 0.6;
-}
-
-.popup-field-locked .popup-select:disabled {
-  background: #EEF3FF;
-  border-color: #C7D7F5;
-  color: #4B5E8A;
-  opacity: 0.85;
-}
-
-/* ===== SELECT ===== */
-.popup-select-wrap {
-  position: relative;
-}
-
-.popup-select {
-  width: 100%;
-  padding: 12px 40px 12px 14px;
-  border: 2px solid #DDE4F0;
-  border-radius: 12px;
-  background: #F7F9FC;
-  font-size: 15px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 600;
-  color: #1A2340;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  cursor: pointer;
-}
-
-.popup-select:focus {
-  border-color: #4B8EF8;
-  box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
-  background: #fff;
-}
-
-.popup-select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #E8EEF5;
-}
-
-.popup-select-arrow {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #7B8DB0;
-  font-size: 11px;
-  pointer-events: none;
-}
-
-/* ===== INPUT ===== */
-.popup-input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.popup-input-prefix {
-  position: absolute;
-  left: 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1A56DB;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.popup-input {
-  width: 100%;
-  padding: 12px 14px 12px 44px;
-  border: 2px solid #DDE4F0;
-  border-radius: 12px;
-  background: #F7F9FC;
-  font-size: 16px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  color: #1A2340;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.popup-input:focus {
-  border-color: #4B8EF8;
-  box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
-  background: #fff;
-}
-
-.popup-input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #E8EEF5;
-}
-
-.popup-input[readonly] {
-  background: #E8EEF5;
-  color: #7B8DB0;
-}
-
-.popup-input::placeholder {
-  color: #7B8DB0;
-  font-weight: 500;
-}
-
-.popup-hint {
-  font-size: 10px;
-  color: #7B8DB0;
-  margin-top: 4px;
-  font-weight: 500;
-  padding-left: 4px;
-}
-
-.popup-hint.hidden {
-  display: none !important;
-}
-
-/* ===== QUICK AMOUNTS ===== */
-.popup-quick {
-  margin-top: 6px;
-}
-
-.popup-quick.hidden {
-  display: none !important;
-}
-
-.popup-quick-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #7B8DB0;
-  margin-bottom: 8px;
-  letter-spacing: 0.04em;
-}
-
-.popup-quick-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.popup-quick-btn {
-  padding: 10px 6px;
-  border: 1.5px solid #DDE4F0;
-  border-radius: 10px;
-  background: #F7F9FC;
-  color: #2C3A5A;
-  font-size: 11px;
-  font-weight: 700;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.1s;
-  text-align: center;
-}
-
-.popup-quick-btn:active {
-  transform: scale(0.95);
-  border-color: #4B8EF8;
-  color: #1A56DB;
-  background: #E0EAFF;
-}
-
-.popup-quick-btn.active {
-  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
-  color: #fff;
-  border-color: #1A56DB;
-}
-
-/* ===== TOGGLE ===== */
-.popup-toggle-track {
-  width: 52px;
-  height: 28px;
-  border-radius: 14px;
-  background: #D1D5DB;
-  position: relative;
-  transition: background 0.2s;
-  cursor: pointer;
-}
-
-.popup-toggle-track.active {
-  background: #EF4444;
-}
-
-.popup-toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #fff;
-  transition: left 0.2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-.popup-toggle-track.active .popup-toggle-thumb {
-  left: 26px;
-}
-
-.popup-toggle-label {
-  font-size: 8px;
-  font-weight: 700;
-  color: #7B8DB0;
-  text-align: center;
-  margin-top: 3px;
-  letter-spacing: 0.03em;
-}
-
-/* ===== PINJAMAN ITEMS (BAYAR) ===== */
-.popup-pinj-item {
-  background: #F7F9FC;
-  border: 1.5px solid #DDE4F0;
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-}
-
-.popup-pinj-header {
-  font-size: 10px;
-  font-weight: 800;
-  color: #1A56DB;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.popup-pinj-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  align-items: end;
-  margin-bottom: 8px;
-}
-
-.popup-pinj-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #7B8DB0;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-
-.popup-pinj-sisa {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid #DDE4F0;
-  border-radius: 10px;
-  background: #E8EEF5;
-  font-size: 13px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  color: #1A2340;
-  outline: none;
-}
-
-.popup-pinj-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid #DDE4F0;
-  border-radius: 10px;
-  background: #F7F9FC;
-  font-size: 13px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  color: #1A2340;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.popup-pinj-input:focus {
-  border-color: #4B8EF8;
-}
-
-.popup-pinj-lunas {
-  width: 100%;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.popup-pinj-info {
-  display: none;
-  margin-top: 6px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: #fff;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.popup-pinj-info.show {
-  display: flex;
-}
-
-.popup-pinj-info-text {
-  font-size: 10px;
-  font-weight: 700;
-  color: #7B8DB0;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.popup-pinj-info-val {
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.popup-pinj-info-val.lunas { color: #10B981; }
-.popup-pinj-info-val.warning { color: #EF4444; }
-
-/* ===== FOOTER ===== */
-.popup-footer {
-  padding: 10px 18px;
-  padding-bottom: calc(10px + var(--safe-bottom));
-  background: #fff;
-  border-top: 1px solid #DDE4F0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex-shrink: 0;
-  z-index: 3;
-}
-
-.popup-btn-primary {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: opacity 0.15s, transform 0.1s;
-}
-
-.popup-btn-primary-blue {
-  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
-  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-}
-
-.popup-btn-primary-green {
-  background: linear-gradient(135deg, #059669, #10B981);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.28);
-}
-
-.popup-btn-primary:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.popup-btn-primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: #7B8DB0 !important;
-  box-shadow: none;
-}
-
-.popup-btn-ghost {
-  width: 100%;
-  padding: 10px;
-  border: 1.5px solid #DDE4F0;
-  border-radius: 12px;
-  background: #F7F9FC;
-  color: #7B8DB0;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.popup-btn-ghost:active {
-  transform: scale(0.97);
-  border-color: #4B8EF8;
-  color: #1A56DB;
-}
-
-/* ===== TAMBAH PINJAMAN BARU (ADD-MORE) ===== */
-.popup-add-more-row {
-  display: flex;
-  justify-content: center;
-  margin: 4px 0 14px;
-}
-
-.popup-add-more-row.hidden {
-  display: none !important;
-}
-
-.popup-btn-add-more {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border: 2px dashed #4B8EF8;
-  border-radius: 14px;
-  background: rgba(75, 142, 248, 0.08);
-  color: #1A56DB;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.popup-btn-add-more:active {
-  transform: scale(0.96);
-  background: rgba(75, 142, 248, 0.16);
-}
-
-.popup-btn-add-more-pulse {
-  animation: pinAddMorePulse 0.3s ease-in-out 2;
-}
-
-@keyframes pinAddMorePulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35);
-    border-color: #4B8EF8;
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.18);
-    border-color: #DC2626;
-  }
-}
-
-.popup-btn-add-more i {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #1A56DB;
-  color: #fff;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.pin-draft-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.pin-draft-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #F7F9FC;
-  border: 1.5px solid #E3E9F3;
-  border-radius: 12px;
-  padding: 10px 12px;
-  animation: popupFieldShow 0.2s ease-out;
-}
-
-.pin-draft-item-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(75, 142, 248, 0.12);
-  color: #1A56DB;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  flex-shrink: 0;
-}
-
-.pin-draft-item-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.pin-draft-item-name {
-  font-size: 13px;
-  font-weight: 800;
-  color: #1A2340;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pin-draft-item-meta {
-  font-size: 11px;
-  font-weight: 600;
-  color: #7B8DB0;
-  margin-top: 1px;
-}
-
-.pin-draft-item-amount {
-  font-size: 13px;
-  font-weight: 800;
-  color: #1A56DB;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.pin-draft-item-remove {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: none;
-  background: #FDE8E8;
-  color: #DC2626;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.pin-draft-item-remove:active {
-  transform: scale(0.9);
-}
-
-.pin-draft-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: rgba(75, 142, 248, 0.08);
-  border-radius: 12px;
-  margin-bottom: 14px;
-}
-
-.pin-draft-total.hidden {
-  display: none !important;
-}
-
-.pin-draft-total-label {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #1A56DB;
-}
-
-.pin-draft-total-value {
-  font-size: 15px;
-  font-weight: 900;
-  color: #1A56DB;
-}
-
-/* ===== KEYBOARD ===== */
-.popup-sheet.keyboard-active {
-  max-height: 50vh;
-  max-height: 50dvh;
-  transition: transform 0.15s ease, max-height 0.15s ease;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 390px) {
-  .popup-header-title { font-size: 18px; }
-  .popup-header-icon { width: 40px; height: 40px; font-size: 18px; }
-  .popup-quick-grid { grid-template-columns: repeat(2, 1fr); }
-  .popup-body { padding: 12px 14px; }
-}
-
-@media (max-height: 700px) {
-  .popup-sheet { max-height: 90vh; max-height: 90dvh; }
-  .popup-header-bg { padding: 14px 14px 20px; }
-}
-
-    @keyframes slideDown {
-      from { transform:translateY(-100%) }
-      to { transform:translateY(0) }
-    }
-
-   /* ============================================================
-   ===== RINCIAN POPUP REDESIGN — FULL =====
-   ============================================================ */
-
-.rc-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 43, 110, 0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: none;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 999999;
-  padding: 0;
-}
-
-.rc-overlay.active {
-  display: flex;
-}
-
-.rc-card {
-  width: 100%;
-  max-width: 420px;
-  background: #F2F5FA;
-  border-radius: 24px 24px 0 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  max-height: 85vh;
-  max-height: 85dvh;
-  animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 -8px 40px rgba(13, 43, 110, 0.25);
-}
-
-.rc-head {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  padding: 14px 18px 20px;
-  padding-top: calc(12px + var(--safe-top));
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.rc-head::before {
-  content: '';
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-}
-
-.rc-head::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: #F2F5FA;
-  border-radius: 20px 20px 0 0;
-}
-
-.rc-nama {
-  font-size: 24px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  position: relative;
-  z-index: 1;
-}
-
-.rc-bagian {
-  position: absolute;
-  top: calc(16px + var(--safe-top));
-  right: 20px;
-  font-size: 11px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.85);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: rgba(255,255,255,0.15);
-  padding: 4px 12px;
-  border-radius: 8px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.2);
-  z-index: 1;
-}
-
-.rc-period {
-  font-size: 11px;
-  color: rgba(255,255,255,0.7);
-  font-weight: 600;
-  margin-top: 6px;
-  letter-spacing: 0.04em;
-  position: relative;
-  z-index: 1;
-}
-
-.rc-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 12px;
-  padding-bottom: 8px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.rc-section {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.06);
-  border: 1px solid rgba(26, 86, 219, 0.08);
-}
-
-.rc-section-title {
-  font-size: 10px;
-  font-weight: 800;
-  color: #7B8DB0;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.rc-section-title i {
-  font-size: 12px;
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  background: #E0EAFF;
-  color: #1A56DB;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.rc-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 10px 0;
-  border-bottom: 1px solid #F2F5FA;
-}
-
-.rc-item:last-child {
-  border-bottom: none;
-}
-
-.rc-item-left {
-  flex: 1;
-  min-width: 0;
-}
-
-.rc-item-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1A2340;
-  line-height: 1.3;
-}
-
-.rc-item-meta {
-  font-size: 11px;
-  color: #7B8DB0;
-  font-weight: 600;
-  margin-top: 3px;
-}
-
-.rc-item-right {
-  text-align: right;
-  flex-shrink: 0;
-  margin-left: 12px;
-}
-
-.rc-item-qty {
-  font-size: 11px;
-  color: #7B8DB0;
-  font-weight: 600;
-}
-
-.rc-item-harga {
-  font-size: 11px;
-  color: #7B8DB0;
-  font-weight: 500;
-}
-
-.rc-item-jumlah {
-  font-size: 14px;
-  font-weight: 800;
-  color: #1A2340;
-  margin-top: 2px;
-}
-
-.rc-subtotal {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
-  margin-top: 4px;
-  border-top: 2px solid #E8EEF5;
-}
-
-.rc-subtotal-label {
-  font-size: 11px;
-  font-weight: 800;
-  color: #2C3A5A;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.rc-subtotal-val {
-  font-size: 16px;
-  font-weight: 900;
-  color: #1A56DB;
-}
-
-.rc-tambahan .rc-section-title i {
-  background: #D1FAE5;
-  color: #059669;
-}
-
-.rc-tambahan .rc-item-jumlah {
-  color: #059669;
-}
-
-.rc-tambahan .rc-subtotal-val {
-  color: #059669;
-}
-
-.rc-potongan .rc-section-title i {
-  background: #FEE2E2;
-  color: #EF4444;
-}
-
-.rc-potongan .rc-item-jumlah {
-  color: #EF4444;
-}
-
-.rc-potongan .rc-subtotal-val {
-  color: #EF4444;
-}
-
-.rc-total-card {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 12px;
-  position: relative;
-  overflow: hidden;
-}
-
-.rc-total-card::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-}
-
-.rc-total-card::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: -10px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-}
-
-.rc-total-label {
-  font-size: 10px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.8);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 4px;
-  position: relative;
-  z-index: 1;
-}
-
-.rc-total-val {
-  font-size: 24px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  position: relative;
-  z-index: 1;
-}
-
-.rc-total-detail {
-  font-size: 11px;
-  color: rgba(255,255,255,0.7);
-  font-weight: 600;
-  margin-top: 8px;
-  line-height: 1.5;
-  position: relative;
-  z-index: 1;
-}
-
-.rc-tambah-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  border: 2px solid rgba(255,255,255,0.4);
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-}
-
-.rc-tambah-btn:active {
-  background: rgba(255,255,255,0.3);
-  transform: scale(0.95);
-}
-
-.rc-footer {
-  padding: 12px 16px;
-  padding-bottom: calc(12px + var(--safe-bottom));
-  background: #fff;
-  border-top: 1px solid #E8EEF5;
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.rc-btn {
-  flex: 1;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 800;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.15s;
-  border: none;
-}
-
-.rc-btn-tutup {
-  background: #F2F5FA;
-  color: #7B8DB0;
-  border: 1.5px solid #DDE4F0;
-}
-
-.rc-btn-tutup:active {
-  background: #E8EEF5;
-}
-
-.rc-btn-download {
-  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-}
-
-.rc-btn-download:active {
-  transform: scale(0.97);
-}
-
-.rc-empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: #7B8DB0;
-}
-
-.rc-empty i {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: 0.3;
-  display: block;
-}
-
-.rc-empty-text {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-@media (max-width: 390px) {
-  .rc-nama { font-size: 28px; }
-  .rc-total-val { font-size: 28px; }
-  .rc-section { padding: 12px; }
-  .rc-item-name { font-size: 12px; }
-  .rc-btn { padding: 12px; font-size: 13px; }
-}
-
-@media (max-height: 700px) {
-  .rc-card { max-height: 96vh; max-height: 96dvh; }
-  .rc-head { padding: 16px 20px 24px; }
-}
-    /* FORM */
-    .form-group label {
-      display:block; font-size:11px; font-weight:700;
-      letter-spacing:.07em; text-transform:uppercase;
-      color:var(--muted); margin-bottom:6px;
-    }
-    .form-group select, .form-group input {
-      width:100%; padding:16px 14px;
-      border:1.5px solid var(--muted);
-      border-radius:12px;
-      background:var(--card2);
-      outline:none;
-      font-size:17px; font-family:inherit;
-      font-weight:500; color:var(--text);
-      transition:border-color .2s;
-      appearance:none; -webkit-appearance:none;
-    }
-    .form-group select:focus, .form-group input:focus {
-      border-color:var(--primary);
-      box-shadow:0 0 0 3px rgba(0,180,216,.15);
-      background:var(--card);
-    }
-    .form-group select:disabled, .form-group input:disabled {
-      opacity:.4; cursor:not-allowed;
-    }
-    .form-group input[readonly] { opacity:.55; cursor:not-allowed }
-
-    /* BUTTONS */
-    
-    .btn:active { transform:scale(.98) }
-
-    .btn:disabled { opacity:.35; cursor:not-allowed }
-
-    /* ===== PAGE ===== */
-    .page {
-      position:fixed; inset:0;
-      background:var(--bg);
-      z-index:9999;
-      display:none; flex-direction:column;
-    }
-    .page.active { display:flex }
-
-    .page-header {
-      padding:14px 16px;
-      padding-top:calc(14px + var(--safe-top));
-      display:flex; align-items:center; gap:12px;
-      background: var(--header-grad);
-      box-shadow:0 4px 20px rgba(26,86,219,.25);
-      flex-shrink:0;
-    }
-    .page-back {
-      background:rgba(255,255,255,.20);
-      border:none; border-radius:11px;
-      width:38px; height:38px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:14px; color:#fff; cursor:pointer;
-    }
-    .page-title { font-size:20px; font-weight:900; color:#fff; letter-spacing:-.01em }
-
-    .page-body {
-      flex:1; overflow-y:auto;
-      padding:14px 16px;
-      padding-bottom:calc(90px + var(--safe-bottom));
-    }
-
-    /* BOTTOM BACK BAR */
-    .back-bar {
-      position:sticky; bottom:0; left:0; right:0;
-      padding:10px 16px;
-      padding-bottom:calc(10px + var(--safe-bottom));
-      background:#fff;
-      border-top:1px solid var(--muted);
-      box-shadow:0 -4px 20px rgba(26,86,219,.10);
-      flex-shrink:0;
-    }
-    .back-bar-btn {
-      width:100%;
-      border:none;
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-      color:#fff;
-      border-radius:50px;
-      padding:14px;
-      font-size:14px; font-weight:800;
-      font-family:inherit;
-      cursor:pointer;
-      display:flex; align-items:center; justify-content:center; gap:10px;
-      box-shadow:0 4px 16px rgba(26,86,219,.28);
-      transition:opacity .15s, transform .1s;
-      letter-spacing:.02em;
-    }
-    .back-bar-btn:active { transform:scale(.98); opacity:.9; }
-
-    /* SETTINGS */
-    .setting-section {
-      font-size:10px; font-weight:800; letter-spacing:.1em;
-      text-transform:uppercase; color:var(--muted);
-      margin:18px 0 8px;
-    }
-    .setting-row {
-      background:var(--card);
-      border-radius:14px; padding:14px 16px;
-      display:flex; align-items:center; justify-content:space-between;
-      margin-bottom:8px; cursor:pointer;
-      box-shadow:var(--shadow);
-      transition:transform .1s;
-      border:1px solid var(--muted);
-    }
-    .setting-row:active { transform:scale(.99) }
-    .setting-row-label {
-      font-size:14px; font-weight:700; color:var(--text);
-      display:flex; align-items:center; gap:10px;
-    }
-    .setting-row-label i { color:var(--primary); font-size:14px; width:20px; text-align:center }
-    .list-btn {
-      background:var(--primaryDim);
-      color:var(--primary3);
-      border:none; border-radius:8px;
-      padding:6px 14px; font-size:11px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-    }
-    .setting-form-box {
-      background:var(--card);
-      border-radius:16px; padding:16px;
-      margin-bottom:12px;
-      box-shadow:var(--shadow);
-      border:1px solid var(--muted);
-    }
-
-    .save-big-btn {
-      width:100%; border:none;
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-      border-radius:50px; padding:15px;
-      font-size:15px; font-weight:800; color:#fff;
-      cursor:pointer; font-family:inherit;
-      margin-top:4px; margin-bottom:16px;
-      box-shadow:0 4px 16px rgba(0,180,216,.28);
-      transition:opacity .2s;
-    }
-    .save-big-btn:disabled {
-      opacity:.35; cursor:not-allowed;
-      background:var(--muted); color:var(--muted);
-      box-shadow:none;
-    }
-
-    /* LIST POPUP */
-    .list-popup {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.40);
-      display:none; justify-content:center; align-items:flex-start;
-      z-index:999999;
-    }
-    .list-popup.active { display:flex }
-    .list-popup-content {
-      width:calc(100% - 32px); max-width:380px;
-      background:var(--card);
-      border-radius:0 0 24px 24px;
-      padding:calc(20px + var(--safe-top)) 20px 20px;
-      max-height:88vh;
-      display:flex; flex-direction:column;
-      box-shadow:var(--shadow2);
-      animation:slideDown .3s cubic-bezier(.34,1.2,.64,1);
-    }
-    .list-popup-title { font-size:20px; font-weight:900; color:var(--text); margin-bottom:14px }
-    .list-popup-body { flex:1; overflow-y:auto; margin-top:4px }
-    .list-item {
-      background:var(--card2);
-      border-radius:12px; padding:12px 14px;
-      margin-bottom:8px;
-      display:flex; align-items:center; justify-content:space-between;
-      border:1px solid var(--muted);
-    }
-    .list-item-name { font-size:13px; font-weight:600; color:var(--text) }
-    .list-item-del {
-      background:transparent; color:var(--red);
-      border:1.5px solid var(--red);
-      border-radius:8px; padding:5px 12px;
-      font-size:11px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-    }
-    .list-add-row {
-      display:flex; gap:8px; margin-top:14px; margin-bottom:14px;
-    }
-    .list-add-row input {
-      flex:1; background:var(--card2);
-      border:1.5px solid var(--muted);
-      border-radius:10px; padding:10px 12px;
-      color:var(--text); font-size:13px; font-family:inherit;
-      outline:none;
-    }
-    .list-add-row input:focus { border-color:var(--primary) }
-    .list-add-btn {
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-      color:#fff; border:none;
-      border-radius:10px; padding:10px 16px;
-      font-size:12px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-    }
-    .list-close-btn {
-      width:100%; margin-top:12px;
-      background:var(--card2); color:var(--muted);
-      border:1.5px solid var(--muted);
-      border-radius:12px; padding:12px;
-      font-size:13px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-    }
-
-    /* ===== REKAP PAGE ===== */
-    .rekap-inner {
-      display:flex; flex-direction:column;
-      height:calc(100vh - 68px - var(--safe-top));
-      height:calc(100dvh - 68px - var(--safe-top));
-    }
-    .tab-switch {
-      display:flex; margin:12px 16px 0;
-      background:var(--card);
-      border-radius:50px; padding:5px;
-      box-shadow:var(--shadow);
-      border:1px solid var(--muted);
-    }
-    .tab-btn {
-      flex:1; border:none; padding:10px;
-      border-radius:50px; font-size:11px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-      background:transparent; color:var(--muted);
-      transition:.2s;
-    }
-    .tab-btn.active {
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-      color:#fff;
-      box-shadow:0 2px 10px rgba(26,86,219,.28);
-    }
-
-    .date-bar {
-      display:grid; grid-template-columns:1fr 1fr; gap:8px;
-      padding:10px 16px 0;
-    }
-    .date-chip {
-      background:var(--card);
-      border-radius:16px; padding:11px 14px;
-      text-align:center; font-size:13px; font-weight:700;
-      color:var(--text); cursor:pointer;
-      box-shadow:var(--shadow);
-      transition:transform .1s;
-      border:1px solid var(--muted);
-    }
-    .date-chip:active { transform:scale(.98) }
-    .date-chip small {
-      display:block; font-size:9px; text-transform:uppercase;
-      letter-spacing:.07em; color:var(--muted);
-      margin-bottom:2px; font-weight:600;
-    }
-
-    .search-bar {
-      padding:10px 16px;
-      display:flex; gap:8px; align-items:center; flex-wrap:nowrap;
-    }
-    .search-bar input {
-      flex:0 0 130px; min-width:0;
-      background:var(--card);
-      border:1px solid var(--muted);
-      border-radius:12px;
-      padding:12px 16px;
-      color:var(--text);
-      font-size:13px; outline:none;
-      font-family:inherit; font-weight:500;
-      box-shadow:var(--shadow);
-    }
-    .search-bar input::placeholder { color:var(--muted) }
-
-    .table-section {
-      display:flex; flex-direction:column; flex:1; overflow:hidden;
-    }
-    .table-wrap {
-      margin:0;
-      background:var(--card);
-      border-radius:18px;
-      overflow-x:auto;
-      flex:1;
-      box-shadow:var(--shadow);
-      border:1px solid var(--muted);
-    }
-    table { width:100%; border-collapse:collapse }
-    th {
-      background:var(--muted);
-      color:#fff;
-      padding:10px 6px;
-      font-size:10px; font-weight:800;
-      text-align:center; letter-spacing:.07em;
-      text-transform:uppercase;
-      border-bottom:none;
-      position:sticky; top:0;
-    }
-    #tablePinjaman th:last-child,
-    #tablePinjaman td:last-child {
-      min-width:110px;
-    }
-    td {
-      padding:8px 5px;
-      border-bottom:1px solid var(--bg2);
-      text-align:center;
-      font-size:11px; color:var(--text);
-      vertical-align:middle;
-    }
-    tr:last-child td { border-bottom:none }
-    td.nama-cell { font-weight:700; font-size:11px; text-align:left; padding-left:10px; word-break:break-word; }
-
-    .detail-btn {
-      background:var(--primaryDim);
-      border:none; border-radius:8px;
-      padding:6px 12px; font-size:10px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-      color:var(--primary3);
-      letter-spacing:.03em;
-    }
-    .print-icon-btn {
-      background:var(--primaryDim);
-      border:none; cursor:pointer;
-      color:var(--primary3);
-      font-size:15px; padding:6px 10px; border-radius:8px;
-    }
-
-    .bersih-val { font-size:13px; font-weight:800; color:var(--green) }
-    .kotor-label { font-size:9px; color:var(--muted); display:block; font-weight:500 }
-
-/* ===== REDESIGNED REKAP CARD STYLES ===== */
-
-.rekap-card {
-  background: var(--card);
-  border-radius: 18px;
-  padding: 0;
-  box-shadow: 0 2px 12px rgba(26, 86, 219, .08);
-  border: 1.5px solid var(--border);
-  overflow: hidden;
-  transition: transform .15s, box-shadow .15s;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.rekap-card:active {
-  transform: scale(.985);
-}
-
-.rekap-card-header {
-  padding: 14px 16px 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-}
-
-/* Status indicator strip */
-.rekap-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: transparent;
-}
-
-.rekap-card.has-pinjaman::before {
-  background: transparent;
-}
-
-.rekap-card.no-pinjaman::before {
-  background: transparent;
-}
-
-.rekap-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--primary3), var(--primary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 800;
-  flex-shrink: 0;
-  letter-spacing: -.02em;
-}
-
-.rekap-avatar.pinjaman {
-  background: linear-gradient(135deg, #DC2626, #EF4444);
-}
-
-.rekap-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.rekap-name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.rekap-name {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--text);
-  line-height: 1.2;
-  letter-spacing: -.01em;
-}
-
-.rekap-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  border-radius: 6px;
-  padding: 2px 7px;
-  flex-shrink: 0;
-}
-
-.rekap-badge.tambahan {
-  background: #D1FAE5;
-  color: #059669;
-}
-
-.rekap-badge.pinjaman {
-  background: #FEE2E2;
-  color: #DC2626;
-}
-
-.rekap-badge.lunas {
-  background: #D1FAE5;
-  color: #059669;
-}
-
-.rekap-bagian {
-  font-size: 11px;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.rekap-amount-main {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0;
-}
-.rekap-amount-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0 12px;
-  border-right: 1px solid var(--border);
-}
-.rekap-amount-row:last-child {
-  border-right: none;
-  padding-right: 0;
-}
-.rekap-amount-row:first-child {
-  padding-left: 0;
-}
-.rekap-amount-label {
-  font-size: 8px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  margin-bottom: 3px;
-  white-space: nowrap;
-}
-.rekap-amount-value {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text2);
-  line-height: 1;
-  letter-spacing: -.01em;
-  white-space: nowrap;
-}
-.rekap-amount-value.bersih {
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--green);
-  letter-spacing: -.02em;
-}
-.rekap-amount-value.red {
-  color: #DC2626;
-}
-.rekap-amount-value.warning {
-  color: #DC2626;
-}
-.rekap-amount-divider {
-  display: none;
-}
-
-/* Card Body - Expandable */
-.rekap-card-body {
-  padding: 0 16px 14px;
-  display: none;
-}
-
-.rekap-card-body.open {
-  display: block;
-  animation: cardExpand .2s ease-out;
-}
-
-@keyframes cardExpand {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.rekap-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 12px;
-  background: var(--bg2);
-  border-radius: 14px;
-  margin-bottom: 12px;
-}
-
-.rekap-detail-item {
-  text-align: center;
-}
-
-.rekap-detail-label {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: 4px;
-}
-
-.rekap-detail-value {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.rekap-detail-value.positive {
-  color: var(--green);
-}
-
-.rekap-detail-value.negative {
-  color: #DC2626;
-}
-
-.rekap-detail-value.muted {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-/* Item breakdown (Pekerjaan / Tambahan / Potongan) */
-.rekap-breakdown {
-  margin-bottom: 12px;
-}
-
-.rekap-breakdown-section {
-  background: var(--bg2);
-  border-radius: 14px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-}
-
-.rekap-breakdown-section.tambahan {
-  background: rgba(16,185,129,.06);
-}
-
-.rekap-breakdown-section.potongan {
-  background: rgba(220,38,38,.06);
-}
-
-.rekap-breakdown-title {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: 6px;
-}
-
-.rekap-breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text);
-  padding: 4px 0;
-}
-
-.rekap-breakdown-row small {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--muted);
-}
-
-.rekap-breakdown-clickable {
-  cursor: pointer;
-  border-radius: 8px;
-  margin: 0 -6px;
-  padding: 10px 6px;
-  min-height: 40px;
-  transition: background .15s;
-  border-bottom: 1px solid var(--border);
-}
-.rekap-breakdown-clickable:last-of-type {
-  border-bottom: none;
-}
-.rekap-breakdown-clickable:active {
-  background: var(--bg2);
-}
-
-.rekap-breakdown-row.total {
-  border-top: 1px solid var(--border);
-  margin-top: 4px;
-  padding-top: 6px;
-  font-weight: 800;
-}
-
-.rekap-breakdown-row .positive { color: var(--green); }
-.rekap-breakdown-row .negative { color: #DC2626; }
-
-/* Action Buttons */
-.rekap-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
-
-.rekap-action-btn {
-  padding: 12px;
-  border-radius: 12px;
-  border: 1.5px solid var(--border);
-  background: var(--card);
-  color: var(--text2);
-  font-size: 12px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all .15s;
-}
-
-.rekap-action-btn:active {
-  transform: scale(.96);
-  background: var(--primaryDim);
-  border-color: var(--primary);
-  color: var(--primary3);
-}
-
-.rekap-action-btn.primary {
-  background: linear-gradient(135deg, var(--primary3), var(--primary));
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 2px 8px rgba(26, 86, 219, .25);
-}
-
-.rekap-action-btn.primary:active {
-  opacity: .9;
-}
-
-.rekap-action-btn.danger {
-  background: #FEE2E2;
-  color: #DC2626;
-  border-color: rgba(239, 68, 68, .2);
-}
-
-.rekap-action-btn.danger:active {
-  background: #DC2626;
-  color: #fff;
-}
-
-/* Card expand indicator */
-.rekap-expand-hint {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  gap: 4px;
-  transition: color .2s;
-  flex-shrink: 0;
-}
-
-.rekap-card.open .rekap-expand-hint {
-  color: var(--primary);
-}
-
-.rekap-expand-hint i {
-  font-size: 8px;
-  transition: transform .2s;
-}
-
-.rekap-card.open .rekap-expand-hint i {
-  transform: rotate(180deg);
-}
-
-/* Select checkbox on card */
-.rekap-select {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: var(--primary3);
-  flex-shrink: 0;
-  display: none;
-}
-.mode-pilih .rekap-select {
-  display: block;
-}
-
-/* Empty State */
-.rekap-empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--muted);
-}
-
-.rekap-empty i {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: .3;
-  display: block;
-}
-
-.rekap-empty-text {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* Summary bar at top */
-.rekap-summary-bar {
-  display: flex;
-  gap: 10px;
-  margin: 0 16px 12px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  flex-shrink: 0;
-}
-
-.rekap-summary-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.rekap-summary-chip {
-  flex-shrink: 0;
-  background: var(--card);
-  border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  min-width: 100px;
-}
-
-.rekap-summary-chip-label {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: 3px;
-}
-
-.rekap-summary-chip-value {
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--text);
-  line-height: 1;
-}
-
-.rekap-summary-chip-value.green {
-  color: var(--green);
-}
-
-.rekap-summary-chip-value.red {
-  color: #DC2626;
-}
-
-    /* PINJAMAN BADGE */
-    .pinjaman-badge {
-      display:inline-flex; align-items:center; gap:3px;
-      background:rgba(239,68,68,.12);
-      color:#DC2626;
-      font-size:8px; font-weight:800;
-      border-radius:5px; padding:2px 6px;
-      letter-spacing:.04em; margin-top:3px; white-space:nowrap;
-    }
-    .no-pinjaman-badge {
-      display:inline-flex; align-items:center; gap:3px;
-      background:rgba(16,185,129,.12);
-      color:#059669;
-      font-size:8px; font-weight:800;
-      border-radius:5px; padding:2px 6px;
-      letter-spacing:.04em; margin-top:3px; white-space:nowrap;
-    }
-    tr.row-has-pinjaman { background:rgba(239,68,68,.05) !important; }
-    tr.row-has-pinjaman td:first-child { border-left:3px solid #EF4444; }
-    tr.row-no-pinjaman td:first-child { border-left:3px solid transparent; }
-
-    .home-fab { display:none; }
-
-    /* REKAP PAGE INNER - rc-overlay-center untuk alignment tengah */
-    .rc-overlay-center {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.50);
-      display:none; justify-content:center; align-items:center;
-      z-index:999999; padding:20px;
-    }
-    .rc-overlay-center.active { display:flex; animation:fadeIn .2s }
-    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-    .rc-card {
-      width:100%; max-width:440px;
-      background:var(--card);
-      border-radius:24px; overflow:hidden;
-      box-shadow:var(--shadow2);
-      max-height:90vh; max-height:90dvh;
-      display:flex; flex-direction:column;
-    }
-    .rc-head {
-      padding:20px 20px 14px;
-      display:flex; justify-content:space-between; align-items:flex-start;
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-    }
-    .rc-nama { font-size:48px; line-height:.95; font-weight:900; color:#fff; letter-spacing:-.02em }
-    .rc-bagian {
-      text-align:right; padding-top:6px;
-      font-size:11px; font-weight:700;
-      color:rgba(255,255,255,.8);
-      letter-spacing:.07em; text-transform:uppercase; line-height:1.6;
-    }
-    .rc-period {
-      padding:10px 20px; font-size:10px;
-      color:var(--muted); font-weight:600;
-      letter-spacing:.07em; text-transform:uppercase;
-      background:var(--card2); border-bottom:1px solid var(--muted);
-    }
-    .rc-body { flex:1; overflow-y:auto }
-    
-    /* ===== SLIP GAJI A6 - ULTRA KOMPAK ===== */
-.slip-popup { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; justify-content: center; align-items: flex-end; z-index: 9999999; padding: 0; }
-.slip-popup.active { display: flex; }
-
-.slip-box {
-  width: 100%;
-  background: #fff;
-  border-radius: 20px 20px 0 0;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  position: relative;
-  max-height: 75vh;
-  max-height: 75dvh;
-}
-
-/* Header */
-.slip-hd {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 100%);
-  padding: 8px 12px 16px;
-  position: relative;
-  flex-shrink: 0;
-}
-.slip-hd::after {
-  content: '';
-  position: absolute;
-  bottom: -6px;
-  left: 0; right: 0;
-  height: 12px;
-  background: #fff;
-  border-radius: 12px 12px 0 0;
-}
-.slip-hd-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; position: relative; z-index: 1; }
-.slip-badge-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.slip-logo { height: 30px; width: auto; object-fit: contain; display: block; }
-.slip-co { font-size: 7px; font-weight: 800; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .12em; }
-.slip-badge { font-size: 7px; font-weight: 700; color: rgba(255,255,255,.9); background: rgba(255,255,255,.15); padding: 2px 8px; border-radius: 4px; letter-spacing: .05em; }
-.slip-nm { font-size: 22px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -.02em; position: relative; z-index: 1; }
-.slip-info { display: flex; justify-content: space-between; align-items: center; margin-top: 3px; position: relative; z-index: 1; }
-.slip-dept { font-size: 8px; font-weight: 700; color: rgba(255,255,255,.85); text-transform: uppercase; letter-spacing: .06em; background: rgba(255,255,255,.12); padding: 2px 8px; border-radius: 4px; }
-.slip-period { font-size: 7px; font-weight: 600; color: rgba(255,255,255,.8); letter-spacing: .03em; }
-
-/* Body */
-.slip-body { flex: 1; padding: 6px 10px 8px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
-
-/* Section */
-.slip-sec { background: #fff; border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; }
-.slip-sec-hd { display: flex; align-items: center; gap: 5px; padding: 5px 8px; background: linear-gradient(90deg, #F1F5F9, #fff); border-bottom: 1px solid #E2E8F0; }
-.slip-sec-icon { width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; flex-shrink: 0; }
-.slip-sec-icon.b { background: #E0EAFF; color: #1A2A8C; }
-.slip-sec-icon.g { background: #D1FAE5; color: #059669; }
-.slip-sec-icon.r { background: #FEE2E2; color: #DC2626; }
-.slip-sec-title { font-size: 7px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
-.slip-sec-title.b { color: #1A2A8C; }
-.slip-sec-title.g { color: #059669; }
-.slip-sec-title.r { color: #DC2626; }
-
-/* Item */
-.slip-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 8px; border-bottom: 1px solid #F1F5F9; }
-.slip-item:last-child { border-bottom: none; }
-.slip-item-left { flex: 1; min-width: 0; }
-.slip-item-name { font-size: 9px; font-weight: 700; color: #1A2340; line-height: 1.2; word-break: break-word; }
-.slip-item-meta { font-size: 7px; color: #7B8DB0; font-weight: 600; margin-top: 1px; line-height: 1.3; }
-.slip-item-right { text-align: right; flex-shrink: 0; margin-left: 8px; }
-.slip-item-amt { font-size: 10px; font-weight: 800; color: #1A2340; line-height: 1.1; }
-.slip-item-amt.g { color: #059669; }
-.slip-item-amt.r { color: #DC2626; }
-
-/* Subtotal */
-.slip-sub { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #F8FAFC; border-top: 1.5px solid #E2E8F0; }
-.slip-sub-label { font-size: 8px; font-weight: 800; color: #4A5568; text-transform: uppercase; letter-spacing: .06em; }
-.slip-sub-val { font-size: 11px; font-weight: 900; color: #1A2A8C; }
-.slip-sub-val.g { color: #059669; }
-.slip-sub-val.r { color: #DC2626; }
-
-/* Total Card */
-.slip-total { background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 100%); border-radius: 8px; padding: 8px 10px; margin-top: 2px; position: relative; overflow: hidden; flex-shrink: 0; }
-.slip-total::before { content: ''; position: absolute; top: -15px; right: -15px; width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,.06); }
-.slip-total-label { font-size: 7px; font-weight: 800; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing: .1em; position: relative; z-index: 1; }
-.slip-total-val { font-size: 20px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -.02em; margin-top: 2px; position: relative; z-index: 1; }
-.slip-total-detail { font-size: 7px; color: rgba(255,255,255,.7); font-weight: 600; margin-top: 3px; line-height: 1.4; position: relative; z-index: 1; }
-
-/* Footer */
-.slip-footer { padding: 6px 10px 8px; text-align: center; border-top: 1px solid #E2E8F0; flex-shrink: 0; }
-.slip-footer-txt { font-size: 6px; color: #7B8DB0; font-weight: 600; letter-spacing: .05em; }
-.slip-footer-date { font-size: 7px; color: #4A5568; font-weight: 700; margin-top: 2px; }
-
-/* Print: handled dynamically by _printSlipStyle / _printMassalStyle (lihat JS) */
-
-    /* DATE PICKER */
-    .date-picker-popup {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.40);
-      display:none; justify-content:center; align-items:flex-start;
-      z-index:9999999;
-    }
-    .date-picker-popup.active { display:flex }
-    .date-picker-content {
-      background:var(--card);
-      border-radius:0 0 24px 24px;
-      padding:calc(20px + var(--safe-top)) 22px 24px;
-      width:100%; max-width:320px;
-      box-shadow:var(--shadow2);
-      animation:slideDown .3s cubic-bezier(.34,1.2,.64,1);
-    }
-    .dp-title { font-size:20px; font-weight:900; color:var(--text); margin-bottom:14px }
-    .date-picker-content input[type=date] {
-      width:100%; padding:13px 14px;
-      border:1.5px solid var(--muted);
-      border-radius:12px;
-      background:var(--card2);
-      color:var(--text); font-size:14px;
-      font-family:inherit; outline:none;
-      margin-bottom:14px;
-      -webkit-appearance:none; appearance:none;
-    }
-    .date-picker-content input[type=date]:focus { border-color:var(--primary) }
-    .dp-btns { display:flex; gap:10px }
-    .dp-btns button {
-      flex:1; padding:13px; border-radius:50px;
-      border:none; font-size:13px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-    }
-    .dp-ok { background:linear-gradient(135deg, var(--primary3), var(--primary)); color:#fff; box-shadow:0 4px 16px rgba(0,180,216,.28); }
-    .dp-cancel { background:var(--card2); color:var(--muted); border:1.5px solid var(--muted); }
-
-    /* CONFIRM */
-    .confirm-overlay {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.50);
-      display:none; justify-content:center; align-items:center;
-      z-index:99999999; padding:24px;
-      animation:fadeIn .2s;
-    }
-    .confirm-overlay.active { display:flex }
-    .confirm-box {
-      background:var(--card);
-      border-radius:24px; padding:28px 24px 20px;
-      width:100%; max-width:320px;
-      box-shadow:var(--shadow2);
-      animation:popIn .25s cubic-bezier(.34,1.4,.64,1);
-    }
-    @keyframes popIn {
-      from { transform:scale(.85); opacity:0 }
-      to { transform:scale(1); opacity:1 }
-    }
-    .confirm-icon {
-      width:52px; height:52px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-size:22px; margin:0 auto 16px;
-    }
-    .confirm-title { font-size:17px; font-weight:900; color:var(--text); text-align:center; margin-bottom:8px; letter-spacing:-.01em }
-    .confirm-msg { font-size:13px; color:var(--muted); font-weight:500; text-align:center; margin-bottom:22px; line-height:1.5 }
-    .confirm-btns { display:flex; gap:10px }
-    .confirm-btn-cancel {
-      flex:1; border:1.5px solid var(--muted);
-      background:var(--card2); color:var(--muted);
-      border-radius:14px; padding:14px;
-      font-size:14px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-      transition:opacity .15s;
-    }
-    .confirm-btn-ok {
-      flex:1; border:none;
-      border-radius:14px; padding:14px;
-      font-size:14px; font-weight:800;
-      cursor:pointer; font-family:inherit;
-      color:#fff;
-      background:linear-gradient(135deg, var(--primary3), var(--primary));
-      box-shadow:0 4px 16px rgba(0,180,216,.28);
-      transition:opacity .15s, transform .1s;
-    }
-    .confirm-btn-ok:active { transform:scale(.97) }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width:390px) {
-      .brand-title { font-size:17px }
-      .menu-card { padding:14px 12px }
-      .menu-card .m-label { font-size:12px }
-      .rc-nama { font-size:34px }
-      .rc-tabel th, .rc-tabel td { font-size:10px; padding:8px 4px }
-      .rc-tabel .row-tot td { font-size:15px }
-      td { font-size:11px; padding:8px 4px }
-      th { font-size:9px }
-      td.nama-cell { padding-left:8px; font-size:12px }
-      .detail-btn { padding:5px 8px; font-size:9px }
-      .tab-btn { font-size:11px; padding:9px 6px }
-      .date-chip { font-size:12px; padding:9px 10px }
-    }
-    @media (max-width:360px) {
-      .home-body { padding:12px 10px; }
-      .menu-grid { gap:8px }
-      .menu-card { padding:12px 14px }
-      .exit-btn { font-size:12px; padding:12px }
-    }
-    .popup-sheet { max-height:88vh; max-height:88dvh }
-    @media (max-height:680px) {
-      .rc-overlay { padding:8px }
-      .rc-card { max-height:96vh; max-height:96dvh }
-      .rc-nama { font-size:32px }
-      .rekap-inner { height:calc(100vh - 60px - var(--safe-top)); height:calc(100dvh - 60px - var(--safe-top)) }
-      .home-header { padding-bottom:18px; }
-      .home-body { padding:12px 12px; }
-      .exit-btn { padding:12px }
-    }
-    @media (max-height:600px) {
-      .home-body { gap:8px }
-    }
-
-    .check-all, .row-check { width:16px; height:16px; cursor:pointer; accent-color:var(--primary) }
-
-    input:focus, select:focus, textarea:focus {
-      border-color:var(--text2) !important;
-      box-shadow:0 0 0 3px rgba(75,142,248,.12) !important;
-      outline:none !important;
-    }
-
-/* ===== OVERLAY — INSTANT, NO ANIMATION ===== */
-#pinjamanPopup {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 43, 110, 0.6);
-  display: none;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 99999;
-  padding: 0;
-  /* NO backdrop-filter, NO will-change — instant! */
-}
-
-#pinjamanPopup.active {
-  display: flex;
-  /* NO fade animation — instant show */
-}
-
-/* ===== SHEET — INSTANT SLIDE, GPU ACCELERATED ===== */
-.pinjaman-sheet {
-  width: 100%;
-  max-width: 480px;
-  background: var(--card);
-  border-radius: 20px 20px 0 0;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  /* Dynamic height: akan di-set via JS saat keyboard aktif */
-  max-height: 85vh;
-  max-height: 85dvh;
-  /* Fast transform — hanya translateY */
-  transform: translateY(0);
-  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
-}
-
-/* Saat pertama kali muncul — slide dari bawah */
-.pinjaman-sheet.entering {
-  transform: translateY(100%);
-}
-
-/* ===== HEADER ===== */
-.pin-header {
-  position: relative;
-  flex-shrink: 0;
-  z-index: 2;
-}
-
-.pin-header-bg {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  padding: 16px 20px 24px;
-  padding-top: calc(14px + var(--safe-top));
-  position: relative;
-  overflow: hidden;
-}
-
-.pin-header-bg::after {
-  content: '';
-  position: absolute;
-  top: -40%;
-  right: -10%;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  pointer-events: none;
-}
-
-.pin-header-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-  z-index: 1;
-}
-
-.pin-header-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.pin-header-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.pin-header-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.pin-header-subtitle {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-.pin-header-close {
-  position: absolute;
-  top: calc(12px + var(--safe-top));
-  right: 14px;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.1s;
-  z-index: 2;
-}
-
-.pin-header-close:active {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* ===== WAVE ===== */
-.pin-header-wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 16px;
-  line-height: 0;
-}
-
-.pin-header-wave svg {
-  width: 100%;
-  height: 100%;
-  fill: var(--card);
-}
-
-/* ===== BODY — SCROLLABLE AREA ===== */
-.pin-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 18px;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  /* Penting: scroll ke field aktif */
-  scroll-behavior: smooth;
-}
-
-/* ===== INFO CARD ===== */
-.pin-info-card {
-  background: linear-gradient(135deg, #E0EAFF 0%, #F0F7FF 100%);
-  border: 1.5px solid rgba(26, 86, 219, 0.12);
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.pin-info-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  background: var(--primary3);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  flex-shrink: 0;
-}
-
-.pin-info-text {
-  font-size: 10px;
-  color: var(--primary3);
-  font-weight: 600;
-  line-height: 1.5;
-  padding-top: 2px;
-}
-
-/* ===== FORM GROUPS ===== */
-.pin-form-group,
-.popup-form-group {
-  margin-bottom: 14px;
-}
-
-.pin-form-group.hidden,
-.popup-form-group.hidden {
-  display: none !important;
-}
-
-.pin-form-group.visible,
-.popup-form-group.visible {
-  display: block !important;
-  animation: pinFieldShow 0.2s ease-out;
-}
-
-@keyframes pinFieldShow {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.pin-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.pin-label i {
-  color: var(--primary);
-  font-size: 11px;
-  width: 14px;
-  text-align: center;
-}
-
-/* ===== SELECT ===== */
-.pin-select-wrap {
-  position: relative;
-}
-
-.pin-select {
-  width: 100%;
-  padding: 12px 40px 12px 14px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  background: var(--card2);
-  font-size: 15px;
-  font-family: inherit;
-  font-weight: 600;
-  color: var(--text);
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  cursor: pointer;
-}
-
-.pin-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
-  background: var(--card);
-}
-
-.pin-select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--bg2);
-}
-
-.pin-select-arrow {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  font-size: 11px;
-  pointer-events: none;
-}
-
-/* ===== INPUT ===== */
-.pin-input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.pin-input-prefix {
-  position: absolute;
-  left: 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--primary3);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.pin-input {
-  width: 100%;
-  padding: 12px 14px 12px 44px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  background: var(--card2);
-  font-size: 16px; /* 16px = no zoom iOS */
-  font-family: inherit;
-  font-weight: 700;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.pin-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
-  background: var(--card);
-}
-
-.pin-input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--bg2);
-}
-
-.pin-input::placeholder {
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.pin-input-hint {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 4px;
-  font-weight: 500;
-  padding-left: 4px;
-}
-
-/* ===== QUICK AMOUNTS ===== */
-.pin-quick-amounts,
-.popup-quick {
-  margin-top: 6px;
-}
-
-.pin-quick-amounts.hidden,
-.popup-quick.hidden {
-  display: none !important;
-}
-
-.pin-quick-amounts.visible,
-.popup-quick.visible {
-  display: block !important;
-  animation: pinFieldShow 0.2s ease-out;
-}
-
-.pin-quick-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  margin-bottom: 8px;
-  letter-spacing: 0.04em;
-}
-
-.pin-quick-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.pin-quick-btn {
-  padding: 10px 6px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  background: var(--card2);
-  color: var(--text2);
-  font-size: 11px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.1s;
-  text-align: center;
-}
-
-.pin-quick-btn:active {
-  transform: scale(0.95);
-  border-color: var(--primary);
-  color: var(--primary3);
-  background: var(--primaryDim);
-}
-
-.pin-quick-btn.active {
-  background: linear-gradient(135deg, var(--primary3), var(--primary));
-  color: #fff;
-  border-color: var(--primary);
-}
-
-/* ===== FOOTER — STICKY, SELALI TERLIHAT ===== */
-.pin-footer {
-  padding: 10px 18px;
-  padding-bottom: calc(10px + var(--safe-bottom));
-  background: var(--card);
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex-shrink: 0;
-  /* Penting: selalu di atas */
-  z-index: 3;
-}
-
-.pin-btn-primary {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary3), var(--primary));
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-  transition: opacity 0.15s, transform 0.1s;
-}
-
-.pin-btn-primary:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.pin-btn-primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: var(--muted);
-  box-shadow: none;
-}
-
-.pin-btn-ghost {
-  width: 100%;
-  padding: 10px;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  background: var(--card2);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.pin-btn-ghost:active {
-  transform: scale(0.97);
-  border-color: var(--primary);
-  color: var(--primary3);
-}
-
-/* ===== KEYBOARD ACTIVE — POPUP NAIK ===== */
-.pinjaman-sheet.keyboard-active {
-  max-height: 50vh;
-  max-height: 50dvh;
-  transition: transform 0.15s ease, max-height 0.15s ease;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 390px) {
-  .pin-header-title { font-size: 18px; }
-  .pin-header-icon { width: 40px; height: 40px; font-size: 18px; }
-  .pin-quick-grid { grid-template-columns: repeat(2, 1fr); }
-  .pin-body { padding: 12px 14px; }
-}
-
-@media (max-height: 700px) {
-  .pinjaman-sheet { max-height: 90vh; max-height: 90dvh; }
-  .pin-header-bg { padding: 14px 14px 20px; }
-}
-
-/* ===== BAYAR PINJAMAN — VARIASI ===== */
-
-.bayar-sheet .popup-header-bg {
-  background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%) !important;
-}
-
-/* Toggle Luar Gaji */
-#lgTrack.lg-active {
-  background: #EF4444 !important;
-}
-
-#lgTrack.lg-active #lgThumb {
-  left: 26px !important;
-}
-
-/* Pinjaman item cards */
-.bayar-pinj-item {
-  background: var(--card2);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-}
-
-.bayar-pinj-header {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--primary3);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.bayar-pinj-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  align-items: end;
-  margin-bottom: 8px;
-}
-
-.bayar-pinj-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-
-.bayar-pinj-sisa {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg2);
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 700;
-  color: var(--text);
-  outline: none;
-}
-
-.bayar-pinj-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  background: var(--card2);
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 700;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.bayar-pinj-input:focus {
-  border-color: var(--primary);
-}
-
-.bayar-pinj-lunas {
-  width: 100%;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, var(--primary3), var(--primary));
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.bayar-pinj-info {
-  display: none;
-  margin-top: 6px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: var(--card);
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bayar-pinj-info.show {
-  display: flex;
-}
-
-.bayar-pinj-info-text {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.bayar-pinj-info-val {
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.bayar-pinj-info-val.lunas { color: var(--green); }
-.bayar-pinj-info-val.warning { color: var(--red); }
-
-/* ===== EDIT BAYAR POPUP ===== */
-
-#editBayarPopup .popup-header-bg {
-  background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #FCD34D 100%) !important;
-}
-
-#editNominalBayarPopup .popup-header-bg {
-  background: linear-gradient(135deg, #1A56DB 0%, #4B8EF8 50%, #6BA3FF 100%) !important;
-}
-
-/* Edit Bayar Item */
-.edit-bayar-item {
-  background: var(--card2);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 12px;
-  transition: transform 0.1s, box-shadow 0.15s;
-}
-
-.edit-bayar-item:active {
-  transform: scale(0.99);
-}
-
-.edit-bayar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
-}
-
-.edit-bayar-jenis {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--primary3);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.edit-bayar-tanggal {
-  font-size: 10px;
-  color: var(--muted);
-  font-weight: 600;
-  margin-top: 2px;
-}
-
-.edit-bayar-nominal {
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--green);
-  line-height: 1;
-}
-
-.edit-bayar-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.edit-bayar-btn {
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.15s;
-}
-
-.edit-bayar-btn-edit {
-  border: 1.5px solid var(--primary);
-  background: var(--primaryDim);
-  color: var(--primary3);
-}
-
-.edit-bayar-btn-edit:active {
-  background: var(--primary);
-  color: #fff;
-}
-
-.edit-bayar-btn-hapus {
-  border: 1.5px solid var(--red);
-  background: #FEE2E2;
-  color: var(--red);
-}
-
-.edit-bayar-btn-hapus:active {
-  background: var(--red);
-  color: #fff;
-}
-
-/* Empty state */
-.edit-bayar-empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--muted);
-}
-
-.edit-bayar-empty i {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: 0.3;
-}
-
-.edit-bayar-empty-text {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* Sisa info */
-.edit-bayar-sisa-info {
-  background: linear-gradient(135deg, var(--primary3), var(--primary));
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.edit-bayar-sisa-label {
-  font-size: 10px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.8);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.edit-bayar-sisa-val {
-  font-size: 20px;
-  font-weight: 900;
-  color: #fff;
-}
-
-/* Responsive */
-@media (max-width: 390px) {
-  .edit-bayar-item { padding: 12px 14px; }
-  .edit-bayar-nominal { font-size: 16px; }
-  .edit-bayar-btn { font-size: 11px; padding: 8px; }
-}
-
-/* ===== RINCIAN POPUP REDESIGN ===== */
-
-/* Overlay backdrop */
-.rc-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 43, 110, 0.6);
-  backdrop-filter: blur(4px);
-  display: none;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 999999;
-  padding: 0;
-}
-
-.rc-overlay.active {
-  display: flex;
-}
-
-/* Card utama */
-.rc-card {
-  width: 100%;
-  max-width: 480px;
-  background: #F2F5FA;
-  border-radius: 24px 24px 0 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  max-height: 92vh;
-  max-height: 92dvh;
-  animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 -8px 40px rgba(13, 43, 110, 0.25);
-}
-
-/* Header */
-.rc-head {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  padding: 20px 24px 28px;
-  padding-top: calc(16px + var(--safe-top));
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.rc-head::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: #F2F5FA;
-  border-radius: 20px 20px 0 0;
-}
-
-.rc-nama {
-  font-size: 26px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.rc-bagian {
-  position: absolute;
-  top: calc(16px + var(--safe-top));
-  right: 20px;
-  font-size: 11px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.85);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: rgba(255,255,255,0.15);
-  padding: 4px 12px;
-  border-radius: 8px;
-  backdrop-filter: blur(8px);
-}
-
-.rc-period {
-  font-size: 11px;
-  color: rgba(255,255,255,0.7);
-  font-weight: 600;
-  margin-top: 6px;
-  letter-spacing: 0.04em;
-}
-
-/* Body scrollable */
-.rc-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 16px;
-  padding-bottom: 8px;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Section Card */
-.rc-section {
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.06);
-  border: 1px solid rgba(26, 86, 219, 0.08);
-}
-
-.rc-section-title {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.rc-section-title i {
-  font-size: 10px;
-  color: var(--primary);
-}
-
-/* Item row */
-.rc-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 4px 0;
-  border-bottom: 1px solid #F2F5FA;
-}
-
-.rc-item:last-child {
-  border-bottom: none;
-}
-
-.rc-item-left {
-  flex: 1;
-  min-width: 0;
-}
-
-.rc-item-name {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.25;
-}
-
-.rc-item-meta {
-  font-size: 9px;
-  color: var(--muted);
-  font-weight: 600;
-  margin-top: 1px;
-}
-
-.rc-item-right {
-  text-align: right;
-  flex-shrink: 0;
-  margin-left: 10px;
-}
-
-.rc-item-qty {
-  font-size: 9px;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.rc-item-harga {
-  font-size: 9px;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.rc-item-jumlah {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text);
-  margin-top: 1px;
-}
-
-/* Subtotal dalam section */
-.rc-subtotal {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 8px;
-  margin-top: 2px;
-  border-top: 1.5px solid #E8EEF5;
-}
-
-.rc-subtotal-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text2);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.rc-subtotal-val {
-  font-size: 13px;
-  font-weight: 900;
-  color: var(--primary3);
-}
-
-/* Tambahan section */
-.rc-tambahan .rc-item-jumlah {
-  color: var(--green);
-}
-
-.rc-tambahan .rc-section-title {
-  color: var(--green);
-}
-
-.rc-tambahan .rc-section-title i {
-  color: var(--green);
-}
-
-/* Potongan section */
-.rc-potongan .rc-item-jumlah {
-  color: var(--red);
-}
-
-.rc-potongan .rc-section-title {
-  color: var(--red);
-}
-
-.rc-potongan .rc-section-title i {
-  color: var(--red);
-}
-
-/* Total Bersih — Card khusus */
-.rc-total-card {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 8px;
-  position: relative;
-  overflow: hidden;
-}
-
-.rc-total-card::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-}
-
-.rc-total-label {
-  font-size: 9px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.8);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 3px;
-}
-
-.rc-total-val {
-  font-size: 24px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.rc-total-detail {
-  font-size: 9px;
-  color: rgba(255,255,255,0.7);
-  font-weight: 600;
-  margin-top: 5px;
-}
-
-/* Footer */
-.rc-footer {
-  padding: 12px 16px;
-  padding-bottom: calc(12px + var(--safe-bottom));
-  background: #fff;
-  border-top: 1px solid #E8EEF5;
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.rc-btn {
-  flex: 1;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 800;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.15s;
-}
-
-.rc-btn-tutup {
-  background: #F2F5FA;
-  color: var(--muted);
-  border: 1.5px solid #DDE4F0;
-}
-
-.rc-btn-tutup:active {
-  background: #E8EEF5;
-}
-
-.rc-btn-download {
-  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
-  color: #fff;
-  border: none;
-  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-}
-
-.rc-btn-download:active {
-  transform: scale(0.97);
-}
-
-/* Tombol + (tambahan) */
-.rc-tambah-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  border: 2px solid rgba(255,255,255,0.4);
-  color: #fff;
-  font-size: 20px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-}
-
-.rc-tambah-btn:active {
-  background: rgba(255,255,255,0.3);
-  transform: scale(0.95);
-}
-
-/* Responsive */
-@media (max-width: 390px) {
-  .rc-nama { font-size: 28px; }
-  .rc-total-val { font-size: 28px; }
-  .rc-section { padding: 12px; }
-  .rc-item-name { font-size: 12px; }
-}
-
-    ::-webkit-scrollbar { width:4px; height:4px }
-    ::-webkit-scrollbar-track { background:transparent }
-    ::-webkit-scrollbar-thumb { background:rgba(26,86,219,.20); border-radius:4px }
-
-    /* ===== CUSTOM NUMPAD ===== */
-    .numpad-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(13, 43, 110, 0.4);
-      display: none;
-      justify-content: center;
-      align-items: flex-end;
-      z-index: 100000;
-      padding: 0;
-    }
-
-    .numpad-overlay.active {
-      display: flex;
-    }
-
-    .numpad-sheet {
-      width: 100%;
-      max-width: 480px;
-      background: #fff;
-      border-radius: 24px 24px 0 0;
-      padding: 16px 16px calc(16px + var(--safe-bottom));
-      box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
-      animation: slideUp 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
-    .numpad-display {
-      background: linear-gradient(135deg, #F0F7FF, #E0EAFF);
-      border: 2px solid rgba(26, 86, 219, 0.15);
-      border-radius: 16px;
-      padding: 16px 20px;
-      margin-bottom: 16px;
-      text-align: right;
-    }
-
-    .numpad-display-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 4px;
-    }
-
-    .numpad-display-value {
-      font-size: 32px;
-      font-weight: 900;
-      color: var(--primary3);
-      line-height: 1;
-      letter-spacing: -0.02em;
-      font-variant-numeric: tabular-nums;
-      min-height: 40px;
-    }
-
-    .numpad-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .numpad-btn {
-      padding: 18px 8px;
-      border: 2px solid #E8EEF5;
-      border-radius: 16px;
-      background: #F7F9FC;
-      color: var(--text);
-      font-size: 22px;
-      font-weight: 800;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      cursor: pointer;
-      transition: all 0.1s;
-      text-align: center;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .numpad-btn:active {
-      transform: scale(0.95);
-      background: var(--primaryDim);
-      border-color: var(--primary);
-      color: var(--primary3);
-    }
-
-    .numpad-btn.action {
-      background: linear-gradient(135deg, var(--primary3), var(--primary));
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 2px 8px rgba(26, 86, 219, 0.25);
-    }
-
-    .numpad-btn.action:active {
-      opacity: 0.9;
-      transform: scale(0.95);
-    }
-
-    .numpad-btn.danger {
-      background: linear-gradient(135deg, #DC2626, #EF4444);
-      color: #fff;
-      border-color: transparent;
-    }
-
-    .numpad-btn.danger:active {
-      opacity: 0.9;
-    }
-
-    .numpad-btn.wide {
-      grid-column: span 2;
-    }
-
-    .numpad-btn.zero {
-      grid-column: span 2;
-    }
-
-    .numpad-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .numpad-confirm {
-      padding: 16px;
-      border: none;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--primary3), var(--primary));
-      color: #fff;
-      font-size: 15px;
-      font-weight: 800;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      cursor: pointer;
-      box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-      transition: opacity 0.15s, transform 0.1s;
-    }
-
-    .numpad-confirm:active {
-      transform: scale(0.97);
-      opacity: 0.9;
-    }
-
-    .numpad-confirm:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      background: var(--muted);
-      box-shadow: none;
-    }
-
-    .numpad-cancel {
-      padding: 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 14px;
-      background: var(--card2);
-      color: var(--muted);
-      font-size: 15px;
-      font-weight: 700;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .numpad-cancel:active {
-      transform: scale(0.97);
-      border-color: var(--primary);
-      color: var(--primary3);
-    }
-
-    /* Input field yang tidak memicu keyboard */
-    .popup-input-no-keyboard {
-      width: 100%;
-      padding: 12px 14px 12px 44px;
-      border: 2px solid #DDE4F0;
-      border-radius: 12px;
-      background: #F7F9FC;
-      font-size: 16px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 700;
-      color: #1A2340;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      cursor: pointer;
-      caret-color: transparent;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    .popup-input-no-keyboard:focus {
-      border-color: #4B8EF8;
-      box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
-      background: #fff;
-    }
-
-    /* Bayar jenis input no keyboard */
-    .bayar-pinj-input-no-keyboard {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #DDE4F0;
-      border-radius: 10px;
-      background: #F7F9FC;
-      font-size: 13px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 700;
-      color: #1A2340;
-      outline: none;
-      transition: border-color 0.15s;
-      cursor: pointer;
-      caret-color: transparent;
-      -webkit-user-select: none;
-      user-select: none;
-      text-align: right;
-    }
-
-    .bayar-pinj-input-no-keyboard:focus {
-      border-color: #4B8EF8;
-    }
-
-    /* Bayar sheet tidak naik saat numpad */
-    .bayar-sheet.no-push {
-      max-height: 85vh !important;
-      max-height: 85dvh !important;
-      transform: translateY(0) !important;
-      transition: none !important;
-    }
-
-    .pin-sheet.no-push {
-      max-height: 85vh !important;
-      max-height: 85dvh !important;
-      transform: translateY(0) !important;
-      transition: none !important;
-    }
-
-    /* Hide quick amounts (diganti numpad) */
-    .popup-quick.hidden-force {
-      display: none !important;
-    }
-
-    /* Input wrapper untuk trigger numpad */
-    .popup-input-trigger {
-      position: relative;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .popup-input-trigger::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      cursor: pointer;
-      z-index: 2;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       OPTIMASI POPUP — PERFORMANCE FIXES
-       ═══════════════════════════════════════════════════════════════ */
-    /* 1. HAPUS backdrop-filter blur — ganti dengan opacity saja */
-    .rc-overlay {
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      background: rgba(13, 43, 110, 0.75) !important;
-    }
-    /* 2. GPU layer promotion — translateZ(0) saja, will-change diset via JS saat animasi */
-    .popup-sheet,
-    .pinjaman-sheet,
-    .bayar-sheet,
-    .rc-card,
-    .numpad-sheet {
-      transform: translateZ(0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-    }
-    /* 3. Sederhanakan box-shadow */
-    .popup-sheet,
-    .pinjaman-sheet,
-    .bayar-sheet {
-      box-shadow: 0 -4px 16px rgba(13, 43, 110, 0.15) !important;
-    }
-    .rc-card {
-      box-shadow: 0 -4px 20px rgba(13, 43, 110, 0.15) !important;
-    }
-    .numpad-sheet {
-      box-shadow: 0 -4px 16px rgba(13, 43, 110, 0.12) !important;
-    }
-    /* 4. Ganti animation keyframes dengan transition */
-    .rc-card {
-      animation: none !important;
-      transform: translateY(100%);
-      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    .rc-overlay.active .rc-card {
-      transform: translateY(0);
-    }
-    .numpad-sheet {
-      animation: none !important;
-      transform: translateY(100%);
-      transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    .numpad-overlay.active .numpad-sheet {
-      transform: translateY(0);
-    }
-    /* 5. Popup sheet — JS handle transform via inline style, CSS hanya transition */
-    .popup-sheet {
-      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                  max-height 0.15s ease;
-    }
-    .popup-sheet.entering {
-      transform: translateY(100%) !important;
-    }
-    /* 6. Percepat overlay fade */
-    .popup,
-    .rc-overlay,
-    .numpad-overlay {
-      transition: opacity 0.15s ease;
-    }
-    /* 7. contain dihapus — menyebabkan lag pada animasi popup */
-    /* 8. Z-index — harus di atas .page (z-index:9999) */
-    .rc-overlay { z-index: 99999 !important; }
-    .popup { z-index: 99999 !important; }
-    #pinjamanPopup { z-index: 99999 !important; }
-    #tambahanPopup { z-index: 999999 !important; }
-    /* Numpad generik (bukaNumpadGen) dipanggil DI ATAS popup lain
-       (pinjaman, bayar, tambahan, edit nominal) — z-index-nya wajib
-       lebih tinggi dari semua popup tersebut agar tidak tertutup. */
-    .numpad-overlay { z-index: 9999990 !important; }
-    #slipPopup { z-index: 9999999 !important; }
-
-    /* ===== PWA INSTALL MODAL ===== */
-    #pwaInstallModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(13, 43, 110, 0.6);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      z-index: 99998;
-      padding: 0;
-    }
-    #pwaInstallModal.active { display: flex; }
-    #pwaInstallSheet {
-      width: 100%;
-      max-width: 480px;
-      background: #fff;
-      border-radius: 24px 24px 0 0;
-      padding: 28px 24px 32px;
-      padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.18);
-    }
-    #pwaInstallModal.active #pwaInstallSheet { transform: translateY(0); }
-    .pwa-modal-icon {
-      width: 64px; height: 64px;
-      background: linear-gradient(135deg, #1A2A8C, #4B8EF8);
-      border-radius: 18px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px; color: #fff;
-      margin-bottom: 16px;
-      box-shadow: 0 6px 20px rgba(26, 86, 219, 0.3);
-    }
-    .pwa-modal-title {
-      font-size: 18px; font-weight: 900;
-      color: var(--text); margin-bottom: 6px;
-    }
-    .pwa-modal-sub {
-      font-size: 13px; color: var(--muted);
-      font-weight: 500; line-height: 1.5;
-      margin-bottom: 24px;
-    }
-    .pwa-modal-features {
-      display: flex; flex-direction: column; gap: 10px;
-      margin-bottom: 24px;
-    }
-    .pwa-modal-feat {
-      display: flex; align-items: center; gap: 12px;
-      font-size: 13px; font-weight: 600; color: var(--text2);
-    }
-    .pwa-modal-feat i {
-      width: 32px; height: 32px;
-      background: var(--primaryDim);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--primary3); font-size: 13px; flex-shrink: 0;
-    }
-    .pwa-modal-btn-install {
-      width: 100%; border: none; cursor: pointer;
-      background: linear-gradient(135deg, #1A2A8C, #4B8EF8);
-      color: #fff; border-radius: 16px;
-      padding: 16px; font-size: 15px; font-weight: 800;
-      font-family: inherit; letter-spacing: .02em;
-      box-shadow: 0 6px 20px rgba(26, 86, 219, 0.3);
-      margin-bottom: 10px;
-    }
-    .pwa-modal-btn-skip {
-      width: 100%; border: none; cursor: pointer;
-      background: transparent; color: var(--muted);
-      font-size: 13px; font-weight: 600;
-      font-family: inherit; padding: 10px;
-    }
-
-    /* ===== UPDATE BANNER ===== */
-    #appUpdateBanner {
-      position: fixed; left: 50%; bottom: -120px;
-      transform: translateX(-50%);
-      width: min(94vw, 420px);
-      background: linear-gradient(135deg, var(--primary3), var(--primary));
-      color: #fff; border-radius: 16px;
-      box-shadow: var(--shadow2);
-      padding: 14px 16px;
-      display: flex; align-items: center; gap: 12px;
-      z-index: 99999;
-      transition: bottom .35s cubic-bezier(.34,1.56,.64,1);
-    }
-    #appUpdateBanner.show { bottom: 18px; }
-    #appUpdateBanner .aub-icon {
-      width: 36px; height: 36px; flex: 0 0 36px;
-      border-radius: 10px; background: rgba(255,255,255,.18);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-    }
-    #appUpdateBanner .aub-text { flex: 1; min-width: 0; }
-    #appUpdateBanner .aub-title { font-size: 13px; font-weight: 800; line-height: 1.3; }
-    #appUpdateBanner .aub-sub { font-size: 11px; opacity: .85; margin-top: 1px; }
-    #appUpdateBanner .aub-btn {
-      flex: 0 0 auto; border: none; cursor: pointer;
-      background: #fff; color: var(--primary3);
-      font-size: 12px; font-weight: 800;
-      font-family: inherit; letter-spacing: .01em;
-      padding: 9px 14px; border-radius: 10px;
-      white-space: nowrap;
-    }
-    #appUpdateBanner .aub-btn:active { transform: scale(.96); }
-  </style>
 </head>
 <body>
 
@@ -4458,7 +249,7 @@
       </div>
 
       <!-- TOMBOL + TAMBAH (di bawah form, sebelum tabel) -->
-      <button id="btnTambahInput" disabled onclick="tambahKeStaging()" style="width:100%;margin:0 0 10px 0;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:#E8EEF5;color:#7B8DB0;border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">+ TAMBAH</button>
+      <button id="btnTambahInput" disabled onclick="tambahKeStaging()" style="width:100%;margin:0 0 10px 0;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:#E8EEF5;color:#7B8DB0;border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">+ TAMBAH PEKERJAAN</button>
 
       <!-- STAGING TABLE - SELALU MUNCUL DARI AWAL -->
       <div id="stagingSection" style="background:var(--card);border-radius:18px;box-shadow:0 4px 18px rgba(26,86,219,.10);border:1.5px solid var(--muted);overflow:hidden;margin-bottom:10px;">
@@ -4491,7 +282,7 @@
       <!-- TOMBOL SIMPAN (Full width, style kuning/emas) - SELALU MUNCUL -->
       <div style="padding:0;margin-bottom:10px;">
         <button id="btnSimpanInput" disabled onclick="simpanInputData()" style="width:100%;padding:16px;font-size:15px;border-radius:14px;letter-spacing:.08em;background:#E8EEF5;color:#7B8DB0;border:none;font-weight:800;cursor:not-allowed;font-family:inherit;transition:background .2s,color .2s,box-shadow .2s;">SIMPAN</button>
-      </div>
+      </div> 
 
       </div>
       <!-- ===== /TAB PANEL: INPUT ===== -->
@@ -4530,7 +321,10 @@
         <div id="qsRecentBox" style="background:rgba(255,255,255,.15);border-radius:14px;padding:10px 12px;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;">
           <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;flex-shrink:0;"><i class="fa-solid fa-clock-rotate-left" style="margin-right:4px;"></i> Entri Terbaru</div>
           <div id="qs_recent" style="display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;overflow:hidden;">
-            <div style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-align:center;padding:6px 0;">Belum ada data hari ini</div>
+            <div class="empty-state-box" style="padding:10px;color:rgba(255,255,255,.7);">
+              <i class="fa-solid fa-inbox" style="font-size:24px;opacity:0.5;"></i>
+              <div class="empty-state-box-text" style="font-size:11px;">Belum ada data hari ini</div>
+            </div>
           </div>
         </div>
       </div>
@@ -4539,9 +333,6 @@
       <!-- ===== /TAB PANEL: RIWAYAT ===== -->
 
 
-    </div>
-    <div class="back-bar">
-      <button class="back-bar-btn" onclick="tutupInputData()"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
     </div>
   </div>
 <!-- ===== SETTING PAGE ===== -->
@@ -4645,9 +436,6 @@
         </div>
       </div>
     </div>
-    <div class="back-bar">
-      <button class="back-bar-btn" onclick="tutupSetting();history.replaceState({page:'home'},'')"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
-    </div>
   </div>
 
   <!-- ===== HARGA PAGE ===== -->
@@ -4728,9 +516,6 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="back-bar">
-      <button class="back-bar-btn" onclick="tutupHarga();history.replaceState({page:'home'},'')"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
     </div>
   </div>
 
@@ -4844,15 +629,12 @@
     </table>
   </div>
 </div>
-      <div class="back-bar" style="position:relative;box-shadow:none;border-top:1px solid var(--muted);">
-        <button class="back-bar-btn" onclick="tutupRekap()"><i class="fa-solid fa-house"></i> Kembali ke Menu Utama</button>
-      </div>
     </div>
   </div>
 
 <!-- ===== POPUP PINJAMAN DENGAN NUMPAD ===== -->
 <div class="popup" id="pinjamanPopup">
-  <div class="popup-sheet pin-sheet">
+  <div class="popup-sheet">
     
     <div class="popup-header">
       <div class="popup-header-bg popup-header-blue">
@@ -4877,17 +659,17 @@
     </div>
 
     <div class="popup-body">
-      <div class="popup-info popup-info-blue">
-        <div class="popup-info-icon popup-info-icon-blue">
+      <div class="popup-info popup-info-blue" id="pinInfoCard">
+        <div class="popup-info-icon popup-info-icon-blue" >
           <i class="fa-solid fa-circle-info"></i>
         </div>
-        <div class="popup-info-text popup-info-text-blue">
+        <div class="popup-info-text popup-info-text-blue" >
           Pinjaman akan otomatis dipotong dari gaji pegawai saat periode pembayaran.
         </div>
       </div>
 
       <div class="popup-form-group" id="pinNamaGroup">
-        <label class="popup-label popup-label-row">
+        <label class="popup-label popup-label-row" >
           <span><i class="fa-solid fa-user"></i> Nama Pegawai</span>
           <button type="button" class="popup-label-action hidden" id="btnGantiPegawaiPin" onclick="gantiPegawaiPinjaman()">
             <i class="fa-solid fa-rotate-left"></i> Ganti Pegawai
@@ -4895,7 +677,7 @@
         </label>
         <div class="popup-select-wrap">
           <select id="pin_nama" onchange="onPinNama()" class="popup-select">
-            <option value="">-- Pilih Pegawai --</option>
+            <option value="" >-- Pilih Pegawai --</option>
           </select>
           <div class="popup-select-arrow">
             <i class="fa-solid fa-chevron-down"></i>
@@ -4905,13 +687,13 @@
       </div>
 
       <div class="popup-form-group hidden" id="pinJenisGroup">
-        <label class="popup-label">
+        <label class="popup-label" >
           <i class="fa-solid fa-tags"></i>
           Jenis Pinjaman
         </label>
         <div class="popup-select-wrap">
           <select id="pin_jenis" onchange="onPinJenis()" class="popup-select" disabled>
-            <option value="">-- Pilih Jenis --</option>
+            <option value="" >-- Pilih Jenis --</option>
           </select>
           <div class="popup-select-arrow">
             <i class="fa-solid fa-chevron-down"></i>
@@ -4920,11 +702,11 @@
       </div>
 
       <div class="popup-form-group hidden" id="pinNominalGroup">
-        <label class="popup-label">
+        <label class="popup-label" >
           <i class="fa-solid fa-money-bill-wave"></i>
           Jumlah Pinjaman
         </label>
-        <div class="popup-input-trigger" onclick="bukaNumpad('pinjaman')">
+        <div class="popup-input-trigger" onclick="bukaNumpadPinjaman()">
           <span class="popup-input-prefix">Rp</span>
           <input type="text" id="pin_nominal_display" readonly placeholder="Ketuk untuk input..." 
             class="popup-input-no-keyboard" inputmode="none">
@@ -4955,18 +737,18 @@
         <i class="fa-solid fa-floppy-disk"></i>
         <span>Simpan Pinjaman</span>
       </button>
-      <button class="popup-btn-ghost" onclick="tutupPopupPinjaman()">Batal</button>
+      <button class="popup-btn-ghost" onclick="tutupPopup('pinjamanPopup')">Batal</button>
     </div>
 
   </div>
 </div>
 
 <!-- ===== NUMPAD OVERLAY ===== -->
-<div class="numpad-overlay" id="numpadOverlay">
+<div class="numpad-overlay" id="numpadGenOverlay">
   <div class="numpad-sheet">
     <div class="numpad-display">
-      <div class="numpad-display-label" id="numpadLabel">Jumlah Pinjaman</div>
-      <div class="numpad-display-value" id="numpadDisplay">0</div>
+      <div class="numpad-display-label" id="numpadGenLabel">Nominal</div>
+      <div class="numpad-display-value" id="numpadGenDisplay">0</div>
     </div>
     <div class="numpad-grid">
       <button class="numpad-btn" onclick="numpadInput('1')">1</button>
@@ -4978,18 +760,18 @@
       <button class="numpad-btn" onclick="numpadInput('7')">7</button>
       <button class="numpad-btn" onclick="numpadInput('8')">8</button>
       <button class="numpad-btn" onclick="numpadInput('9')">9</button>
-      <button class="numpad-btn wide" onclick="numpadInput('0')">0</button>
+      <button class="numpad-btn" onclick="numpadInput('000')">000</button>
+      <button class="numpad-btn" onclick="numpadInput('0')">0</button>
       <button class="numpad-btn" onclick="numpadBackspace()">
         <i class="fa-solid fa-delete-left"></i>
       </button>
     </div>
     <div class="numpad-actions">
-      <button class="numpad-cancel" onclick="tutupNumpad()">Batal</button>
-      <button class="numpad-confirm" onclick="numpadConfirm()">OK</button>
+      <button class="numpad-cancel" onclick="tutupNumpadGen()">Batal</button>
+      <button class="numpad-confirm" onclick="numpadGenConfirm()">OK</button>
     </div>
   </div>
 </div>
-
 <!-- ===== POPUP BAYAR PINJAMAN DENGAN NUMPAD ===== -->
 <div class="popup" id="bayarPopup">
   <div class="popup-sheet bayar-sheet">
@@ -5299,31 +1081,31 @@
   </div>
 
   <!-- ===== TAMBAHAN POPUP ===== -->
-  <div class="rc-overlay" id="tambahanPopup">
-    <div class="rc-card" style="max-width:400px;">
-      <div class="rc-head">
-        <div class="rc-nama" id="tamNama" style="font-size:32px;">-</div>
-        <div class="rc-bagian" id="tamBagian">-</div>
+  <div class="popup" id="tambahanPopup">
+    <div class="popup-sheet" style="max-width:400px; background: var(--bg);">
+      <div class="popup-header">
+        <div class="popup-header-bg popup-header-blue" style="padding-bottom: 28px;">
+          <div id="tamNama" class="popup-header-title" style="font-size:26px;">-</div>
+          <div id="tamBagian" class="popup-header-subtitle" style="margin-top:4px;">-</div>
+        </div>
+        <div class="popup-header-wave" style="bottom:-1px;"><svg viewBox="0 0 1440 32" preserveAspectRatio="none"><path d="M0,32L1440,32L1440,16C1320,21,1080,27,720,27C360,27,120,21,0,16Z" style="fill:var(--bg);"></path></svg></div>
       </div>
-      <div class="rc-period" style="background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;font-weight:800;letter-spacing:.1em;padding:10px 20px;">TAMBAHAN</div>
-      <div class="rc-body" style="padding:16px 20px;">
+      <div class="popup-body" style="padding:16px 20px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
           <div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;">TAMBAHAN</div>
           <div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;">QTY / SATUAN</div>
         </div>
         <div id="tamItemRows"></div>
         <div id="tamEmptyMsg" style="display:none;padding:20px 0;text-align:center;color:var(--muted);font-size:13px;font-weight:600;">
-          <i class="fa-solid fa-circle-info" style="margin-bottom:6px;font-size:20px;display:block;"></i>
-          Tidak ada item tambahan untuk bagian ini.<br><span style="font-size:11px;">Tambahkan di menu <b>Harga → Tambahan</b>.</span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;align-items:center;">
           <div style="font-size:22px;font-weight:900;color:var(--muted);letter-spacing:-.01em;">TOTAL</div>
           <div id="tamTotalDisplay" style="padding:13px 14px;border-radius:12px;background:var(--bg2);font-size:14px;font-weight:700;color:var(--muted);text-align:center;">nominal...</div>
         </div>
       </div>
-      <div style="padding:14px 20px;padding-bottom:calc(14px + var(--safe-bottom));background:var(--card2);">
-        <button onclick="simpanTambahanRincian()" style="width:100%;background:linear-gradient(135deg, var(--primary3), var(--primary));color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(0,180,216,.28);">SAVE</button>
-        <button onclick="document.getElementById('tambahanPopup').classList.remove('active'); if($('tambahanPopup')._removeTamVp){$('tambahanPopup')._removeTamVp();}" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:14px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;">Tutup</button>
+      <div class="popup-footer" style="background:var(--card);">
+        <button class="popup-btn-primary popup-btn-primary-blue" onclick="simpanTambahanRincian()">SAVE</button>
+        <button class="popup-btn-ghost" onclick="tutupPopup('tambahanPopup'); if($('tambahanPopup')._removeTamVp){$('tambahanPopup')._removeTamVp();}">Tutup</button>
       </div>
     </div>
   </div>
@@ -5443,7 +1225,7 @@
         <input type="hidden" id="edit_qty_id"><input type="hidden" id="edit_qty_harga">
         <div class="popup-form-group">
           <label class="popup-label"><i class="fa-solid fa-hashtag"></i> Qty Baru</label>
-          <div class="popup-input-trigger" onclick="bukaNumpadQty('edit')">
+          <div class="popup-input-trigger" onclick="bukaNumpadEditQty()">
             <input type="text" id="edit_qty_display" readonly placeholder="Ketuk untuk input..." inputmode="none"
               class="popup-input-no-keyboard" style="padding-left:14px;">
             <input type="hidden" id="edit_qty_val" value="">
@@ -5832,9 +1614,15 @@
     }
 
     function initDataListeners() {
-      sbWatch(sbTable(db, COL.input), snap => { _CACHE.input = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.input = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_input.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
-      sbWatch(sbTable(db, COL.pinjaman), snap => { _CACHE.pinjaman = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.pinjaman = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_pinjaman.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
-      sbWatch(sbTable(db, COL.bayar), snap => { _CACHE.bayar = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.bayar = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_bayar.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
+      // OPTIMASI: Hanya ambil data 30 hari terakhir saat load awal
+      const _30hariLalu = new Date();
+      _30hariLalu.setDate(_30hariLalu.getDate() - 30);
+      const _cutoffISO = _30hariLalu.toISOString().slice(0,10);
+      const dateFilter = q => q.gte('data->>tanggalISO', _cutoffISO);
+
+      sbWatch(sbTable(db, COL.input), snap => { _CACHE.input = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.input = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_input.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'), dateFilter);
+      sbWatch(sbTable(db, COL.pinjaman), snap => { _CACHE.pinjaman = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.pinjaman = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_pinjaman.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'), dateFilter);
+      sbWatch(sbTable(db, COL.bayar), snap => { _CACHE.bayar = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.bayar = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_bayar.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'), dateFilter);
       // Hanya butuh data ~2 minggu terakhir untuk rekap, jadi filter di server
       // (sebelumnya download SELURUH histori 'tambahan' lalu baru disaring di JS,
       // ini yang paling bikin loading lama kalau datanya sudah banyak)
@@ -6168,83 +1956,14 @@
       else { setDis('btnTambahInput', true); _styleBtnTambah(false); }
     };
 
-    // ===== NUMPAD QTY =====
-    let _numpadQtyTarget = null; // 'input' | 'edit'
-    let _numpadQtyValue = '';
-
-    window.bukaNumpadQty = (target) => {
-      _numpadQtyTarget = target;
-      if (target === 'input') {
-        _numpadQtyValue = $('inp_qty').value || '';
-        $('numpadQtyLabel').textContent = 'Qty';
-      } else {
-        _numpadQtyValue = $('edit_qty_val').value || '';
-        $('numpadQtyLabel').textContent = 'Qty Baru';
-      }
-      $('numpadQtyDisplay').textContent = _numpadQtyValue || '0';
-      $('numpadQtyOverlay').classList.add('active');
-    };
-
-    window.numpadQtyInput = (digit) => {
-      if (_numpadQtyValue.length >= 6) return; // Max 6 digit qty
-      if (_numpadQtyValue === '0') _numpadQtyValue = '';
-      _numpadQtyValue += digit;
-      $('numpadQtyDisplay').textContent = _numpadQtyValue || '0';
-    };
-
-    window.numpadQtyBackspace = () => {
-      _numpadQtyValue = _numpadQtyValue.slice(0, -1);
-      $('numpadQtyDisplay').textContent = _numpadQtyValue || '0';
-    };
-
-    window.numpadQtyConfirm = () => {
-      const val = parseInt(_numpadQtyValue) || 0;
-      const target = _numpadQtyTarget;
-      if (target === 'input') {
-        $('inp_qty').value = val || '';
-        $('inp_qty_display').value = val > 0 ? val : '';
-        $('inp_qty_display').style.color = val > 0 ? '#1A2340' : '#7B8DB0';
-        if (val < 1) { showToast('⚠ QTY minimal 1!'); }
-        onInpQty();
-      } else if (target === 'edit') {
-        $('edit_qty_val').value = val || '';
-        $('edit_qty_display').value = val > 0 ? val : '';
-      }
-      tutupNumpadQty();
-      // Popup Koreksi Qty baru ditampilkan setelah OK ditekan
-      if (target === 'edit') bukaPopup('editQtyPopup');
-    };
-
-    window.tutupNumpadQty = () => {
-      $('numpadQtyOverlay').classList.remove('active');
-      _numpadQtyValue = '';
-      _numpadQtyTarget = null;
-    };
-
-    // Batal pada numpad qty: jika berasal dari koreksi (edit), tutup juga popup
-    // Koreksi Qty dan kembalikan ke daftar Rincian Per Tanggal (bukan berhenti di popup Koreksi Qty)
-    window.batalNumpadQty = () => {
-      const target = _numpadQtyTarget;
-      const editPopupSudahTampil = target === 'edit' && $('editQtyPopup').style.display === 'flex';
-      tutupNumpadQty();
-      // Hanya lompat balik ke Rincian Per Tanggal jika popup Koreksi Qty
-      // memang belum pernah ditampilkan (alur buka pertama kali).
-      // Jika popup Koreksi Qty sudah terbuka (user mengetuk field lagi),
-      // cukup tutup numpad dan tetap di popup Koreksi Qty.
-      if (target === 'edit' && !editPopupSudahTampil && window._lastDetailCtx) {
-        const { idx, jenis, harga } = window._lastDetailCtx;
-        bukaDetailPekerjaan(idx, jenis, harga);
-      }
-    };
-
     // Styling helper untuk tombol tambah
     function _styleBtnTambah(aktif) {
       const btn = $('btnTambahInput');
       if(!btn) return;
       if(aktif) {
-        btn.style.background = 'linear-gradient(135deg, #F59E0B, #FBBF24)';
-        btn.style.color = '#1A1A1A';
-        btn.style.boxShadow = '0 4px 14px rgba(245, 158, 11, .35)';
+        btn.style.background = 'linear-gradient(135deg, #059669, #10B981)'; // Green
+        btn.style.color = '#fff';
+        btn.style.boxShadow = '0 4px 16px rgba(16, 185, 129, 0.28)';
         btn.style.cursor = 'pointer';
       } else {
         btn.style.background = '#E8EEF5';
@@ -6265,14 +1984,18 @@
       if(!tbody) return;
       // Section selalu terlihat, tidak di-hide
       if(_stagingList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);padding:20px;text-align:center;font-size:13px">Belum ada item</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6">
+          <div class="empty-state-box" style="padding:24px 20px;">
+            <div class="empty-state-box-text">Belum ada item yang ditambahkan</div>
+          </div>
+        </td></tr>`;
         countEl.textContent = '0';
         totalEl.textContent = 'Rp 0';
         setDis('btnSimpanInput', true);
         const btnSimpan = $('btnSimpanInput');
         if(btnSimpan) {
-          btnSimpan.style.background = '#E8EEF5';
-          btnSimpan.style.color = '#7B8DB0';
+          btnSimpan.style.background = 'var(--muted)'; // Use muted color for disabled
+          btnSimpan.style.color = '#fff';
           btnSimpan.style.cursor = 'not-allowed';
           btnSimpan.style.boxShadow = 'none';
         }
@@ -6289,7 +2012,7 @@
           <td style="padding:9px 6px;font-size:11px;color:var(--muted);text-align:right;white-space:nowrap;">Rp ${fmt(item.harga)}</td>
           <td style="padding:9px 6px;font-size:12px;font-weight:800;color:var(--green);text-align:right;white-space:nowrap;">Rp ${fmt(item.jumlah)}</td>
           <td style="padding:9px 8px 9px 4px;text-align:center;">
-            <button onclick="hapusStaging(${idx})" style="background:none;border:none;color:#EF4444;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;">
+            <button onclick="hapusStaging(${idx})" title="Hapus item" style="background:none;border:none;color:#EF4444;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;">
               <i class="fa-solid fa-xmark"></i>
             </button>
           </td>
@@ -6299,10 +2022,10 @@
       const btnSimpan = $('btnSimpanInput');
       if(btnSimpan) {
         btnSimpan.disabled = false;
-        btnSimpan.style.background = 'linear-gradient(135deg, #F59E0B, #FBBF24)';
-        btnSimpan.style.color = '#1A1A1A';
+        btnSimpan.style.background = 'linear-gradient(135deg, var(--primary3), var(--primary))'; // Blue
+        btnSimpan.style.color = '#fff';
         btnSimpan.style.cursor = 'pointer';
-        btnSimpan.style.boxShadow = '0 4px 14px rgba(245, 158, 11, .35)';
+        btnSimpan.style.boxShadow = '0 4px 16px rgba(26, 86, 219, 0.28)';
       }
     }
 
@@ -6319,7 +2042,7 @@
       const qty = parseInt($('inp_qty').value) || 0;
       if(!nama || !brand || !jenis || qty < 1) { showToast('⚠ Lengkapi semua field!'); return; }
       const key = brand + '|' + jenis;
-      const harga = MASTER.harga[key] || 0;
+      const harga = MASTER.harga[key] || MASTER.harga[brand] || 0;
       if(!harga) { showToast('⚠ Harga belum diset!'); return; }
       _stagingList.push({ nama, bagian, jenis, brand, qty, harga, jumlah: harga * qty });
       _renderStaging();
@@ -6341,9 +2064,12 @@
       try {
         const tanggal = fmtTgl(new Date());
         const tanggalISO = new Date().toISOString().slice(0,10);
-        for(const item of _stagingList) {
-          await sbInsert(sbTable(db, COL.input), { tanggal, tanggalISO, nama:item.nama, bagian:item.bagian, jenis:item.jenis, brand:item.brand, qty:item.qty, harga:item.harga, jumlah:item.jumlah, waktu:sbTimestamp() });
-        }
+        const dataToInsert = _stagingList.map(item => ({
+          id: _genId(),
+          data: { tanggal, tanggalISO, nama:item.nama, bagian:item.bagian, jenis:item.jenis, brand:item.brand, qty:item.qty, harga:item.harga, jumlah:item.jumlah, waktu:sbTimestamp() }
+        }));
+        const { error } = await sb.from(COL.input).insert(dataToInsert);
+        if (error) throw error;
         const n = _stagingList.length;
         _stagingList = [];
         _inputExitedWithoutSave = false;
@@ -6409,7 +2135,7 @@ window.bukaPinjaman = () => {
   
   const popup = $('pinjamanPopup');
   const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) {
+  if (sheet && popup.classList.contains('active')) {
     sheet.classList.add('entering');
     sheet.style.willChange = 'transform';
   }
@@ -6417,25 +2143,9 @@ window.bukaPinjaman = () => {
   if (sheet) {
     sheet.offsetHeight;
     requestAnimationFrame(() => {
-      sheet.classList.remove('entering');
-      setTimeout(() => { sheet.style.willChange = 'auto'; }, 300);
+      sheet.classList.remove('entering'); // This will trigger the slide-up animation
+      setTimeout(() => { sheet.style.willChange = 'auto'; }, 300); // Clean up after animation
     });
-  }
-};
-
-window.tutupPopupPinjaman = () => {
-  const popup = $('pinjamanPopup');
-  const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) {
-    sheet.style.willChange = 'transform';
-    sheet.classList.add('entering');
-    setTimeout(() => {
-      popup.classList.remove('active');
-      sheet.classList.remove('entering');
-      sheet.style.willChange = 'auto';
-    }, 250);
-  } else {
-    popup.classList.remove('active');
   }
 };
 
@@ -6679,21 +2389,24 @@ window.simpanPinjaman = async () => {
   showLoading('Menyimpan...');
   
   try {
-    for (const item of items) {
-      await sbInsert(sbTable(db, COL.pinjaman), {
+    const dataToInsert = items.map(item => ({
+      id: _genId(),
+      data: {
         tanggal: fmtTgl(new Date()),
         tanggalISO: new Date().toISOString().slice(0, 10),
         nama: item.nama,
         jenis: item.jenis,
         nominal: item.nominal,
         waktu: sbTimestamp()
-      });
-    }
+      }
+    }));
+    const { error } = await sb.from(COL.pinjaman).insert(dataToInsert);
+    if (error) throw error;
 
     _pinDraftList = [];
     btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i><span>Simpan Pinjaman</span>';
     showToast(items.length > 1 ? `✅ ${items.length} pinjaman tersimpan!` : '✅ Pinjaman tersimpan!');
-    tutupPopupPinjaman();
+    tutupPopup('pinjamanPopup');
     
   } catch (e) {
     showToast('❌ Gagal: ' + e.message);
@@ -6702,42 +2415,6 @@ window.simpanPinjaman = async () => {
   } finally {
     hideLoading();
   }
-};
-
-// ===== NUMPAD PINJAMAN =====
-
-window.bukaNumpad = (target) => {
-  _numpadTarget = target;
-  _numpadValue = $('pin_nominal').value || '';
-  
-  $('numpadLabel').textContent = 'Jumlah Pinjaman';
-  $('numpadDisplay').textContent = _numpadValue ? fmt(parseInt(_numpadValue)) : '0';
-  
-  $('numpadOverlay').classList.add('active');
-};
-
-window.numpadInput = (digit) => {
-  if (_numpadValue.length >= 12) return; // Max 12 digit
-  _numpadValue += digit;
-  $('numpadDisplay').textContent = fmt(parseInt(_numpadValue));
-};
-
-window.numpadBackspace = () => {
-  _numpadValue = _numpadValue.slice(0, -1);
-  $('numpadDisplay').textContent = _numpadValue ? fmt(parseInt(_numpadValue)) : '0';
-};
-
-window.numpadConfirm = () => {
-  const val = parseInt(_numpadValue) || 0;
-  $('pin_nominal').value = val;
-  $('pin_nominal_display').value = val > 0 ? 'Rp ' + fmt(val) : '';
-  cekSimpanPin();
-  tutupNumpad();
-};
-
-window.tutupNumpad = () => {
-  $('numpadOverlay').classList.remove('active');
-  _numpadValue = '';
 };
 
 // ===== NUMPAD GENERAL (editNominalInput, ep_nominal, tamItem) =====
@@ -6753,13 +2430,13 @@ window.bukaNumpadGen = (label, initialVal, onConfirm) => {
   $('numpadGenOverlay').classList.add('active');
 };
 
-window.numpadGenInput = (digit) => {
+window.numpadInput = (digit) => {
   if (_numpadGenValue.length >= 12) return;
   _numpadGenValue += digit;
-  $('numpadGenDisplay').textContent = fmt(parseInt(_numpadGenValue));
+  $('numpadGenDisplay').textContent = _numpadGenValue ? fmt(parseInt(_numpadGenValue)) : '0';
 };
 
-window.numpadGenBackspace = () => {
+window.numpadBackspace = () => {
   _numpadGenValue = _numpadGenValue.slice(0, -1);
   $('numpadGenDisplay').textContent = _numpadGenValue ? fmt(parseInt(_numpadGenValue)) : '0';
 };
@@ -6776,6 +2453,25 @@ window.tutupNumpadGen = () => {
   _numpadGenOnConfirm = null;
 };
 
+// Trigger: Input Qty
+window.bukaNumpadQty = (target) => {
+  const initialVal = (target === 'input') ? ($('inp_qty').value || '') : ($('edit_qty_val').value || '');
+  const label = (target === 'input') ? 'Qty' : 'Qty Baru';
+  bukaNumpadGen(label, initialVal, (val) => {
+    if (target === 'input') {
+      $('inp_qty').value = val || '';
+      $('inp_qty_display').value = val > 0 ? val : '';
+      $('inp_qty_display').style.color = val > 0 ? '#1A2340' : '#7B8DB0';
+      if (val < 1) { showToast('⚠ QTY minimal 1!'); }
+      onInpQty();
+    } else if (target === 'edit') {
+      $('edit_qty_val').value = val || '';
+      $('edit_qty_display').value = val > 0 ? val : '';
+      bukaPopup('editQtyPopup');
+    }
+  });
+};
+
 // Trigger: Edit Nominal Bayar
 window.bukaNumpadGenEditNominal = () => {
   const cur = parseInt($('editNominalInput').value) || 0;
@@ -6788,12 +2484,33 @@ window.bukaNumpadGenEditNominal = () => {
   });
 };
 
+// Trigger: Pinjaman
+window.bukaNumpadPinjaman = () => {
+  const cur = parseInt($('pin_nominal').value) || 0;
+  bukaNumpadGen('Jumlah Pinjaman', cur > 0 ? String(cur) : '', (val) => {
+    $('pin_nominal').value = val;
+    $('pin_nominal_display').value = val > 0 ? 'Rp ' + fmt(val) : '';
+    cekSimpanPin();
+  });
+};
+
 // Trigger: Edit Pinjaman nominal
 window.bukaNumpadGenEpNominal = () => {
   const cur = parseInt(document.getElementById('ep_nominal').value) || 0;
   bukaNumpadGen('Nominal Pinjaman', cur > 0 ? String(cur) : '', (val) => {
     document.getElementById('ep_nominal').value = val;
     document.getElementById('ep_nominal_display').value = val > 0 ? 'Rp ' + fmt(val) : '';
+  });
+};
+
+// Trigger: Bayar Pinjaman
+window.bukaNumpadBayar = (index, maxVal) => {
+  const cur = parseInt($('bayar_input_' + index).value) || 0;
+  const jenis = _bayarJenisData[index]?.jenis || 'Bayar';
+  bukaNumpadGen(jenis, cur > 0 ? String(cur) : '', (val) => {
+    $('bayar_input_' + index).value = val;
+    $('bayar_input_display_' + index).value = val > 0 ? 'Rp ' + fmt(val) : '';
+    onBayarJenisInput(index, maxVal);
   });
 };
 
@@ -7056,8 +2773,9 @@ window.simpanBayar = async () => {
   btn.disabled = true;
   
   try {
-    for (const b of toBayar) {
-      await sbInsert(sbTable(db, COL.bayar), {
+    const dataToInsert = toBayar.map(b => ({
+      id: _genId(),
+      data: {
         tanggal: fmtTgl(new Date()),
         tanggalISO: new Date().toISOString().slice(0, 10),
         nama,
@@ -7066,8 +2784,10 @@ window.simpanBayar = async () => {
         bayar: b.bayar,
         luarGaji: _bayarLuarGaji,
         waktu: sbTimestamp()
-      });
-    }
+      }
+    }));
+    const { error } = await sb.from(COL.bayar).insert(dataToInsert);
+    if (error) throw error;
     
     showToast('✅ Pembayaran tersimpan!');
     tutupPopupBayar();
@@ -7703,7 +3423,10 @@ window.tutupNumpadBayar = () => {
         return;
       }
       const items = getListData();
-      if(!items.length) { bodyEl.innerHTML = '<div style="color:var(--muted);text-align:center;padding:16px;font-size:13px">Belum ada data</div>'; return; }
+      if(!items.length) { 
+        bodyEl.innerHTML = `<div class="empty-state-box" style="padding:16px;"><i class="fa-solid fa-box-open"></i><div class="empty-state-box-text">Belum ada data</div></div>`; 
+        return; 
+      }
       bodyEl.innerHTML = items.map((item,i) => `<div class="list-item"><span class="list-item-name">${item}</span><button class="list-item-del" onclick="hapusListItem(${i})">Hapus</button></div>`).join('');
     }
 
@@ -7812,9 +3535,9 @@ window.tutupNumpadBayar = () => {
   
   if (!rows.length) {
     container.innerHTML = `
-      <div class="rekap-empty">
+      <div class="empty-state-box">
         <i class="fa-solid fa-inbox"></i>
-        <div class="rekap-empty-text">Belum ada data untuk periode ini</div>
+        <div class="empty-state-box-text">Belum ada data untuk periode ini</div>
       </div>
     `;
     return;
@@ -8201,7 +3924,7 @@ window.toggleCheckAllRekap = function(cb) {
   const rows = filter ? rekapPinRows.filter(r => r.nama.toLowerCase().includes(filter.toLowerCase())) : rekapPinRows;
   
   if(!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);padding:20px;font-size:13px">Tidak ada pinjaman aktif</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state-box"><i class="fa-solid fa-check-circle"></i><div class="empty-state-box-text">Tidak ada pinjaman aktif</div></div></td></tr>`;
     return;
   }
   
@@ -8255,9 +3978,9 @@ window.bukaEditBayar = (nama) => {
   
   if (!bayarList.length) {
     // Belum ada pembayaran — tampilkan empty state
-    html += `<div class="edit-bayar-empty">
+    html += `<div class="empty-state-box">
       <i class="fa-solid fa-receipt"></i>
-      <div class="edit-bayar-empty-text">Belum ada pembayaran untuk diedit</div>
+      <div class="empty-state-box-text">Belum ada pembayaran untuk diedit</div>
     </div>`;
   } else {
     // List pembayaran — HANYA Edit Nominal
@@ -8518,7 +4241,7 @@ window.hapusBayar = async (id) => {
       const items = allItems.filter(t => !t.bagian || t.bagian === bagian || bagian === '');
       const container = $('tamItemRows');
       const emptyMsg = $('tamEmptyMsg');
-      if(!items.length) { container.innerHTML = ''; emptyMsg.style.display = 'block'; }
+      if(!items.length) { container.innerHTML = ''; emptyMsg.style.display = 'block'; emptyMsg.innerHTML = `<div class="empty-state-box"><i class="fa-solid fa-circle-info"></i><div class="empty-state-box-text">Tidak ada item tambahan untuk bagian ini.<br><span style="font-size:11px;font-weight:500;">Tambahkan di menu <b>Harga → Tambahan</b>.</span></div></div>`; }
       else {
         emptyMsg.style.display = 'none';
         window._tamValues = {};
@@ -8848,77 +4571,15 @@ window.hapusBayar = async (id) => {
     window.tutupSlip = () => $('slipPopup').classList.remove('active');
 
     window.cetakSlip = () => {
-  const nama = $('slipNama').textContent;
-  const bagian = $('slipBagian').textContent;
-  const periode = $('slipPeriode').textContent;
-  
-  // Ambil data dari elemen slip popup yang baru
-  const dari = _getISO('rekapMulai');
-  const sampai = _getISO('rekapAkhir');
-  const data = getRincianLocal(nama, dari, sampai);
-  
-  // Build rows HTML dari slip popup yang sudah di-render
-  const pekerjaanList = $('slipPekerjaanList');
-  const rows = pekerjaanList ? pekerjaanList.innerHTML : '';
-  
-  const subtot = $('slipSubPekerjaan').textContent;
-  const totalBersih = $('slipTotalBersih').textContent;
-  
-  // Ambil tambahan
-  const tam = _rcTambahan[nama];
-  let tamHTMLCetak = '';
-  let tamTotal = 0;
-  if(tam) {
-    const _tamFromItems = tam.items ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
-    tamTotal = tam.total > 0 ? tam.total : _tamFromItems;
-    if(tamTotal > 0 && tam.items) {
-      Object.values(tam.items).forEach(it => {
-        const jumlahIt = it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0);
-        if(jumlahIt > 0) { 
-          tamHTMLCetak += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} ${(it.satuan||'HARI').toLowerCase()})</span><span>+ ${fmt(jumlahIt)}</span></div>`; 
-        } 
-      });
-    }
-    if(tamTotal > 0 && !tamHTMLCetak) tamHTMLCetak = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
-  }
-  
-  // Ambil potongan
-  const allBayar = _CACHE.bayar.filter(b => {
-    if(b.nama !== nama) return false;
-    if(b.luarGaji) return false;
-    if(dari && b.tanggalISO < dari) return false;
-    if(sampai && b.tanggalISO > sampai) return false;
-    return true;
-  });
-  
-  let pinjHTMLCetak = '';
-  const pinjamanMap = {};
-  allBayar.forEach(b => { 
-    const jenis = b.jenisPinjaman || 'Pinjaman'; 
-    if(!pinjamanMap[jenis]) pinjamanMap[jenis] = 0; 
-    pinjamanMap[jenis] += (b.bayar || 0); 
-  });
-  Object.entries(pinjamanMap).forEach(([jenis, jumlah]) => { 
-    pinjHTMLCetak += `<div class="pt-detail"><span>${jenis}</span><span>- ${fmt(jumlah)}</span></div>`; 
-  });
-  
-  const totalPotongan = allBayar.reduce((s,b) => s+(b.bayar||0), 0);
-  const totalKotor = data.subtotal + tamTotal;
-  const totalBersihVal = totalKotor - totalPotongan;
-  const subKotorHTML = totalPotongan > 0 ? `<div class="ln sub" style="background:#EEF2FF;border-top:none;margin-top:2px;padding:5px 4px;border-radius:4px;"><span>Subtotal (Sebelum Potongan)</span><span>${fmt(totalKotor)}</span></div>` : '';
-  
-  const html = _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTMLCetak, 'Rp ' + fmt(totalBersihVal), tamHTMLCetak, tamTotal, pinjHTMLCetak, subKotorHTML);
-  _cetakSlipInPage(html);
+      // Dengan @media print, kita hanya perlu memanggil window.print()
+      // Browser akan otomatis menerapkan gaya dari #print-style
+      window.print();
 };
 
     // Stub awal agar _printMassalViaWindow tersedia sebelum cetakMassal dipanggil
     window._printMassalViaWindow = function() { showToast('Buka Rekap dan pilih pegawai dulu'); };
 
     window.cetakMassal = () => {
-  const _oldSlipStyle = document.getElementById('_printSlipStyle');
-  if(_oldSlipStyle) _oldSlipStyle.remove();
-  const _oldSlipOverlay = document.getElementById('_printSlipOverlay');
-  if(_oldSlipOverlay) _oldSlipOverlay.remove();
   
   const checkboxes = document.querySelectorAll('.row-check-rekap:checked');
   if(!checkboxes.length){ showToast('Pilih minimal satu pegawai!'); return; }
@@ -8926,126 +4587,42 @@ window.hapusBayar = async (id) => {
   const dari=_getISO('rekapMulai'), sampai=_getISO('rekapAkhir');
   let htmlGabungan='';
   
-  for(const cb of checkboxes) {
-    const nama=cb.value;
-    if(!nama || nama==='-' || nama.trim()==='') continue;
-    
-    const data=getRincianLocal(nama, dari, sampai);
-    const _cekBayar = _CACHE.bayar.some(b => b.nama===nama && !b.luarGaji && (!dari||b.tanggalISO>=dari) && (!sampai||b.tanggalISO<=sampai));
-    const _cekTam = _rcTambahan[nama] && (_rcTambahan[nama].total||0) > 0;
-    
-    if(!data.items.length && !_cekBayar && !_cekTam) continue;
-    
-    // Build rows dengan format baru (sama seperti bukaSlipGaji)
-    let rowsHTML = '';
-    if(data.items.length > 0) {
-      const merged = {};
-      data.items.forEach(r => {
-        const key = (r.jenis || '-') + '||' + (r.harga || 0);
-        if(!merged[key]) merged[key] = { jenis: r.jenis, harga: r.harga, qty: 0, jumlah: 0 };
-        merged[key].qty += (r.qty || 0);
-        merged[key].jumlah += (r.jumlah || 0);
-      });
-      rowsHTML = Object.values(merged).map(r => 
-        `<tr><td style="text-align:left;padding-left:4px;">${r.jenis||'-'}</td><td>${r.qty||0}</td><td>${fmt(r.harga)}</td><td>${fmt(r.jumlah)}</td></tr>`
-      ).join('');
-    }
-    
-    const tam = _rcTambahan[nama];
-    let tamTotal = 0;
-    let tamHTMLMassal = '';
-    if(tam) {
-      const _tamFromItemsMassal = tam.items ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
-      tamTotal = tam.total > 0 ? tam.total : _tamFromItemsMassal;
-      if(tamTotal > 0 && tam.items) {
-        Object.values(tam.items).forEach(it => {
-          const jumlahIt = it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0);
-          if(jumlahIt > 0) { 
-            tamHTMLMassal += `<div class="ln grn"><span>↳ ${it.jenis} (${it.qty} ${(it.satuan||'HARI').toLowerCase()})</span><span>+ ${fmt(jumlahIt)}</span></div>`; 
-          } 
-        });
-      }
-      if(tamTotal > 0 && !tamHTMLMassal) tamHTMLMassal = `<div class="ln grn"><span>+ Tambahan</span><span>+ ${fmt(tamTotal)}</span></div>`;
-    }
-    
-    const bayarItems = _CACHE.bayar.filter(b => { 
-      if(b.nama!==nama) return false; 
-      if(b.luarGaji) return false;
-      if(dari && b.tanggalISO < dari) return false; 
-      if(sampai && b.tanggalISO > sampai) return false; 
-      return true; 
-    });
-    
-    const pinjamanMap = {};
-    bayarItems.forEach(b => { 
-      const jenis = b.jenisPinjaman || 'Pinjaman'; 
-      if(!pinjamanMap[jenis]) pinjamanMap[jenis] = 0; 
-      pinjamanMap[jenis] += (b.bayar || 0); 
-    });
-    
-    let pinjDetailHTML = '';
-    Object.entries(pinjamanMap).forEach(([jenis, jumlah]) => { 
-      pinjDetailHTML += `<div class="ln pt-detail"><span>↳ ${jenis}</span><span>- ${fmt(jumlah)}</span></div>`; 
-    });
-    
-    const _totalPotonganMassal = bayarItems.reduce((s,b) => s+(b.bayar||0), 0);
-    const totalKotorMassal = data.subtotal + tamTotal;
-    const totalBersih = totalKotorMassal - _totalPotonganMassal;
-    const subKotorHTMLMassal = _totalPotonganMassal > 0 ? `<div class="ln sub" style="background:#EEF2FF;border-top:none;margin-top:2px;padding:5px 4px;border-radius:4px;"><span>Subtotal (Sebelum Potongan)</span><span>${fmt(totalKotorMassal)}</span></div>` : '';
-    
-    htmlGabungan += `<div class="slip-page"><div id="root-${nama.replace(/[^a-zA-Z0-9]/g,'_')}" class="slip-inner">
-      <div class="hd"><div class="hd-left"><div class="co">Slip Gaji</div><div class="nm">${nama}</div></div><div class="hd-right"><img src="LOGORD.png" class="hd-logo" alt="Radja Production" onerror="this.style.display='none'"><div class="bg">${data.bagian||'-'}</div></div></div>
-      <hr class="divider"><div class="pr">Periode: ${_tgl.rekapMulai||'--'} — ${_tgl.rekapAkhir||'--'}</div>
-      <table><thead><tr><th>PEKERJAAN</th><th>QTY</th><th>HARGA</th><th>JUMLAH</th></tr></thead><tbody>${rowsHTML}</tbody></table>
-      <div class="ln sub"><span>Pendapatan Kotor</span><span>${fmt(data.subtotal)}</span></div>
-      ${tamHTMLMassal}${subKotorHTMLMassal}${pinjDetailHTML}
-      <div class="ln tot"><span>Total Bersih</span><span>${fmt(totalBersih)}</span></div>
-    </div></div>`;
+  // Alih-alih membuat HTML baru, kita akan mengkloning slip yang ada
+  // dan menampilkannya di overlay cetak.
+  const slipTemplate = $('slipBox');
+  if (!slipTemplate) {
+    showToast('❌ Template slip tidak ditemukan!');
+    return;
   }
   
-  if(!htmlGabungan){ showToast('Tidak ada data untuk dicetak!'); return; }
+  const slipContainer = document.createElement('div');
+  slipContainer.style.cssText = 'flex:1;overflow-y:auto;padding:16px;width:100%;display:flex;flex-direction:column;align-items:center;';
   
-  // CSS untuk cetak massal
-  const _massalCSS = [
-    '* { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }',
-    "body { font-family:'Plus Jakarta Sans',sans-serif; background:#f0f0f0; color:#1A1A1A; }",
-    '.slip-page { width:396px; height:558px; margin:8px auto; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,.15); overflow:hidden; position:relative; break-inside:avoid; page-break-inside:avoid; flex-shrink:0; }',
-    '.slip-inner { width:396px; padding:5mm 4mm 4mm; box-sizing:border-box; background:#ffffff; position:static; }',
-    '.hd { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:6px; }',
-    '.hd-left { flex:1; min-width:0; }',
-    '.hd-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; max-width:90px; }',
-    '.hd-logo { height:22px; width:auto; object-fit:contain; display:block; }',
-    '.co { font-size:7px; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }',
-    '.nm { font-size:19px; font-weight:900; line-height:1; letter-spacing:-.02em; color:#111; }',
-    '.bg { text-align:right; font-size:7.5px; font-weight:800; color:#1A2A8C; text-transform:uppercase; letter-spacing:.05em; line-height:1.4; }',
-    '.divider { border:none; border-top:1.5px solid #1A2A8C; margin:5px 0; opacity:.6; }',
-    '.pr { font-size:6.5px; color:#888; margin-bottom:7px; text-transform:uppercase; font-weight:600; letter-spacing:.05em; }',
-    'table { width:100%; border-collapse:collapse; margin-bottom:6px; }',
-    'thead tr { background:#1A2A8C !important; }',
-    'th { padding:4px 3px; font-size:6px; font-weight:800; text-align:center; color:#fff !important; background:#1A2A8C !important; letter-spacing:.06em; text-transform:uppercase; }',
-    'td { padding:4px 3px; border-bottom:1px solid #e5e5e5; text-align:center; font-size:7px; color:#222; }',
-    'td:first-child { text-align:left; padding-left:4px; }',
-    '.ln { display:flex; justify-content:space-between; padding:3px 0; font-size:7.5px; font-weight:600; color:#555; }',
-    '.pt-detail { color:#DC2626; font-weight:600; font-size:7px; display:flex; justify-content:space-between; padding:2px 0 2px 8px; }',
-    '.grn { color:#059669; font-size:7px; padding:2px 0 2px 8px; }',
-    '.sub { color:#1A1A1A; font-weight:800; border-top:1px solid #ddd; padding-top:5px; margin-top:3px; font-size:8px; }',
-    '.tot { color:#1A2A8C !important; font-size:11px; font-weight:900; border-top:2px solid #1A2A8C !important; margin-top:5px; padding-top:7px; }',
-    '.print-btn-bar { text-align:center; padding:14px 20px; background:#1A1A1A; position:sticky; bottom:0; z-index:999; box-shadow:0 -2px 12px rgba(0,0,0,.5); width:100%; display:flex; justify-content:center; gap:10px; }',
-    ".print-btn-bar button { background:#1A2A8C; color:#fff; border:none; border-radius:12px; padding:12px 32px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; }"
-  ].join('\n');
-  
+  checkboxes.forEach(cb => {
+    const nama = cb.value;
+    bukaSlipGaji(nama); // Buka slip untuk mengisi data
+    const slipClone = slipTemplate.cloneNode(true);
+    slipClone.style.marginBottom = '16px';
+    slipClone.style.pageBreakAfter = 'always';
+    slipContainer.appendChild(slipClone);
+  });
+  tutupSlip(); // Tutup popup slip yang terakhir dibuka
+
+  if (!slipContainer.hasChildNodes()) {
+    showToast('Tidak ada data untuk dicetak!');
+    return;
+  }
+
   const overlayId = '_printMassalOverlay';
   let overlay = document.getElementById(overlayId);
   if(overlay) overlay.remove();
   
   const printStyleId = '_printMassalStyle';
-  let existingPrintStyle = document.getElementById(printStyleId);
-  if(existingPrintStyle) existingPrintStyle.remove();
+  document.getElementById(printStyleId)?.remove();
   
   const printStyleEl = document.createElement('style');
   printStyleEl.id = printStyleId;
   const _printMediaCSS = `
-#_printMassalOverlay { font-family:'Plus Jakarta Sans',sans-serif; }
 @media print {
   html, body { background:white!important; overflow:visible!important; height:auto!important; margin:0!important; padding:0!important; }
   body > * { display:none!important; }
@@ -9053,16 +4630,10 @@ window.hapusBayar = async (id) => {
   .print-btn-bar, ._pm-bar { display:none!important; }
   .slip-page {
     box-shadow:none!important; margin:0!important; padding:0!important;
-    page-break-after:always!important; break-after:page!important;
-    page-break-inside:avoid!important; break-inside:avoid!important;
-    width:105mm!important; height:140mm!important;
-    overflow:hidden!important; position:relative!important;
+    width:100%!important;
   }
-  .slip-inner {
-    position:static!important;
-    width:105mm!important;
-    max-height:140mm!important;
-    overflow:hidden!important;
+  .slip-box {
+    page-break-after: always;
   }
   .slip-page[data-last-slip], #_lastSlipPage { page-break-after:avoid!important; break-after:avoid!important; }
   #_printMassalOverlay > div { display:block!important; margin:0!important; padding:0!important; }
@@ -9093,13 +4664,8 @@ window.hapusBayar = async (id) => {
     window.removeEventListener('afterprint', _apM);
     window.removeEventListener('beforeprint', _scaleSlips);
   });
-  
   bar.appendChild(btnCetak);
   bar.appendChild(btnTutup);
-  
-  const slipContainer = document.createElement('div');
-  slipContainer.style.cssText = 'flex:1;overflow-y:auto;padding:16px;width:100%;display:flex;flex-direction:column;align-items:center;';
-  slipContainer.innerHTML = htmlGabungan;
   
   overlay.appendChild(slipContainer);
   overlay.appendChild(bar);
@@ -9116,119 +4682,8 @@ window.hapusBayar = async (id) => {
   window.addEventListener('beforeprint', _bpM);
   window.addEventListener('afterprint', _apM);
   
-  // A6 @ 96dpi = 396x558px
-  const _A6W = 396, _A6H = 518; // buffer lebih lega dari tinggi A6 asli (558px) biar gak ada yang kepotong
-  function _scaleSlips() {
-    overlay.querySelectorAll('.slip-page').forEach(page => {
-      const inner = page.querySelector('.slip-inner');
-      if (!inner) return;
-      // Reset dulu biar bisa ukur natural
-      inner.style.zoom = 1;
-      inner.style.width = _A6W + 'px';
-      const natH = inner.offsetHeight;
-      const natW = inner.offsetWidth;
-      const sH = natH > _A6H ? (_A6H / natH) : 1;
-      const sW = natW > _A6W ? (_A6W / natW) : 1;
-      const s = Math.min(sH, sW);
-      if (s < 1) {
-        inner.style.zoom = s;
-      }
-    });
-  }
-  // Jalankan setelah font & layout render. Tunggu font benar-benar siap
-  // (kalau diukur sebelum font custom selesai load, tinggi konten bisa
-  // keukur lebih kecil dari aslinya -> zoom kurang agresif -> kepotong).
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => setTimeout(_scaleSlips, 100));
-  } else {
-    setTimeout(_scaleSlips, 300);
-  }
-  // Ukur ulang tepat sebelum cetak, sebagai jaring pengaman terakhir
-  window.addEventListener('beforeprint', _scaleSlips);
   // Keluar mode pilih setelah cetak
   batalModePilih();
-
-  window._printMassalViaWindow = function() {
-    const pages = overlay.querySelectorAll('.slip-page');
-    if (!pages.length) return;
-
-    // Ambil innerHTML slip-inner tanpa inline transform (reset dulu)
-    let slipHTMLs = [];
-    pages.forEach(page => {
-      const inner = page.querySelector('.slip-inner');
-      if (!inner) return;
-      // Clone dan hapus inline style transform agar di print window bisa diukur ulang
-      const clone = inner.cloneNode(true);
-      clone.style.transform = '';
-      clone.style.width = '';
-      clone.style.position = '';
-      clone.style.top = '';
-      clone.style.left = '';
-      slipHTMLs.push(clone.outerHTML);
-    });
-
-    const pw = window.open('', '_blank');
-    if (!pw) { showToast('Popup diblokir browser, izinkan popup!'); return; }
-
-    // mm ke px @96dpi
-    const mm = v => Math.round(v * 96 / 25.4);
-    const PW = mm(99), PH = mm(142); // usable area
-
-    const _css = `
-      * { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-      html, body { width:105mm; background:#fff; font-family:'Plus Jakarta Sans',sans-serif; }
-      @page { size:105mm 148mm; margin:0mm 3mm; }
-      .slip-wrap {
-        width:105mm; height:148mm;
-        overflow:hidden;
-        display:block;
-      }
-      .slip-inner { display:block; transform-origin:top left; }
-      .hd { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:6px; }
-      .hd-left { flex:1; min-width:0; }
-      .hd-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; max-width:90px; }
-      .co { font-size:7px; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
-      .nm { font-size:19px; font-weight:900; line-height:1; letter-spacing:-.02em; color:#111; }
-      .bg { text-align:right; font-size:7.5px; font-weight:800; color:#1A2A8C; text-transform:uppercase; letter-spacing:.05em; line-height:1.4; }
-      .divider { border:none; border-top:1.5px solid #1A2A8C; margin:5px 0; opacity:.6; }
-      .pr { font-size:6.5px; color:#888; margin-bottom:7px; text-transform:uppercase; font-weight:600; letter-spacing:.05em; }
-      table { width:100%; border-collapse:collapse; margin-bottom:6px; }
-      thead tr { background:#1A2A8C !important; }
-      th { padding:4px 3px; font-size:6px; font-weight:800; text-align:center; color:#fff !important; letter-spacing:.06em; text-transform:uppercase; }
-      td { padding:4px 3px; border-bottom:1px solid #e5e5e5; text-align:center; font-size:7px; color:#222; }
-      td:first-child { text-align:left; padding-left:4px; }
-      .ln { display:flex; justify-content:space-between; padding:3px 0; font-size:7.5px; font-weight:600; color:#555; }
-      .pt-detail { color:#DC2626; font-weight:600; font-size:7px; display:flex; justify-content:space-between; padding:2px 0 2px 8px; }
-      .grn { color:#059669; font-size:7px; padding:2px 0 2px 8px; display:flex; justify-content:space-between; }
-      .sub { color:#1A1A1A; font-weight:800; border-top:1px solid #ddd; padding-top:5px; margin-top:3px; font-size:8px; }
-      .tot { color:#1A2A8C !important; font-size:11px; font-weight:900; border-top:2px solid #1A2A8C !important; margin-top:5px; padding-top:7px; display:flex; justify-content:space-between; }
-    `;
-
-    const bodyHTML = slipHTMLs.map((html, i) =>
-      `<div class="slip-wrap" ${i===slipHTMLs.length-1?'style="page-break-after:avoid"':''}>${html}</div>`
-    ).join('');
-
-    pw.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="UTF-8">
-      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-      <style>${_css}</style>
-    </head><body>${bodyHTML}</body></html>`);
-    pw.document.close();
-
-    pw.addEventListener('load', function() {
-      // Scale tiap inner agar muat dalam PW x PH
-      pw.document.querySelectorAll('.slip-inner').forEach(inner => {
-        inner.style.width = PW + 'px';
-        const h = inner.scrollHeight;
-        if (h > PH) {
-          const s = PH / h;
-          inner.style.transform = 'scale(' + s + ')';
-          inner.style.transformOrigin = 'top left';
-        }
-      });
-      setTimeout(() => pw.print(), 600);
-    });
-  };
 };
 
     const _slipAutoShrinkScript = `<script>(function(){
@@ -9248,101 +4703,6 @@ window.hapusBayar = async (id) => {
       });
       window.addEventListener('beforeprint',fit);
     })();<\/script>`;
-
-function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tambahanHTML, tamTotal, pinjDetail, subKotorHTML) {
-      let pinjDetailHTML = pinjDetail || '';
-      let subKotorLn = subKotorHTML || '';
-      let tamHTML = tambahanHTML || '';
-      return `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Slip - ${nama}</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root { --primary: #1A2A8C; }
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  html, body { width:100%; background:#ffffff; color:#1A1A1A; font-family:'Plus Jakarta Sans',sans-serif; }
-  #slip-root { width:97mm; max-width:100%; padding:5mm 4mm 4mm; box-sizing:border-box; transform-origin:top left; margin:0 auto; background:#ffffff; overflow:hidden; }
-  .hd { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:6px; }
-  .hd-left { flex:1; min-width:0; }
-  .hd-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; max-width:90px; }
-  .hd-logo { height:22px; width:auto; object-fit:contain; display:block; }
-  .co { font-size:7px; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
-  .nm { font-size:19px; font-weight:900; line-height:1; letter-spacing:-.02em; color:#111; }
-  .bg { text-align:right; font-size:7.5px; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:.05em; line-height:1.4; }
-  .divider { border:none; border-top:1.5px solid var(--primary); margin:5px 0; opacity:.6; }
-  .pr { font-size:6.5px; color:#888; margin-bottom:7px; text-transform:uppercase; font-weight:600; letter-spacing:.05em; }
-  table { width:100%; border-collapse:collapse; margin-bottom:6px; }
-  thead tr { background:var(--primary) !important; }
-  th { padding:4px 3px; font-size:6px; font-weight:800; text-align:center; color:#fff !important; background:var(--primary) !important; letter-spacing:.06em; text-transform:uppercase; }
-  td { padding:4px 3px; border-bottom:1px solid #e5e5e5; text-align:center; font-size:7px; color:#222; }
-  td:first-child { text-align:left; padding-left:4px; }
-  tr:last-child td { border-bottom:none; }
-  .ln { display:flex; justify-content:space-between; padding:3px 0; font-size:7.5px; font-weight:600; color:#555; }
-  .pt { color:#DC2626; }
-  .pt-detail { color:#DC2626; font-weight:600; font-size:7px; display:flex; justify-content:space-between; padding:2px 0 2px 8px; }
-  .grn { color:#059669; font-size:7px; padding:2px 0 2px 8px; }
-  .sub { color:#1A1A1A; font-weight:800; border-top:1px solid #ddd; padding-top:5px; margin-top:3px; font-size:8px; }
-  .tot { color:var(--primary) !important; font-size:11px; font-weight:900; border-top:2px solid var(--primary) !important; margin-top:5px; padding-top:7px; }
-  @media print { @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; } html, body { width:100%; background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; } #slip-root { width:100%!important; max-width:100%!important; margin:0 auto; display:block; overflow:visible!important; } thead tr { background:var(--primary) !important; } th { color:#fff !important; background:var(--primary) !important; } .tot { color:var(--primary) !important; border-top-color:var(--primary) !important; } }
-</style></head>
-<body><div id="slip-root"><div class="hd"><div class="hd-left"><div class="co">Slip Gaji</div><div class="nm">${nama}</div></div><div class="hd-right"><img src="LOGORD.png" class="hd-logo" alt="Radja Production" onerror="this.style.display='none'"><div class="bg">${bagian}</div></div></div><hr class="divider"><div class="pr">${periode}</div><table><thead><tr><th>PEKERJAAN</th><th>QTY</th><th>HARGA</th><th>JUMLAH</th></tr></thead><tbody>${rows}</tbody></table><div class="ln sub"><span>Pendapatan Kotor</span><span>${subtot}</span></div>${tamHTML}${subKotorLn}${pinjDetailHTML}<div class="ln tot"><span>Total Bersih</span><span>${total}</span></div></div>${_slipAutoShrinkScript}</body></html>`;
-    }
-
-
-
-    function _cetakSlipInPage(html) {
-      const overlayId = '_printSlipOverlay';
-      const existing = document.getElementById(overlayId);
-      if(existing) existing.remove();
-      const existingPS = document.getElementById('_printSlipStyle');
-      if(existingPS) existingPS.remove();
-      const styleMatch = html.match(/<style>([\s\S]*?)<\/style>/);
-      const bodyMatch = html.match(/<body>([\s\S]*?)<\/body>/);
-      const styleCSS = styleMatch ? styleMatch[1] : '';
-      const bodyHTML = bodyMatch ? bodyMatch[1] : html;
-      const printStyleEl = document.createElement('style');
-      printStyleEl.id = '_printSlipStyle';
-      printStyleEl.textContent = styleCSS + '\n@media print {\n ._sp-bar { display:none!important; height:0!important; overflow:hidden!important; }\n html, body { background:transparent!important; overflow:visible!important; height:auto!important; margin:0!important; padding:0!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }\n body > * { display:none!important; }\n body > #_printSlipOverlay { display:block!important; position:static!important; padding:0!important; margin:0!important; overflow:visible!important; height:auto!important; width:100%!important; background:transparent!important; z-index:auto!important; }\n #slip-root { width:100%!important; max-width:100%!important; margin:0 auto!important; display:block!important; overflow:visible!important; }\n @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }\n}';
-      document.head.appendChild(printStyleEl);
-      const overlay = document.createElement('div');
-      overlay.id = overlayId;
-      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:#F0F8FF;display:flex;flex-direction:column;';
-      const bar = document.createElement('div');
-      bar.className = '_sp-bar';
-      bar.style.cssText = 'display:flex;gap:10px;flex-shrink:0;background:#1A2A3A;padding:14px 20px;width:100%;box-shadow:0 -2px 12px rgba(0,0,0,.3);order:2;justify-content:center;';
-      const btnCetakSlip = document.createElement('button');
-      btnCetakSlip.textContent = '🖨 Cetak';
-      btnCetakSlip.style.cssText = 'background:var(--primary);color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;';
-      btnCetakSlip.addEventListener('click', function() { window.print(); });
-      const btnTutupSlip = document.createElement('button');
-      btnTutupSlip.textContent = '✕ Tutup';
-      btnTutupSlip.style.cssText = 'background:#333333;color:#F5F0E8;border:none;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;';
-      btnTutupSlip.addEventListener('click', function() { 
-        overlay.remove(); 
-        const ps = document.getElementById('_printSlipStyle'); 
-        if(ps) ps.remove();
-        window.removeEventListener('beforeprint', _bpS);
-        window.removeEventListener('afterprint', _apS);
-        window._slipBpS = null;
-        window._slipApS = null;
-      });
-      bar.appendChild(btnCetakSlip);
-      bar.appendChild(btnTutupSlip);
-      const contentWrap = document.createElement('div');
-      contentWrap.style.cssText = 'flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;padding:16px;order:1;width:100%;';
-      contentWrap.insertAdjacentHTML('beforeend', bodyHTML);
-      overlay.appendChild(contentWrap);
-      overlay.appendChild(bar);
-      document.body.appendChild(overlay);
-      // Cleanup listener lama jika ada (cegah memory leak)
-      if(window._slipBpS) window.removeEventListener('beforeprint', window._slipBpS);
-      if(window._slipApS) window.removeEventListener('afterprint', window._slipApS);
-      const _bpS = () => { if(bar.parentNode) bar.parentNode.removeChild(bar); };
-      const _apS = () => { if(!overlay.contains(bar)) overlay.appendChild(bar); };
-      window._slipBpS = _bpS;
-      window._slipApS = _apS;
-      window.addEventListener('beforeprint', _bpS);
-      window.addEventListener('afterprint', _apS);
-    }
 
     function _mergeItemsForPrint(items) {
       const map = {};
@@ -9616,7 +4976,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       $('edit_qty_id').value = id;
       $('edit_qty_harga').value = harga;
       $('edit_qty_val').value = currentQty;
-      $('edit_qty_display').value = currentQty > 0 ? currentQty : '';
+      $('edit_qty_display').value = currentQty > 0 ? String(currentQty) : '';
       // Buka numpad langsung (popup Koreksi Qty belum ditampilkan) agar
       // tidak ada flash tampilan popup sebelum numpad muncul.
       bukaNumpadQty('edit');
@@ -10253,6 +5613,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     // ===== REGISTER SERVICE WORKER (PWA) =====
   </script>
 
+
   <script>
     // ===== PWA UPDATE DETECTOR =====
     (function () {
@@ -10334,6 +5695,43 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     })();
   </script>
 
+  <style id="print-style">
+    @media print {
+      /* 1. Sembunyikan semua elemen secara default saat mencetak */
+      body > *:not(#slipPopup) {
+        display: none !important;
+      }
+
+      /* 2. Tampilkan HANYA popup slip dan isinya */
+      #slipPopup, #slipPopup > div {
+        display: block !important;
+      }
+
+      /* 3. Atur ulang layout popup slip agar mengisi halaman cetak */
+      #slipPopup {
+        position: static !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 0 !important;
+        background: transparent !important;
+        overflow: visible !important;
+      }
+
+      #slipBox {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      /* 4. Sembunyikan tombol-tombol aksi di dalam slip */
+      #slipPopup > div > div:last-child {
+        display: none !important;
+      }
+    }
+  </style>
+
   <!-- PWA INSTALL MODAL -->
   <div id="pwaInstallModal">
     <div id="pwaInstallSheet">
@@ -10361,4 +5759,6 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
   </div>
 
 </body>
+</html>
+
 </html>
