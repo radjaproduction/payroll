@@ -10301,11 +10301,21 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       }
 
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
+        // updateViaCache:'none' -> WAJIB. Ini memastikan browser SELALU
+        // ambil byte sw.js terbaru langsung dari server saat register()/update()
+        // dipanggil, bukan dari HTTP cache browser. Tanpa ini, browser bisa
+        // menganggap sw.js "tidak berubah" padahal di server sudah beda,
+        // sehingga updatefound tidak pernah terpicu.
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
           .then(reg => {
             swReg = reg;
             console.log('SW registered:', reg.scope);
             watchForUpdate(reg);
+
+            // Langsung cek update begitu register selesai (jangan tunggu
+            // visibilitychange/interval pertama), supaya kalau ada versi
+            // baru, banner langsung muncul tanpa jeda.
+            reg.update().catch(() => {});
 
             // Cek update setiap kali admin BUKA/BALIK ke aplikasi (tab jadi visible lagi)
             document.addEventListener('visibilitychange', () => {
@@ -10314,8 +10324,8 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
               }
             });
 
-            // Cek juga tiap 15 menit selagi app dibuka lama (opsional, jaga-jaga)
-            setInterval(() => { swReg && swReg.update().catch(() => {}); }, 15 * 60 * 1000);
+            // Cek juga tiap 5 menit selagi app dibuka lama (opsional, jaga-jaga)
+            setInterval(() => { swReg && swReg.update().catch(() => {}); }, 5 * 60 * 1000);
           })
           .catch(err => console.error('SW registration failed:', err));
       });
