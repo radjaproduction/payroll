@@ -1,4 +1,4 @@
-const CACHE_NAME = "payroll-radja-v2";
+const CACHE_NAME = "payroll-radja-v3";
 
 const STATIC_ASSETS = [
   "./",
@@ -11,7 +11,25 @@ const STATIC_ASSETS = [
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(cache => {
+        // PENTING: jangan pakai cache.addAll() polos.
+        // addAll() itu all-or-nothing -- kalau SATU SAJA file di
+        // STATIC_ASSETS gagal di-fetch (404 / rename / dsb), SELURUH
+        // proses install gagal, SW baru jadi "redundant", dan admin
+        // tidak akan pernah lihat banner update sampai hapus cache manual.
+        // Dengan Promise.allSettled, kalau ada 1 file gagal, yang lain
+        // tetap ke-cache dan install tetap sukses.
+        return Promise.allSettled(
+          STATIC_ASSETS.map(url =>
+            fetch(url, { cache: "no-store" })
+              .then(res => {
+                if (res && res.ok) return cache.put(url, res);
+                console.warn("[SW] gagal cache asset (dilewati):", url, res && res.status);
+              })
+              .catch(err => console.warn("[SW] gagal fetch asset (dilewati):", url, err))
+          )
+        );
+      })
   );
 
   // TIDAK panggil self.skipWaiting() di sini.
@@ -83,7 +101,7 @@ self.addEventListener("fetch", event => {
 
   // HTML, CSS, JS
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: "no-store" })
       .then(response => {
 
         if (
