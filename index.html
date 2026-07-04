@@ -2212,7 +2212,7 @@
 .rekap-breakdown-row {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   font-size: 12px;
   font-weight: 700;
   color: var(--text);
@@ -2229,8 +2229,13 @@
   cursor: pointer;
   border-radius: 8px;
   margin: 0 -6px;
-  padding: 4px 6px;
+  padding: 10px 6px;
+  min-height: 40px;
   transition: background .15s;
+  border-bottom: 1px solid var(--border);
+}
+.rekap-breakdown-clickable:last-of-type {
+  border-bottom: none;
 }
 .rekap-breakdown-clickable:active {
   background: var(--bg2);
@@ -7884,7 +7889,7 @@ window.tutupNumpadBayar = () => {
       pekerjaanHTML = Object.values(_merged).map(it =>
         `<div class="rekap-breakdown-row rekap-breakdown-clickable" onclick="event.stopPropagation(); bukaDetailPekerjaan(${idx}, '${q0(it.jenis || '-')}', ${it.harga || 0})">
           <span>${it.jenis || '-'} <small>(${it.qty || 0} x Rp${fmt(it.harga)})</small></span>
-          <span>Rp ${fmt(it.jumlah)} <i class="fa-solid fa-chevron-right" style="font-size:9px;color:var(--muted);margin-left:6px;"></i></span>
+          <span style="display:flex;align-items:center;">Rp ${fmt(it.jumlah)} <i class="fa-solid fa-chevron-right" style="font-size:12px;color:var(--muted);margin-left:8px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></i></span>
         </div>`
       ).join('');
     }
