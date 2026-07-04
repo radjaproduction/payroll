@@ -14,7 +14,17 @@ self.addEventListener("install", event => {
       .then(cache => cache.addAll(STATIC_ASSETS))
   );
 
-  self.skipWaiting();
+  // TIDAK panggil self.skipWaiting() di sini.
+  // SW baru dibiarkan "waiting" sampai admin klik tombol Update di banner
+  // (lihat listener 'message' di bawah). Ini mencegah reload paksa
+  // saat admin sedang input data.
+});
+
+// Terima perintah dari halaman (klik tombol "Update" di banner)
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", event => {
