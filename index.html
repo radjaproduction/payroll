@@ -6043,7 +6043,13 @@
         btnRiwayat.classList.add('active');
         btnInput.classList.remove('active');
         const pageBodyEl = panelRiwayat.closest('.page-body');
-        if (pageBodyEl) pageBodyEl.scrollTop = 0;
+        if (pageBodyEl) {
+          pageBodyEl.scrollTop = 0;
+          // Kunci layar Riwayat agar tidak bisa digeser atas/bawah,
+          // karena kartu STATISTIK sudah didesain pas 1 layar penuh.
+          pageBodyEl.style.overflowY = 'hidden';
+          pageBodyEl.style.touchAction = 'none';
+        }
         refreshQuickStats();
         requestAnimationFrame(() => requestAnimationFrame(_sizeQsCard));
       } else {
@@ -6051,6 +6057,12 @@
         panelRiwayat.style.display = 'none';
         btnInput.classList.add('active');
         btnRiwayat.classList.remove('active');
+        // Tab Input tetap perlu bisa di-scroll (form-nya panjang)
+        const pageBodyEl = panelInput.closest('.page-body');
+        if (pageBodyEl) {
+          pageBodyEl.style.overflowY = 'auto';
+          pageBodyEl.style.touchAction = '';
+        }
       }
     };
 
