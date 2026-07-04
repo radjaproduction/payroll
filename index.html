@@ -4193,6 +4193,39 @@
       font-size: 13px; font-weight: 600;
       font-family: inherit; padding: 10px;
     }
+
+    /* ===== UPDATE BANNER ===== */
+    #appUpdateBanner {
+      position: fixed; left: 50%; bottom: -120px;
+      transform: translateX(-50%);
+      width: min(94vw, 420px);
+      background: linear-gradient(135deg, var(--primary3), var(--primary));
+      color: #fff; border-radius: 16px;
+      box-shadow: var(--shadow2);
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      z-index: 99999;
+      transition: bottom .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    #appUpdateBanner.show { bottom: 18px; }
+    #appUpdateBanner .aub-icon {
+      width: 36px; height: 36px; flex: 0 0 36px;
+      border-radius: 10px; background: rgba(255,255,255,.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    #appUpdateBanner .aub-text { flex: 1; min-width: 0; }
+    #appUpdateBanner .aub-title { font-size: 13px; font-weight: 800; line-height: 1.3; }
+    #appUpdateBanner .aub-sub { font-size: 11px; opacity: .85; margin-top: 1px; }
+    #appUpdateBanner .aub-btn {
+      flex: 0 0 auto; border: none; cursor: pointer;
+      background: #fff; color: var(--primary3);
+      font-size: 12px; font-weight: 800;
+      font-family: inherit; letter-spacing: .01em;
+      padding: 9px 14px; border-radius: 10px;
+      white-space: nowrap;
+    }
+    #appUpdateBanner .aub-btn:active { transform: scale(.96); }
   </style>
 </head>
 <body>
@@ -10204,13 +10237,74 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
   </script>
 
   <script>
-    if ('serviceWorker' in navigator) {
+    // ===== PWA UPDATE DETECTOR =====
+    (function () {
+      if (!('serviceWorker' in navigator)) return;
+
+      let swReg = null;
+      let refreshing = false; // cegah reload berkali-kali
+      const banner = document.getElementById('appUpdateBanner');
+      const updateBtn = document.getElementById('appUpdateBtn');
+
+      function showUpdateBanner() {
+        if (banner) banner.classList.add('show');
+      }
+
+      function activateUpdate() {
+        if (!swReg || !swReg.waiting) {
+          // fallback: kalau state waiting sudah hilang, reload biasa
+          window.location.reload();
+          return;
+        }
+        // Minta SW baru langsung aktif (skip menunggu semua tab lama tertutup)
+        swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      // Begitu SW baru selesai ambil alih kontrol -> reload sekali otomatis
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+
+      function watchForUpdate(reg) {
+        // Kalau saat register ternyata sudah ada SW yang nunggu (dari load sebelumnya)
+        if (reg.waiting) showUpdateBanner();
+
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            // 'installed' + sudah ada controller aktif = ini update, bukan install pertama kali
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateBanner();
+            }
+          });
+        });
+      }
+
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('SW registered:', reg.scope))
+          .then(reg => {
+            swReg = reg;
+            console.log('SW registered:', reg.scope);
+            watchForUpdate(reg);
+
+            // Cek update setiap kali admin BUKA/BALIK ke aplikasi (tab jadi visible lagi)
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState === 'visible' && swReg) {
+                swReg.update().catch(() => {});
+              }
+            });
+
+            // Cek juga tiap 15 menit selagi app dibuka lama (opsional, jaga-jaga)
+            setInterval(() => { swReg && swReg.update().catch(() => {}); }, 15 * 60 * 1000);
+          })
           .catch(err => console.error('SW registration failed:', err));
       });
-    }
+
+      if (updateBtn) updateBtn.addEventListener('click', activateUpdate);
+    })();
   </script>
 
   <!-- PWA INSTALL MODAL -->
@@ -10227,6 +10321,16 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       <button class="pwa-modal-btn-install" id="pwaInstallBtn"><i class="fa-solid fa-download"></i> &nbsp;Install Sekarang</button>
       <button class="pwa-modal-btn-skip" id="pwaSkipBtn">Nanti saja</button>
     </div>
+  </div>
+
+  <!-- UPDATE AVAILABLE BANNER -->
+  <div id="appUpdateBanner">
+    <div class="aub-icon"><i class="fa-solid fa-arrows-rotate"></i></div>
+    <div class="aub-text">
+      <div class="aub-title">Update tersedia</div>
+      <div class="aub-sub">Versi baru sudah siap dipakai</div>
+    </div>
+    <button class="aub-btn" id="appUpdateBtn">Update</button>
   </div>
 
 </body>
