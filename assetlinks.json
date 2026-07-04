@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.radjaproduction.payroll",
+      "sha256_cert_fingerprints": [
+        "1C:53:F8:E5:BF:8B:7B:81:1B:93:19:71:96:F7:F1:3E:F6:6F:1C:DB:E2:74:BA:54:21:68:57:64:F8:03:2C:C6"
+      ]
+    }
+  }
+]
