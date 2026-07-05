@@ -1,4 +1,4 @@
-const CACHE_NAME = "payroll-radja-v3.0.1";
+const CACHE_NAME = "payroll-radja-v3.0.2";
 
 const STATIC_ASSETS = [
   "./",
