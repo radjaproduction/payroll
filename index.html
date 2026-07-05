@@ -362,16 +362,13 @@
   align-items: flex-end;
   z-index: 99999;
   padding: 0;
-  animation: popupOverlayIn 0.25s ease;
-}
-
-@keyframes popupOverlayIn {
-  from { background: rgba(13, 43, 110, 0); }
-  to   { background: rgba(13, 43, 110, 0.55); }
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
 }
 
 .popup.active {
   display: flex;
+  opacity: 1;
 }
 
 /* ===== SHEET (DARI BAWAH) ===== */
@@ -393,6 +390,11 @@
 
 .popup-sheet.entering {
   transform: translateY(100%);
+}
+
+/* Modifier untuk popup dengan latar belakang berbeda */
+.popup-sheet-details {
+  background: var(--bg); /* #F2F5FA */
 }
 
 /* ===== HEADER ===== */
@@ -2691,156 +2693,6 @@
       outline:none !important;
     }
 
-/* ===== OVERLAY — INSTANT, NO ANIMATION ===== */
-#pinjamanPopup {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 43, 110, 0.6);
-  display: none;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 99999;
-  padding: 0;
-  /* NO backdrop-filter, NO will-change — instant! */
-}
-
-#pinjamanPopup.active {
-  display: flex;
-  /* NO fade animation — instant show */
-}
-
-/* ===== SHEET — INSTANT SLIDE, GPU ACCELERATED ===== */
-.pinjaman-sheet {
-  width: 100%;
-  max-width: 480px;
-  background: var(--card);
-  border-radius: 20px 20px 0 0;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  /* Dynamic height: akan di-set via JS saat keyboard aktif */
-  max-height: 85vh;
-  max-height: 85dvh;
-  /* Fast transform — hanya translateY */
-  transform: translateY(0);
-  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
-}
-
-/* Saat pertama kali muncul — slide dari bawah */
-.pinjaman-sheet.entering {
-  transform: translateY(100%);
-}
-
-/* ===== HEADER ===== */
-.pin-header {
-  position: relative;
-  flex-shrink: 0;
-  z-index: 2;
-}
-
-.pin-header-bg {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  padding: 16px 20px 24px;
-  padding-top: calc(14px + var(--safe-top));
-  position: relative;
-  overflow: hidden;
-}
-
-.pin-header-bg::after {
-  content: '';
-  position: absolute;
-  top: -40%;
-  right: -10%;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  pointer-events: none;
-}
-
-.pin-header-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-  z-index: 1;
-}
-
-.pin-header-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.pin-header-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.pin-header-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.pin-header-subtitle {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-.pin-header-close {
-  position: absolute;
-  top: calc(12px + var(--safe-top));
-  right: 14px;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.1s;
-  z-index: 2;
-}
-
-.pin-header-close:active {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* ===== WAVE ===== */
-.pin-header-wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 16px;
-  line-height: 0;
-}
-
-.pin-header-wave svg {
-  width: 100%;
-  height: 100%;
-  fill: var(--card);
-}
-
 /* ===== BODY — SCROLLABLE AREA ===== */
 .pin-body {
   flex: 1;
@@ -3808,18 +3660,11 @@
       padding: 0;
     }
 
-    .numpad-overlay.active {
-      display: flex;
-    }
-
     .numpad-sheet {
       width: 100%;
-      max-width: 480px;
-      background: #fff;
+      /* max-width, background, etc handled by .popup-sheet */
       border-radius: 24px 24px 0 0;
       padding: 16px 16px calc(16px + var(--safe-bottom));
-      box-shadow: 0 -8px 32px rgba(13, 43, 110, 0.2);
-      animation: slideUp 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     @keyframes slideUp {
@@ -4083,15 +3928,6 @@
     .numpad-sheet {
       box-shadow: 0 -4px 16px rgba(13, 43, 110, 0.12) !important;
     }
-    /* 4. Ganti animation keyframes dengan transition */
-    .rc-card {
-      animation: none !important;
-      transform: translateY(100%);
-      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    .rc-overlay.active .rc-card {
-      transform: translateY(0);
-    }
     .numpad-sheet {
       animation: none !important;
       transform: translateY(100%);
@@ -4101,13 +3937,14 @@
       transform: translateY(0);
     }
     /* 5. Popup sheet — JS handle transform via inline style, CSS hanya transition */
-    .popup-sheet {
+    .popup-sheet, .rc-card {
       transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                   max-height 0.15s ease;
     }
-    .popup-sheet.entering {
+    .popup-sheet.entering, .rc-card.entering {
       transform: translateY(100%) !important;
     }
+
     /* 6. Percepat overlay fade */
     .popup,
     .rc-overlay,
@@ -4851,8 +4688,8 @@
   </div>
 
 <!-- ===== POPUP PINJAMAN DENGAN NUMPAD ===== -->
-<div class="popup" id="pinjamanPopup">
-  <div class="popup-sheet pin-sheet">
+<div class="popup" id="pinjamanPopup" style="display:none;">
+  <div class="popup-sheet" id="pinjamanSheet">
     
     <div class="popup-header">
       <div class="popup-header-bg popup-header-blue">
@@ -4962,8 +4799,8 @@
 </div>
 
 <!-- ===== NUMPAD OVERLAY ===== -->
-<div class="numpad-overlay" id="numpadOverlay">
-  <div class="numpad-sheet">
+<div class="popup" id="numpadOverlay" style="display:none; z-index: 9999990 !important;">
+  <div class="popup-sheet popup-sheet-numpad numpad-sheet" id="numpadSheet">
     <div class="numpad-display">
       <div class="numpad-display-label" id="numpadLabel">Jumlah Pinjaman</div>
       <div class="numpad-display-value" id="numpadDisplay">0</div>
@@ -4991,8 +4828,8 @@
 </div>
 
 <!-- ===== POPUP BAYAR PINJAMAN DENGAN NUMPAD ===== -->
-<div class="popup" id="bayarPopup">
-  <div class="popup-sheet bayar-sheet">
+<div class="popup" id="bayarPopup" style="display:none;">
+  <div class="popup-sheet bayar-sheet" id="bayarSheet">
     
     <div class="popup-header">
       <div class="popup-header-bg" style="background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%);">
@@ -5086,8 +4923,8 @@
 </div>
 
 <!-- ===== NUMPAD OVERLAY QTY ===== -->
-<div class="numpad-overlay" id="numpadQtyOverlay">
-  <div class="numpad-sheet">
+<div class="popup" id="numpadQtyOverlay" style="display:none; z-index: 9999990 !important;">
+  <div class="popup-sheet popup-sheet-numpad numpad-sheet" id="numpadQtySheet">
     <div class="numpad-display">
       <div class="numpad-display-label" id="numpadQtyLabel">Qty</div>
       <div class="numpad-display-value" id="numpadQtyDisplay">0</div>
@@ -5115,8 +4952,8 @@
 </div>
 
 <!-- ===== NUMPAD OVERLAY BAYAR ===== -->
-<div class="numpad-overlay" id="numpadBayarOverlay">
-  <div class="numpad-sheet">
+<div class="popup" id="numpadBayarOverlay" style="display:none; z-index: 9999990 !important;">
+  <div class="popup-sheet popup-sheet-numpad numpad-sheet" id="numpadBayarSheet">
     <div class="numpad-display">
       <div class="numpad-display-label" id="numpadBayarLabel">Jumlah Bayar</div>
       <div class="numpad-display-value" id="numpadBayarDisplay">0</div>
@@ -5144,8 +4981,8 @@
 </div>
 
 <!-- ===== NUMPAD GENERAL (editNominalInput, ep_nominal, tamItem) ===== -->
-<div class="numpad-overlay" id="numpadGenOverlay">
-  <div class="numpad-sheet">
+<div class="popup" id="numpadGenOverlay" style="display:none; z-index: 9999990 !important;">
+  <div class="popup-sheet popup-sheet-numpad numpad-sheet" id="numpadGenSheet">
     <div class="numpad-display">
       <div class="numpad-display-label" id="numpadGenLabel">Nominal</div>
       <div class="numpad-display-value" id="numpadGenDisplay">0</div>
@@ -5173,8 +5010,8 @@
 </div>
 
 <!-- ===== POPUP EDIT BAYAR ===== -->
-<div class="popup" id="editBayarPopup">
-  <div class="popup-sheet">
+<div class="popup" id="editBayarPopup" style="display:none;">
+  <div class="popup-sheet" id="editBayarSheet">
     
     <div class="popup-header">
       <div class="popup-header-bg" style="background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #FCD34D 100%);">
@@ -5210,8 +5047,8 @@
 </div>
 
 <!-- ===== POPUP EDIT NOMINAL BAYAR (Inline) ===== -->
-<div class="popup" id="editNominalBayarPopup">
-  <div class="popup-sheet">
+<div class="popup" id="editNominalBayarPopup" style="display:none;">
+  <div class="popup-sheet" id="editNominalBayarSheet">
     
     <div class="popup-header">
       <div class="popup-header-bg" style="background: linear-gradient(135deg, #1A56DB 0%, #4B8EF8 50%, #6BA3FF 100%);">
@@ -5299,8 +5136,8 @@
   </div>
 
   <!-- ===== TAMBAHAN POPUP ===== -->
-  <div class="rc-overlay" id="tambahanPopup">
-    <div class="rc-card" style="max-width:400px;">
+  <div class="popup" id="tambahanPopup" style="display:none; z-index: 999999 !important;">
+    <div class="popup-sheet popup-sheet-details rc-card" id="tambahanSheet" style="max-width:400px;">
       <div class="rc-head">
         <div class="rc-nama" id="tamNama" style="font-size:32px;">-</div>
         <div class="rc-bagian" id="tamBagian">-</div>
@@ -5328,8 +5165,8 @@
     </div>
   </div>
 
-  <div class="slip-popup" id="slipPopup">
-  <div style="width:100%;max-width:480px;display:flex;flex-direction:column;max-height:90vh;max-height:90dvh;">
+  <div class="popup" id="slipPopup" style="display:none; z-index: 9999999 !important;">
+  <div class="popup-sheet" style="width:100%;max-width:480px;display:flex;flex-direction:column;max-height:90vh;max-height:90dvh;padding:0;background:transparent;box-shadow:none;">
   <div class="slip-box" id="slipBox">
   <div class="slip-hd">
     <div class="slip-hd-top" style="align-items:center;">
@@ -5414,8 +5251,8 @@
   </div>
 
   <!-- ===== EDIT QTY ===== -->
-  <div class="popup" id="editQtyPopup" style="z-index:9999999;">
-    <div class="popup-sheet">
+  <div class="popup" id="editQtyPopup" style="display:none; z-index:9999999;">
+    <div class="popup-sheet" id="editQtySheet">
 
       <div class="popup-header">
         <div class="popup-header-bg popup-header-blue">
@@ -5464,8 +5301,8 @@
   </div>
 
   <!-- ===== EDIT PINJAMAN ===== -->
-  <div class="popup" id="editPinjamanPopup" style="z-index:9999999;">
-    <div class="popup-sheet">
+  <div class="popup" id="editPinjamanPopup" style="display:none; z-index:9999999;">
+    <div class="popup-sheet" id="editPinjamanSheet">
 
       <div class="popup-header">
         <div class="popup-header-bg popup-header-blue">
@@ -5686,16 +5523,16 @@
     const showToast = (msg, dur=3000) => { const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), dur); };
     window.bukaPopup = id => {
       const el = $(id); if(!el) return;
-      const sheet = el.querySelector('.popup-sheet');
+      const sheet = el.querySelector('.popup-sheet, .rc-card');
       if(sheet) {
         sheet.style.willChange = 'transform';
-        sheet.style.transform = 'translateY(100%)';
+        sheet.classList.add('entering');
       }
-      el.style.display = 'flex';
+      el.classList.add('active');
       if(sheet) {
         sheet.offsetHeight; // Force reflow
         requestAnimationFrame(() => {
-          sheet.style.transform = 'translateY(0)';
+          sheet.classList.remove('entering');
           setTimeout(() => { sheet.style.willChange = 'auto'; }, 300);
         });
       }
@@ -5703,7 +5540,7 @@
     const bukaPopup = window.bukaPopup;
     window.tutupPopup = id => {
       const el = $(id); if(!el) return;
-      const sheet = el.querySelector('.popup-sheet');
+      const sheet = el.querySelector('.popup-sheet, .rc-card');
       if(sheet) {
         sheet.style.willChange = 'transform';
         sheet.style.transform = 'translateY(100%)';
@@ -5713,7 +5550,7 @@
           sheet.style.willChange = 'auto';
         }, 250);
       } else {
-        el.style.display = 'none';
+        setTimeout(() => { el.style.display = 'none'; }, 200);
       }
     };
     const fmt = n => Number(n||0).toLocaleString('id-ID');
@@ -6407,35 +6244,22 @@ window.bukaPinjaman = () => {
   _pinDraftList = [];
   renderPinDraftList();
   
-  const popup = $('pinjamanPopup');
-  const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) {
-    sheet.classList.add('entering');
-    sheet.style.willChange = 'transform';
-  }
-  popup.classList.add('active');
-  if (sheet) {
-    sheet.offsetHeight;
-    requestAnimationFrame(() => {
-      sheet.classList.remove('entering');
-      setTimeout(() => { sheet.style.willChange = 'auto'; }, 300);
-    });
-  }
+  bukaPopup('pinjamanPopup');
 };
 
 window.tutupPopupPinjaman = () => {
   const popup = $('pinjamanPopup');
-  const sheet = popup.querySelector('.popup-sheet');
+  const sheet = $('pinjamanSheet');
   if (sheet) {
     sheet.style.willChange = 'transform';
     sheet.classList.add('entering');
     setTimeout(() => {
-      popup.classList.remove('active');
+      popup.style.display = 'none';
       sheet.classList.remove('entering');
       sheet.style.willChange = 'auto';
     }, 250);
   } else {
-    popup.classList.remove('active');
+    tutupPopup('bayarPopup');
   }
 };
 
@@ -6713,7 +6537,7 @@ window.bukaNumpad = (target) => {
   $('numpadLabel').textContent = 'Jumlah Pinjaman';
   $('numpadDisplay').textContent = _numpadValue ? fmt(parseInt(_numpadValue)) : '0';
   
-  $('numpadOverlay').classList.add('active');
+  bukaPopup('numpadOverlay');
 };
 
 window.numpadInput = (digit) => {
@@ -6736,7 +6560,7 @@ window.numpadConfirm = () => {
 };
 
 window.tutupNumpad = () => {
-  $('numpadOverlay').classList.remove('active');
+  tutupPopup('numpadOverlay');
   _numpadValue = '';
 };
 
@@ -6750,7 +6574,7 @@ window.bukaNumpadGen = (label, initialVal, onConfirm) => {
   _numpadGenOnConfirm = onConfirm;
   $('numpadGenLabel').textContent = label;
   $('numpadGenDisplay').textContent = _numpadGenValue ? fmt(parseInt(_numpadGenValue)) : '0';
-  $('numpadGenOverlay').classList.add('active');
+  bukaPopup('numpadGenOverlay');
 };
 
 window.numpadGenInput = (digit) => {
@@ -6771,7 +6595,7 @@ window.numpadGenConfirm = () => {
 };
 
 window.tutupNumpadGen = () => {
-  $('numpadGenOverlay').classList.remove('active');
+  tutupPopup('numpadGenOverlay');
   _numpadGenValue = '';
   _numpadGenOnConfirm = null;
 };
@@ -6849,21 +6673,12 @@ window.bukaBayar = () => {
   $('bayarTotalGroup').style.display = 'none';
   
   const popup = $('bayarPopup');
-  const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) { sheet.style.willChange = 'transform'; sheet.style.transform = 'translateY(100%)'; }
-  popup.style.display = 'flex';
-  if (sheet) {
-    sheet.offsetHeight;
-    requestAnimationFrame(() => {
-      sheet.style.transform = 'translateY(0)';
-      setTimeout(() => { sheet.style.willChange = 'auto'; }, 300);
-    });
-  }
+  bukaPopup('bayarPopup');
 };
 
 window.tutupPopupBayar = () => {
   const popup = $('bayarPopup');
-  const sheet = popup.querySelector('.popup-sheet');
+  const sheet = $('bayarSheet');
   if (sheet) {
     sheet.style.willChange = 'transform';
     sheet.style.transform = 'translateY(100%)';
@@ -6873,7 +6688,7 @@ window.tutupPopupBayar = () => {
       sheet.style.willChange = 'auto';
     }, 250);
   } else {
-    popup.style.display = 'none';
+    tutupPopup('pinjamanPopup');
   }
 };
 
@@ -7097,7 +6912,7 @@ window.bukaNumpadBayar = (index, maxVal) => {
   $('numpadBayarLabel').textContent = jenis;
   $('numpadBayarDisplay').textContent = _numpadValue ? fmt(parseInt(_numpadValue)) : '0';
   
-  $('numpadBayarOverlay').classList.add('active');
+  bukaPopup('numpadBayarOverlay');
 };
 
 window.numpadBayarInput = (digit) => {
@@ -7125,7 +6940,7 @@ window.numpadBayarConfirm = () => {
 };
 
 window.tutupNumpadBayar = () => {
-  $('numpadBayarOverlay').classList.remove('active');
+  tutupPopup('numpadBayarOverlay');
   _numpadValue = '';
   _numpadMaxValue = null;
   _numpadBayarIndex = null;
@@ -8054,7 +7869,7 @@ window.bukaDetailPekerjaan = (idx, jenis, harga) => {
     <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px;">${jenis}</div>
     <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px;">Rincian per tanggal</div>
     ${rowsHtml}
-    <button onclick="window.tutupDetailPekerjaan()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;">Tutup</button>
+    <button onclick="window.tutupDetailPekerjaan()" style="width:100%;background:var(--card2);color:var(--muted);border:1.5px solid var(--muted);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;">Tutup</button>
   </div>`;
   document.body.appendChild(overlay);
 };
@@ -8291,15 +8106,7 @@ window.bukaEditBayar = (nama) => {
   body.innerHTML = html;
   
   // Show popup
-  const popup = $('editBayarPopup');
-  const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) sheet.style.transform = 'translateY(100%)';
-  popup.style.display = 'flex';
-  if (sheet) {
-    sheet.offsetHeight;
-    requestAnimationFrame(() => { sheet.style.transform = 'translateY(0)'; });
-  }
-  
+  bukaPopup('editBayarPopup');
   _initKeyboardHandler();
 };
 
@@ -8381,14 +8188,7 @@ window.bukaEditNominalBayar = (id, currentBayar, sisaSebelumBayar) => {
   `;
   
   // Show popup
-  const popup = $('editNominalBayarPopup');
-  const sheet = popup.querySelector('.popup-sheet');
-  if (sheet) sheet.style.transform = 'translateY(100%)';
-  popup.style.display = 'flex';
-  if (sheet) {
-    sheet.offsetHeight;
-    requestAnimationFrame(() => { sheet.style.transform = 'translateY(0)'; });
-  }
+  bukaPopup('editNominalBayarPopup');
 };
 
 window.simpanEditNominalBayar = async () => {
@@ -8842,10 +8642,10 @@ window.hapusBayar = async (id) => {
   $('slipFooterDate').textContent = 'Dicetak: ' + fmtTgl(now) + ' ' + 
     String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
 
-  $('slipPopup').classList.add('active');
+  bukaPopup('slipPopup');
 };
 
-    window.tutupSlip = () => $('slipPopup').classList.remove('active');
+    window.tutupSlip = () => tutupPopup('slipPopup');
 
     window.cetakSlip = () => {
   const nama = $('slipNama').textContent;
@@ -9682,7 +9482,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const id = document.getElementById('ep_id').value;
       const nominal = parseInt(document.getElementById('ep_nominal').value) || 0;
       if(!id || id.trim() === ''){ showToast('ID tidak valid'); return; }
-      if(nominal < 0){ showToast('Nominal tidak boleh negatif'); return; }
+      if(nominal < 0){ showToast('⚠ Nominal tidak boleh negatif'); return; }
       showLoading('Menyimpan perubahan...');
       try {
         await sbUpdate(sbDoc(db, COL.pinjaman, id), { nominal });
