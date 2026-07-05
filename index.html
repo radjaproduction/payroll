@@ -367,7 +367,7 @@
 }
 
 .popup.active {
-  display: flex;
+  display: flex !important;
   opacity: 1;
 }
 
@@ -3933,7 +3933,7 @@
       transform: translateY(100%);
       transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
-    .numpad-overlay.active .numpad-sheet {
+    .popup.active .numpad-sheet {
       transform: translateY(0);
     }
     /* 5. Popup sheet — JS handle transform via inline style, CSS hanya transition */
@@ -5546,11 +5546,12 @@
         sheet.style.transform = 'translateY(100%)';
         setTimeout(() => {
           el.style.display = 'none';
+          el.classList.remove('active');
           sheet.style.transform = '';
           sheet.style.willChange = 'auto';
         }, 250);
       } else {
-        setTimeout(() => { el.style.display = 'none'; }, 200);
+        setTimeout(() => { el.style.display = 'none'; el.classList.remove('active'); }, 200);
       }
     };
     const fmt = n => Number(n||0).toLocaleString('id-ID');
@@ -6062,7 +6063,7 @@
     // Koreksi Qty dan kembalikan ke daftar Rincian Per Tanggal (bukan berhenti di popup Koreksi Qty)
     window.batalNumpadQty = () => {
       const target = _numpadQtyTarget;
-      const editPopupSudahTampil = target === 'edit' && $('editQtyPopup').style.display === 'flex';
+      const editPopupSudahTampil = target === 'edit' && $('editQtyPopup').classList.contains('active');
       tutupNumpadQty();
       // Hanya lompat balik ke Rincian Per Tanggal jika popup Koreksi Qty
       // memang belum pernah ditampilkan (alur buka pertama kali).
@@ -6255,6 +6256,7 @@ window.tutupPopupPinjaman = () => {
     sheet.classList.add('entering');
     setTimeout(() => {
       popup.style.display = 'none';
+      popup.classList.remove('active');
       sheet.classList.remove('entering');
       sheet.style.willChange = 'auto';
     }, 250);
@@ -6684,6 +6686,7 @@ window.tutupPopupBayar = () => {
     sheet.style.transform = 'translateY(100%)';
     setTimeout(() => {
       popup.style.display = 'none';
+      popup.classList.remove('active');
       sheet.style.transform = '';
       sheet.style.willChange = 'auto';
     }, 250);
@@ -7701,7 +7704,9 @@ window.tutupNumpadBayar = () => {
         _merged[key].qty += (it.qty || 0);
         _merged[key].jumlah += (it.jumlah || 0);
       });
-      pekerjaanHTML = Object.values(_merged).map(it =>
+      pekerjaanHTML = Object.values(_merged)
+        .sort((a, b) => String(a.jenis || '').localeCompare(String(b.jenis || ''), 'id'))
+        .map(it =>
         `<div class="rekap-breakdown-row rekap-breakdown-clickable" onclick="event.stopPropagation(); bukaDetailPekerjaan(${idx}, '${q0(it.jenis || '-')}', ${it.harga || 0})">
           <span>${it.jenis || '-'} <small>(${it.qty || 0} x Rp${fmt(it.harga)})</small></span>
           <span style="display:flex;align-items:center;">Rp ${fmt(it.jumlah)} <i class="fa-solid fa-chevron-right" style="font-size:12px;color:var(--muted);margin-left:8px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></i></span>
