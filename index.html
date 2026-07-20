@@ -6911,7 +6911,7 @@ window.simpanBayar = async () => {
   
   try {
     for (const b of toBayar) {
-      await sbInsert(sbTable(db, COL.bayar), {
+      const payment = {
         tanggal: fmtTgl(new Date()),
         tanggalISO: new Date().toISOString().slice(0, 10),
         nama,
@@ -6920,7 +6920,13 @@ window.simpanBayar = async () => {
         bayar: b.bayar,
         luarGaji: _bayarLuarGaji,
         waktu: sbTimestamp()
-      });
+      };
+      const saved = await sbInsert(sbTable(db, COL.bayar), payment);
+      // Jangan menunggu Supabase Realtime: cache lokal harus langsung
+      // mencerminkan transaksi yang baru saja dikonfirmasi server.
+      if (!_CACHE.bayar.some(item => item.id === saved.id)) {
+        _CACHE.bayar.push({ id: saved.id, ...payment });
+      }
     }
     
     showToast('✅ Pembayaran tersimpan!');
@@ -6928,10 +6934,8 @@ window.simpanBayar = async () => {
     btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
     btn.disabled = false;
     
-    setTimeout(() => {
-      muatRekapPinjaman();
-      muatRekapPegawai();
-    }, 1200);
+    muatRekapPinjaman();
+    muatRekapPegawai();
     
   } catch (e) {
     showToast('❌ Gagal: ' + e.message);
@@ -8268,6 +8272,7 @@ window.simpanEditNominalBayar = async () => {
     if (newNominal === 0) {
       // Kalau 0, hapus pembayaran
       await sbDelete(sbDoc(db, COL.bayar, _editBayarCurrentId));
+      _CACHE.bayar = _CACHE.bayar.filter(b => b.id !== _editBayarCurrentId);
       showToast('🗑 Pembayaran dibatalkan (nominal di 0 kan)');
     } else {
       // Kalau > 0, update nominal
@@ -8275,6 +8280,8 @@ window.simpanEditNominalBayar = async () => {
         bayar: newNominal,
         updatedAt: sbTimestamp()
       });
+      pembayaranSaatIni.bayar = newNominal;
+      pembayaranSaatIni.updatedAt = sbTimestamp();
       showToast('✅ Pembayaran berhasil diupdate');
     }
     
