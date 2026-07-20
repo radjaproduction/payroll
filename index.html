@@ -5454,8 +5454,19 @@
     }
 
     async function sbGetAll(collRef) {
-      const { data: rows, error } = await sb.from(collRef.__table).select('id, data');
-      if (error) throw _mkError(error, 'supabase/get-failed');
+      // Pagination: Supabase/PostgREST default hanya balikin maksimal 1000
+      // baris per request. Tanpa ini, tabel besar akan terpotong diam-diam
+      // (mis. saat hapus pegawai, data lama pegawai bisa tidak ikut terhapus).
+      const PAGE_SIZE = 1000;
+      let rows = [];
+      let from = 0;
+      while (true) {
+        const { data: page, error } = await sb.from(collRef.__table).select('id, data').range(from, from + PAGE_SIZE - 1);
+        if (error) throw _mkError(error, 'supabase/get-failed');
+        rows = rows.concat(page || []);
+        if (!page || page.length < PAGE_SIZE) break;
+        from += PAGE_SIZE;
+      }
       const docs = (rows || []).map(r => ({
         id: r.id,
         data: () => (r.data || {})
@@ -5633,10 +5644,20 @@
       const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
       return d.getFullYear() + '-W' + String(weekNo).padStart(2,'0');
     }
+    // FIX TIMEZONE: ambil tanggal lokal (WIB) langsung dari getFullYear/getMonth/getDate,
+    // JANGAN pakai .toISOString().slice(0,10) — itu convert ke UTC dulu (WIB = UTC+7),
+    // jadi tengah malam WIB selalu jatuh ke hari sebelumnya kalau di-slice.
+    function _localISODate(date) {
+      const d = new Date(date);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
     function _getMondayISO(date) {
       const d = new Date(date); const day = d.getDay()||7;
       d.setDate(d.getDate() - day + 1); d.setHours(0,0,0,0);
-      return d.toISOString().slice(0,10);
+      return _localISODate(d);
     }
     function _initWeeklyReset() {
       const today = new Date();
@@ -5760,8 +5781,8 @@
         const _day = _today.getDay() || 7;
         const _senin = new Date(_today); _senin.setDate(_today.getDate() - _day + 1); _senin.setHours(0,0,0,0);
         const _minggu = new Date(_senin); _minggu.setDate(_senin.getDate() + 6); _minggu.setHours(23,59,59,999);
-        const _seninISO = _senin.toISOString().slice(0,10);
-        const _mingguISO = _minggu.toISOString().slice(0,10);
+        const _seninISO = _localISODate(_senin);
+        const _mingguISO = _localISODate(_minggu);
         snap.forEach(docSnap => {
           const data = docSnap.data();
           const nama = data.nama;
@@ -6241,7 +6262,7 @@
       showLoading('Menyimpan data...');
       try {
         const tanggal = fmtTgl(new Date());
-        const tanggalISO = new Date().toISOString().slice(0,10);
+        const tanggalISO = _localISODate(new Date());
         for(const item of _stagingList) {
           await sbInsert(sbTable(db, COL.input), { tanggal, tanggalISO, nama:item.nama, bagian:item.bagian, jenis:item.jenis, brand:item.brand, qty:item.qty, harga:item.harga, jumlah:item.jumlah, waktu:sbTimestamp() });
         }
@@ -6571,7 +6592,7 @@ window.simpanPinjaman = async () => {
     for (const item of items) {
       await sbInsert(sbTable(db, COL.pinjaman), {
         tanggal: fmtTgl(new Date()),
-        tanggalISO: new Date().toISOString().slice(0, 10),
+        tanggalISO: _localISODate(new Date()),
         nama: item.nama,
         jenis: item.jenis,
         nominal: item.nominal,
@@ -6940,7 +6961,7 @@ window.simpanBayar = async () => {
     for (const b of toBayar) {
       const payment = {
         tanggal: fmtTgl(new Date()),
-        tanggalISO: new Date().toISOString().slice(0, 10),
+        tanggalISO: _localISODate(new Date()),
         nama,
         jenisPinjaman: b.jenis,
         sisaSebelum: b.sisa,
@@ -8378,7 +8399,8 @@ window.hapusBayar = async (id) => {
 };
 
     window.filterRekap = q => { if(currentTab==='pegawai') renderTabelRekap(q); else renderTabelPinjaman(q); };
-    window.toggleCheckAllRekap = cb => document.querySelectorAll('.row-check-rekap').forEach(el => el.checked=cb.checked);
+    // (dihapus: definisi window.toggleCheckAllRekap ganda yang menimpa versi lengkap di atas —
+    //  versi lengkap ada di baris ~8086, sudah termasuk sync pasangan checkbox + updateSelectAllUI())
 
     window.bukaTambahanPopup = (nama) => {
       nama = nama || _rcNamaAktif;
@@ -8390,9 +8412,9 @@ window.hapusBayar = async (id) => {
         const today = new Date();
         const day = today.getDay() || 7;
         const senin = new Date(today); senin.setDate(today.getDate() - day + 1); senin.setHours(0,0,0,0);
-        const seninISO = senin.toISOString().slice(0,10);
+        const seninISO = _localISODate(senin);
         const minggu = new Date(senin); minggu.setDate(senin.getDate() + 6);
-        const mingguISO = minggu.toISOString().slice(0,10);
+        const mingguISO = _localISODate(minggu);
         // Data sudah ada di _rcTambahan jika initDataListeners berhasil
         // Jika masih kosong, biarkan kosong (user akan input baru)
       }
@@ -8490,7 +8512,7 @@ window.hapusBayar = async (id) => {
       const existingTam = _rcTambahan[nama];
       if(existingTam && existingTam.total > 0) {
         const tamTgl = existingTam._tanggalISO || '';
-        const todayISO = new Date().toISOString().slice(0,10);
+        const todayISO = _localISODate(new Date());
         if(tamTgl === todayISO) {
           if(!confirm(`${nama} sudah punya tambahan hari ini (Rp ${fmt(existingTam.total)}). Ganti?`)) {
             return;
@@ -8511,7 +8533,7 @@ window.hapusBayar = async (id) => {
           savedItems[key] = { jenis: t.jenis, harga: t.harga || 0, qty, jumlah, satuan: t.satuan || 'HARI' };
         }
       });
-      const _todayISO = new Date().toISOString().slice(0,10);
+      const _todayISO = _localISODate(new Date());
       const _todayWeekId = _getWeekId(new Date());
       showLoading('Menyimpan data...');
       try {
@@ -8548,9 +8570,9 @@ window.hapusBayar = async (id) => {
     async function _saveTambahanDinamisFB(nama) {
       if(!nama || !_rcTambahan[nama]) return false;
       try {
-        const docId = `${nama.replace(/\s+/g,'_')}_${new Date().toISOString().split('T')[0]}`;
+        const docId = `${nama.replace(/\s+/g,'_')}_${_localISODate(new Date())}`;
         const tam = _rcTambahan[nama];
-        const payload = { nama, total: tam.total || 0, tanggal: new Date(), tanggalISO: new Date().toISOString().slice(0,10), weekId: _getWeekId(new Date()), updatedAt: sbTimestamp(), itemsJSON: JSON.stringify(tam.items || {}) };
+        const payload = { nama, total: tam.total || 0, tanggal: new Date(), tanggalISO: _localISODate(new Date()), weekId: _getWeekId(new Date()), updatedAt: sbTimestamp(), itemsJSON: JSON.stringify(tam.items || {}) };
         const items = tam.items || {};
         const _findQty = (jenis) => { const e = Object.entries(items).find(([k]) => k.toUpperCase().endsWith('|' + jenis)); return e ? (e[1].qty || 0) : 0; };
         const _findJumlah = (jenis) => { const e = Object.entries(items).find(([k]) => k.toUpperCase().endsWith('|' + jenis)); return e ? (e[1].jumlah || 0) : 0; };
@@ -9344,7 +9366,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     };
 
     function _updateHomeStats(totalPotonganPeriode, totalTambahanPeriode, pegawaiAktifCount) {
-      const todayISO = new Date().toISOString().slice(0,10);
+      const todayISO = _localISODate(new Date());
       const todayItems = _CACHE.input.filter(r => r.tanggalISO === todayISO);
 
       // Kolom merah: Bayar hutang periode ini (totalPotongan dari loadDashboardDana)
@@ -9372,7 +9394,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       }
 
       // Update recent activity dengan data real
-      const todayISO2 = new Date().toISOString().slice(0,10);
+      const todayISO2 = _localISODate(new Date());
       const todayItems2 = _CACHE.input.filter(r => r.tanggalISO === todayISO2);
       _renderHomeRecentActivity(todayItems2);
     }
@@ -9412,7 +9434,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
 
     // ===== QUICK STATS =====
     window.refreshQuickStats = function() {
-      const today = new Date().toISOString().slice(0,10);
+      const today = _localISODate(new Date());
       const todayLabel = new Date().toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
       const el = id => document.getElementById(id);
       if(!el('qs_tanggal')) return;
