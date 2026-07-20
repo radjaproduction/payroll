@@ -6260,13 +6260,21 @@
       const btn = $('btnSimpanInput');
       btn.textContent = 'Menyimpan...'; btn.disabled = true;
       showLoading('Menyimpan data...');
+      const totalItemDisimpan = _stagingList.length;
       try {
         const tanggal = fmtTgl(new Date());
         const tanggalISO = _localISODate(new Date());
-        for(const item of _stagingList) {
+        // Buang item dari _stagingList begitu berhasil disimpan (bukan baru
+        // setelah seluruh loop selesai). Kalau item ke-3 dari 5 gagal, item
+        // 1-2 yang sudah tersimpan di server tidak akan ikut ke-insert lagi
+        // kalau user menekan tombol SIMPAN sekali lagi.
+        while (_stagingList.length) {
+          const item = _stagingList[0];
           await sbInsert(sbTable(db, COL.input), { tanggal, tanggalISO, nama:item.nama, bagian:item.bagian, jenis:item.jenis, brand:item.brand, qty:item.qty, harga:item.harga, jumlah:item.jumlah, waktu:sbTimestamp() });
+          _stagingList.shift();
+          _renderStaging();
         }
-        const n = _stagingList.length;
+        const n = totalItemDisimpan;
         _stagingList = [];
         _inputExitedWithoutSave = false;
         _renderStaging();
@@ -6280,7 +6288,12 @@
         $('inp_qty').value = ''; $('inp_qty').value = ''; $('inp_qty_display').value = ''; $('inp_qty_trigger').style.opacity = '0.4'; $('inp_qty_trigger').style.pointerEvents = 'none';
         setDis('btnTambahInput', true); _styleBtnTambah(false);
         _qsNeedsRefresh = true;
-      } catch(e) { showToast('❌ Gagal: '+e.message); btn.textContent = 'SIMPAN'; btn.disabled = false; }
+      } catch(e) {
+        const sisaGagal = _stagingList.length;
+        const sudahMasuk = totalItemDisimpan - sisaGagal;
+        showToast('❌ Gagal: ' + e.message + (sudahMasuk > 0 ? ' (' + sudahMasuk + ' dari ' + totalItemDisimpan + ' sudah tersimpan)' : ''));
+        btn.textContent = 'SIMPAN'; btn.disabled = false;
+      }
       finally { hideLoading(); }
     };
 
@@ -6953,12 +6966,39 @@ window.simpanBayar = async () => {
     return;
   }
   
+  // Jangan percaya `p.sisa` dari _bayarJenisData begitu saja — itu snapshot
+  // dari saat popup dibuka. Kalau ada pembayaran lain masuk (device/tab lain)
+  // selagi popup ini terbuka, angka itu sudah basi dan validasi di atas bisa
+  // meloloskan pembayaran yang sebenarnya melebihi sisa saat ini. Hitung ulang
+  // sisa dari data pinjaman/pembayaran TERBARU di cache, sama seperti yang
+  // sudah dilakukan di editNominalBayar.
+  const sisaTerkiniPerJenis = {};
+  getRekapPinjamanPerJenisLocal(nama).forEach(r => {
+    sisaTerkiniPerJenis[r.jenis] = (sisaTerkiniPerJenis[r.jenis] || 0) + r.sisa;
+  });
+  const kadaluarsa = toBayar.find(b => b.bayar > (sisaTerkiniPerJenis[b.jenis] || 0));
+  if (kadaluarsa) {
+    showToast('⚠ Sisa pinjaman "' + kadaluarsa.jenis + '" sudah berubah (mungkin ada pembayaran lain baru masuk). Silakan buka ulang form pembayaran.');
+    return;
+  }
+  
   const btn = $('btnSimpanBayar');
   btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Menyimpan...</span>';
   btn.disabled = true;
+  // Kunci seluruh layar selama proses simpan, sama seperti simpanPinjaman &
+  // editNominalBayar — mencegah popup ditutup / halaman dinavigasi di tengah
+  // proses insert (yang bisa berjalan beberapa langkah kalau bayar >1 pinjaman).
+  showLoading('Menyimpan pembayaran...');
+  
+  // Sisa item yang BELUM berhasil disimpan. Item yang sudah sukses di-insert
+  // dibuang dari daftar ini segera setelah berhasil, supaya kalau item
+  // berikutnya gagal (mis. koneksi putus) dan user menekan tombol simpan lagi,
+  // item yang sudah tersimpan tidak ikut ke-insert dua kali.
+  const belumTersimpan = toBayar.slice();
   
   try {
-    for (const b of toBayar) {
+    while (belumTersimpan.length) {
+      const b = belumTersimpan[0];
       const payment = {
         tanggal: fmtTgl(new Date()),
         tanggalISO: _localISODate(new Date()),
@@ -6975,6 +7015,7 @@ window.simpanBayar = async () => {
       if (!_CACHE.bayar.some(item => item.id === saved.id)) {
         _CACHE.bayar.push({ id: saved.id, ...payment });
       }
+      belumTersimpan.shift();
     }
     
     showToast('✅ Pembayaran tersimpan!');
@@ -6986,9 +7027,12 @@ window.simpanBayar = async () => {
     muatRekapPegawai();
     
   } catch (e) {
-    showToast('❌ Gagal: ' + e.message);
+    const sisaKurang = toBayar.length - belumTersimpan.length;
+    showToast('❌ Gagal: ' + e.message + (sisaKurang > 0 ? ' (' + sisaKurang + ' dari ' + toBayar.length + ' sudah tersimpan)' : ''));
     btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
     btn.disabled = false;
+  } finally {
+    hideLoading();
   }
 };
 
@@ -7156,24 +7200,47 @@ window.tutupNumpadBayar = () => {
         callback: async () => {
           showLoading('Menghapus data ' + nama + '...');
           try {
+            // Setiap penghapusan disertai metadata (bukan cuma Promise polos),
+            // supaya kalau ada yang gagal kita tahu persis record mana yang
+            // sudah kebenaran terhapus di server dan mana yang belum — cache
+            // lokal hanya dibersihkan untuk yang benar-benar sukses.
             const allDels = [];
-            allDels.push(sbDelete(sbDoc(db, COL.master, docId)));
-            const inputSnap = await sbGetAll(sbTable(db, COL.input)); inputSnap.forEach(d => { if(d.data().nama === nama) allDels.push(sbDelete(sbDoc(db, COL.input, d.id))); });
-            const pinSnap = await sbGetAll(sbTable(db, COL.pinjaman)); pinSnap.forEach(d => { if(d.data().nama === nama) allDels.push(sbDelete(sbDoc(db, COL.pinjaman, d.id))); });
-            const bayarSnap = await sbGetAll(sbTable(db, COL.bayar)); bayarSnap.forEach(d => { if(d.data().nama === nama) allDels.push(sbDelete(sbDoc(db, COL.bayar, d.id))); });
-            const tamSnap = await sbGetAll(sbTable(db, 'tambahan')); tamSnap.forEach(d => { if(d.data().nama === nama) allDels.push(sbDelete(sbDoc(db, 'tambahan', d.id))); });
-            await Promise.all(allDels);
-            _CACHE.input = _CACHE.input.filter(r => r.nama !== nama);
-            _CACHE.pinjaman = _CACHE.pinjaman.filter(r => r.nama !== nama);
-            _CACHE.bayar = _CACHE.bayar.filter(r => r.nama !== nama);
-            delete _rcTambahan[nama];
-            _saveTambahanToSession();
-            MASTER.pegawai = MASTER.pegawai.filter(p => p !== nama);
-            delete MASTER.pegawaiData[nama];
-            delete _masterDocIds['pegawai|' + nama];
-            const dd = $('set_peg_dropdown'); const opt = dd.querySelector(`option[value="${nama}"]`); if(opt) opt.remove();
-            dd.value = ''; $('set_peg_bagian_ro').textContent = '—'; $('pegRowHapusSave').style.display = 'none';
-            _pegMode = 'select'; _applyPegMode();
+            allDels.push({ jenis: 'master', p: sbDelete(sbDoc(db, COL.master, docId)) });
+            const inputSnap = await sbGetAll(sbTable(db, COL.input)); inputSnap.forEach(d => { if(d.data().nama === nama) allDels.push({ jenis: 'input', id: d.id, p: sbDelete(sbDoc(db, COL.input, d.id)) }); });
+            const pinSnap = await sbGetAll(sbTable(db, COL.pinjaman)); pinSnap.forEach(d => { if(d.data().nama === nama) allDels.push({ jenis: 'pinjaman', id: d.id, p: sbDelete(sbDoc(db, COL.pinjaman, d.id)) }); });
+            const bayarSnap = await sbGetAll(sbTable(db, COL.bayar)); bayarSnap.forEach(d => { if(d.data().nama === nama) allDels.push({ jenis: 'bayar', id: d.id, p: sbDelete(sbDoc(db, COL.bayar, d.id)) }); });
+            const tamSnap = await sbGetAll(sbTable(db, 'tambahan')); tamSnap.forEach(d => { if(d.data().nama === nama) allDels.push({ jenis: 'tambahan', id: d.id, p: sbDelete(sbDoc(db, 'tambahan', d.id)) }); });
+
+            const hasil = await Promise.allSettled(allDels.map(d => d.p));
+            const gagal = [];
+            allDels.forEach((d, i) => {
+              const sukses = hasil[i].status === 'fulfilled';
+              if (!sukses) { gagal.push(d); return; }
+              if (d.jenis === 'input') _CACHE.input = _CACHE.input.filter(r => r.id !== d.id);
+              if (d.jenis === 'pinjaman') _CACHE.pinjaman = _CACHE.pinjaman.filter(r => r.id !== d.id);
+              if (d.jenis === 'bayar') _CACHE.bayar = _CACHE.bayar.filter(r => r.id !== d.id);
+            });
+
+            if (gagal.length) {
+              // Sebagian sudah terhapus di server, sebagian belum. sbDelete
+              // pada record yang sudah terhapus sebelumnya adalah no-op aman
+              // (0 baris terpengaruh, bukan error), jadi menekan "Hapus" lagi
+              // nanti akan otomatis melanjutkan sisanya tanpa duplikasi apa pun.
+              showToast('⚠ ' + (allDels.length - gagal.length) + ' dari ' + allDels.length + ' data terhapus. ' + gagal.length + ' gagal — coba "Hapus" lagi untuk melanjutkan.');
+              return;
+            }
+
+            const masterGagal = hasil[0].status !== 'fulfilled';
+            if (!masterGagal) {
+              delete _rcTambahan[nama];
+              _saveTambahanToSession();
+              MASTER.pegawai = MASTER.pegawai.filter(p => p !== nama);
+              delete MASTER.pegawaiData[nama];
+              delete _masterDocIds['pegawai|' + nama];
+              const dd = $('set_peg_dropdown'); const opt = dd.querySelector(`option[value="${nama}"]`); if(opt) opt.remove();
+              dd.value = ''; $('set_peg_bagian_ro').textContent = '—'; $('pegRowHapusSave').style.display = 'none';
+              _pegMode = 'select'; _applyPegMode();
+            }
             showToast('✅ Semua data ' + nama + ' berhasil dihapus!');
             setTimeout(() => { muatRekapPegawai(); muatRekapPinjaman(); loadDashboardDana(); }, 400);
           } catch(e) { showToast('❌ Gagal: ' + e.message); }
@@ -7491,18 +7558,27 @@ window.tutupNumpadBayar = () => {
       } catch(e){ showToast('❌ Gagal: '+e.message); }
     };
 
-    window.hapusTambahan = async (bagian, jenis) => {
-      if(!confirm(`Hapus "${jenis}" dari ${bagian}?`)) return;
-      showLoading('Menghapus...');
-      try {
-        const key = 'tambahan_item|' + bagian + '|' + jenis;
-        if(_hargaDocIds[key]) { await sbDelete(sbDoc(db, COL.harga, _hargaDocIds[key])); delete _hargaDocIds[key]; }
-        if(MASTER.tambahanItemList) { MASTER.tambahanItemList = MASTER.tambahanItemList.filter(t=>!(t.bagian===bagian&&t.jenis===jenis)); }
-        showToast('🗑 Dihapus!');
-        _renderTamDaftarBagian(bagian);
-        renderDaftarTambahan();
-      } catch(e){ showToast('❌ Gagal: '+e.message); }
-      finally { hideLoading(); }
+    window.hapusTambahan = (bagian, jenis) => {
+      bukaConfirm({
+        icon: '<i class="fa-solid fa-trash"></i>',
+        iconBg: '#FEE2E2', iconColor: '#EF4444',
+        title: 'Hapus Item Tambahan?',
+        msg: `"${jenis}" dari ${bagian} akan dihapus permanen.`,
+        okLabel: 'Ya, Hapus',
+        okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
+        callback: async () => {
+          showLoading('Menghapus...');
+          try {
+            const key = 'tambahan_item|' + bagian + '|' + jenis;
+            if(_hargaDocIds[key]) { await sbDelete(sbDoc(db, COL.harga, _hargaDocIds[key])); delete _hargaDocIds[key]; }
+            if(MASTER.tambahanItemList) { MASTER.tambahanItemList = MASTER.tambahanItemList.filter(t=>!(t.bagian===bagian&&t.jenis===jenis)); }
+            showToast('🗑 Dihapus!');
+            _renderTamDaftarBagian(bagian);
+            renderDaftarTambahan();
+          } catch(e){ showToast('❌ Gagal: '+e.message); }
+          finally { hideLoading(); }
+        }
+      });
     };
 
     window.simpanTambahanBaru = async () => {
@@ -8360,42 +8436,48 @@ window.simpanEditNominalBayar = async () => {
 
 // ===== HAPUS BAYAR =====
 
-window.hapusBayar = async (id) => {
+window.hapusBayar = (id) => {
   if (!id) {
     showToast('❌ ID tidak valid');
     return;
   }
   
-  if (!confirm('Hapus pembayaran ini?\n\nSisa pinjaman akan bertambah kembali.\nTindakan ini tidak bisa dibatalkan.')) {
-    return;
-  }
-  
-  showLoading('Menghapus...');
-  
-  try {
-    await sbDelete(sbDoc(db, COL.bayar, id));
-    
-    showToast('🗑 Pembayaran dihapus');
-    tutupPopup('editNominalBayarPopup');
-    
-    // Refresh list
-    setTimeout(() => {
-      // Cek masih ada bayar?
-      const sisaBayar = _CACHE.bayar.filter(b => b.nama === _editBayarCurrentNama && !b.luarGaji);
-      if (sisaBayar.length === 0) {
-        tutupPopup('editBayarPopup');
-      } else {
-        bukaEditBayar(_editBayarCurrentNama);
+  bukaConfirm({
+    icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+    iconBg: '#FEE2E2', iconColor: '#EF4444',
+    title: 'Hapus Pembayaran?',
+    msg: 'Sisa pinjaman akan bertambah kembali.<br>Tindakan ini tidak bisa dibatalkan.',
+    okLabel: 'Ya, Hapus',
+    okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
+    callback: async () => {
+      showLoading('Menghapus...');
+      
+      try {
+        await sbDelete(sbDoc(db, COL.bayar, id));
+        
+        showToast('🗑 Pembayaran dihapus');
+        tutupPopup('editNominalBayarPopup');
+        
+        // Refresh list
+        setTimeout(() => {
+          // Cek masih ada bayar?
+          const sisaBayar = _CACHE.bayar.filter(b => b.nama === _editBayarCurrentNama && !b.luarGaji);
+          if (sisaBayar.length === 0) {
+            tutupPopup('editBayarPopup');
+          } else {
+            bukaEditBayar(_editBayarCurrentNama);
+          }
+          muatRekapPinjaman();
+          muatRekapPegawai();
+        }, 300);
+        
+      } catch (e) {
+        showToast('❌ Gagal: ' + e.message);
+      } finally {
+        hideLoading();
       }
-      muatRekapPinjaman();
-      muatRekapPegawai();
-    }, 300);
-    
-  } catch (e) {
-    showToast('❌ Gagal: ' + e.message);
-  } finally {
-    hideLoading();
-  }
+    }
+  });
 };
 
     window.filterRekap = q => { if(currentTab==='pegawai') renderTabelRekap(q); else renderTabelPinjaman(q); };
@@ -8514,11 +8596,22 @@ window.hapusBayar = async (id) => {
         const tamTgl = existingTam._tanggalISO || '';
         const todayISO = _localISODate(new Date());
         if(tamTgl === todayISO) {
-          if(!confirm(`${nama} sudah punya tambahan hari ini (Rp ${fmt(existingTam.total)}). Ganti?`)) {
-            return;
-          }
+          bukaConfirm({
+            icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+            iconBg: '#FEF3C7', iconColor: '#D97706',
+            title: 'Ganti Data Tambahan?',
+            msg: `${nama} sudah punya tambahan hari ini (Rp ${fmt(existingTam.total)}). Ganti?`,
+            okLabel: 'Ya, Ganti',
+            okBg: 'linear-gradient(135deg, #1A56DB, #4B8EF8)',
+            callback: () => _lanjutSimpanTambahanRincian(nama, saveBtn)
+          });
+          return;
         }
       }
+      _lanjutSimpanTambahanRincian(nama, saveBtn);
+    };
+
+    async function _lanjutSimpanTambahanRincian(nama, saveBtn) {
       if(saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '0.5'; }
       const items = window._tamCurrentItems || [];
       let total = 0;
@@ -8565,7 +8658,7 @@ window.hapusBayar = async (id) => {
       $('tambahanPopup').classList.remove('active');
       renderTabelRekap();
       loadDashboardDana();
-    };
+    }
 
     async function _saveTambahanDinamisFB(nama) {
       if(!nama || !_rcTambahan[nama]) return false;
@@ -9604,8 +9697,15 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const nama = document.getElementById('ep_nama').value;
       const jenis = document.getElementById('ep_jenis').value;
       if(!id) return;
-      if(!confirm(`Hapus pinjaman "${jenis}" milik ${nama}?\n\nSemua riwayat pembayaran terkait juga akan dihapus.\nTindakan ini tidak bisa dibatalkan.`)) return;
-      hapusPinjamanById(id);
+      bukaConfirm({
+        icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+        iconBg: '#FEE2E2', iconColor: '#EF4444',
+        title: 'Hapus Pinjaman?',
+        msg: `Pinjaman "${jenis}" milik ${nama} akan dihapus.<br>Semua riwayat pembayaran terkait juga akan dihapus.<br>Tindakan ini tidak bisa dibatalkan.`,
+        okLabel: 'Ya, Hapus',
+        okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
+        callback: () => hapusPinjamanById(id)
+      });
     };
 
     window.hapusPinjamanById = async id => {
