@@ -5468,6 +5468,7 @@
 
     function sbWatch(collRef, onNext, onError, queryModifier) {
       const table = collRef.__table;
+      let _seq = 0; // token urutan: cegah fetch lama menimpa fetch baru
 
       function pushSnapshot(rows) {
         const docs = (rows || []).map(r => ({
@@ -5490,20 +5491,24 @@
         return q;
       }
 
+      // fetch + push, dengan token urutan supaya hasil yang telat (stale)
+      // tidak menimpa hasil yang lebih baru kalau ada beberapa event
+      // realtime datang berdekatan dan resolve tidak berurutan.
+      function _fetchAndPush() {
+        const mySeq = ++_seq;
+        _buildQuery().then(({ data: rows, error }) => {
+          if (mySeq !== _seq) return; // sudah ada fetch lebih baru, buang hasil ini
+          if (error) { if (onError) onError(_mkError(error, 'supabase/read-failed')); return; }
+          pushSnapshot(rows);
+        });
+      }
+
       // load awal
-      _buildQuery().then(({ data: rows, error }) => {
-        if (error) { if (onError) onError(_mkError(error, 'supabase/read-failed')); return; }
-        pushSnapshot(rows);
-      });
+      _fetchAndPush();
 
       // realtime: setiap ada perubahan di tabel ini, baca ulang (dengan filter yang sama)
       const channel = sb.channel('realtime:' + table + ':' + _SESSION_ID)
-        .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
-          _buildQuery().then(({ data: rows, error }) => {
-            if (error) { if (onError) onError(_mkError(error, 'supabase/read-failed')); return; }
-            pushSnapshot(rows);
-          });
-        })
+        .on('postgres_changes', { event: '*', schema: 'public', table }, () => _fetchAndPush())
         .subscribe();
 
       return () => { sb.removeChannel(channel); };
