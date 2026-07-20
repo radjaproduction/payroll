@@ -5485,10 +5485,31 @@
       // queryModifier (opsional): batasi baris yang diambil dari server
       // (mis. filter tanggal), supaya tabel yang sudah besar tidak perlu
       // di-download utuh tiap kali, lalu disaring lagi di JS.
-      function _buildQuery() {
+      // PAGE_SIZE + .range(): Supabase/PostgREST default hanya mengembalikan
+      // maksimal 1000 baris per request. Tanpa pagination, tabel yang sudah
+      // >1000 baris akan terpotong diam-diam (data seolah "macet"/hilang).
+      const PAGE_SIZE = 1000;
+      function _buildQuery(from, to) {
         let q = sb.from(table).select('id, data');
         if (queryModifier) q = queryModifier(q);
+        if (typeof from === 'number') q = q.range(from, to);
         return q;
+      }
+
+      // Ambil semua baris dengan mem-paging per PAGE_SIZE sampai halaman
+      // terakhir (jumlah baris yang balik < PAGE_SIZE).
+      async function _fetchAllRows(mySeq) {
+        let allRows = [];
+        let from = 0;
+        while (true) {
+          const { data: rows, error } = await _buildQuery(from, from + PAGE_SIZE - 1);
+          if (mySeq !== _seq) return null; // ada fetch lebih baru, batalkan
+          if (error) throw error;
+          allRows = allRows.concat(rows || []);
+          if (!rows || rows.length < PAGE_SIZE) break;
+          from += PAGE_SIZE;
+        }
+        return allRows;
       }
 
       // fetch + push, dengan token urutan supaya hasil yang telat (stale)
@@ -5496,10 +5517,11 @@
       // realtime datang berdekatan dan resolve tidak berurutan.
       function _fetchAndPush() {
         const mySeq = ++_seq;
-        _buildQuery().then(({ data: rows, error }) => {
-          if (mySeq !== _seq) return; // sudah ada fetch lebih baru, buang hasil ini
-          if (error) { if (onError) onError(_mkError(error, 'supabase/read-failed')); return; }
-          pushSnapshot(rows);
+        _fetchAllRows(mySeq).then(allRows => {
+          if (allRows === null) return; // dibatalkan oleh fetch yang lebih baru
+          pushSnapshot(allRows);
+        }).catch(error => {
+          if (onError) onError(_mkError(error, 'supabase/read-failed'));
         });
       }
 
