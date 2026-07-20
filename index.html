@@ -5407,7 +5407,18 @@
       return e;
     }
 
+    // Data master dan label ditampilkan kembali di banyak template HTML.
+    // Tolak karakter yang dapat membentuk tag/atribut/script agar input baru
+    // tidak berubah menjadi XSS melalui nama, jenis pekerjaan, atau brand.
+    function _validateRecordData(value) {
+      if (typeof value === 'string' && /[<>&`\\]/.test(value)) {
+        throw new Error('Teks tidak boleh mengandung karakter <, >, &, `, atau \\');
+      }
+      if (value && typeof value === 'object') Object.values(value).forEach(_validateRecordData);
+    }
+
     async function sbInsert(collRef, data) {
+      _validateRecordData(data);
       const id = _genId();
       const { error } = await sb.from(collRef.__table).insert({ id, data });
       if (error) throw _mkError(error, 'supabase/insert-failed');
@@ -5415,6 +5426,7 @@
     }
 
     async function sbUpsert(docRef, data, options) {
+      _validateRecordData(data);
       const merge = options && options.merge;
       if (merge) {
         const { data: existing } = await sb.from(docRef.__table).select('data').eq('id', docRef.__id).maybeSingle();
@@ -5428,6 +5440,7 @@
     }
 
     async function sbUpdate(docRef, partialData) {
+      _validateRecordData(partialData);
       const { data: existing, error: getErr } = await sb.from(docRef.__table).select('data').eq('id', docRef.__id).maybeSingle();
       if (getErr) throw _mkError(getErr, 'supabase/update-failed');
       const merged = Object.assign({}, existing ? existing.data : {}, partialData);
@@ -5505,7 +5518,10 @@
     let currentTab='pegawai', listType='', dpTarget='';
     let _sisaPerNama={}, _nilaiPerNama={};
     let _tgl = { rekapMulai:'', rekapAkhir:'', printMulai:'', printAkhir:'' };
+    // `_rcTambahan` dipakai form input minggu berjalan.  Riwayat lengkap
+    // disimpan terpisah supaya rekap periode lama tidak kehilangan tambahan.
     let _rcTambahan = {};
+    let _tambahanRecords = [];
     let _rcNamaAktif = '';
     let _bayarLuarGaji = false;
     let _bayarPendapatanBersih = 0;
@@ -5610,6 +5626,43 @@
       return false;
     }
     const _tamKey = (t) => (t.bagian||'') + '|' + (t.jenis||'');
+    const _nilaiItemTambahan = it => Number(it && (it.jumlah > 0 ? it.jumlah : (it.qty||0) * (it.harga||0))) || 0;
+    function getTambahanLocal(nama, dari='', sampai='') {
+      const merged = {};
+      let total = 0;
+      _tambahanRecords.forEach(data => {
+        if(data.nama !== nama) return;
+        const tanggalISO = (data.tanggalISO || '').slice(0, 10);
+        if(!tanggalISO || (dari && tanggalISO < dari) || (sampai && tanggalISO > sampai)) return;
+        let items = {};
+        try { items = data.itemsJSON ? JSON.parse(data.itemsJSON) : {}; } catch(e) { items = {}; }
+        // Kompatibilitas data tambahan versi lama yang belum memakai itemsJSON.
+        if (!Object.keys(items).length) {
+          const legacy = [
+            ['UANG MAKAN', data.hariMakan, data.jumlahMakan],
+            ['UANG MAKAN MINGGU', data.hariMakanMinggu, data.jumlahMakanMinggu],
+            ['LEMBUR', data.hariLembur, data.jumlahLembur],
+            ['BONUS', data.hariBonus, data.jumlahBonus]
+          ];
+          legacy.forEach(([jenis, qty, jumlah]) => {
+            if (Number(qty || 0) > 0 || Number(jumlah || 0) > 0) {
+              const harga = qty ? Number(jumlah || 0) / Number(qty) : 0;
+              items['|' + jenis] = { jenis, qty:Number(qty || 0), harga, jumlah:Number(jumlah || 0) };
+            }
+          });
+        }
+        Object.entries(items).forEach(([key, item]) => {
+          const jumlah = _nilaiItemTambahan(item);
+          if(jumlah <= 0) return;
+          if(!merged[key]) merged[key] = { ...item, qty:0, jumlah:0 };
+          merged[key].qty += Number(item.qty || 0);
+          merged[key].jumlah += jumlah;
+        });
+        const calculated = Object.values(items).reduce((sum, item) => sum + _nilaiItemTambahan(item), 0);
+        total += Number(data.total) > 0 ? Number(data.total) : calculated;
+      });
+      return { items: merged, total };
+    }
 
     // ===== SUPABASE LISTENERS =====
     function initMasterListener() {
@@ -5673,16 +5726,8 @@
       sbWatch(sbTable(db, COL.input), snap => { _CACHE.input = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.input = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_input.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
       sbWatch(sbTable(db, COL.pinjaman), snap => { _CACHE.pinjaman = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.pinjaman = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_pinjaman.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
       sbWatch(sbTable(db, COL.bayar), snap => { _CACHE.bayar = snap.docs.map(d => ({ id:d.id, ...d.data() })); _initFlags.bayar = true; _tryInit(); _autoRefresh(); }, err => _showDbError('⚠ Gagal membaca payroll_bayar.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
-      // Hanya butuh data ~2 minggu terakhir untuk rekap, jadi filter di server
-      // (sebelumnya download SELURUH histori 'tambahan' lalu baru disaring di JS,
-      // ini yang paling bikin loading lama kalau datanya sudah banyak)
-      const _today00 = new Date();
-      const _day00 = _today00.getDay() || 7;
-      const _senin00 = new Date(_today00); _senin00.setDate(_today00.getDate() - _day00 + 1); _senin00.setHours(0,0,0,0);
-      const _duaMingguLalu00 = new Date(_senin00); _duaMingguLalu00.setDate(_senin00.getDate() - 7);
-      const _cutoffTambahanISO = _duaMingguLalu00.toISOString().slice(0,10);
-
       sbWatch(sbTable(db, 'tambahan'), snap => {
+        _tambahanRecords = snap.docs.map(d => d.data());
         _rcTambahan = {};
         const _today = new Date();
         const _day = _today.getDay() || 7;
@@ -5731,7 +5776,7 @@
         _initFlags.tambahan = true;
         _tryInit();
         _autoRefresh();
-      }, err => { console.warn('⚠️ Gagal listener tambahan:', err.message); _loadTambahanFromSession(); _initFlags.tambahan = true; _tryInit(); }, q => q.gte('data->>tanggalISO', _cutoffTambahanISO));
+      }, err => { console.warn('⚠️ Gagal listener tambahan:', err.message); _loadTambahanFromSession(); _initFlags.tambahan = true; _tryInit(); });
     }
 
     let _initTimeout;
@@ -5842,16 +5887,7 @@
       const potongan = bayarItems.reduce((s,b) => s+(b.bayar||0), 0);
       const bagian = items.length>0 ? (items[0].bagian||'-') : '-';
       // FIX 7: Include tambahan dalam return
-      const tam = _rcTambahan[nama];
-      let tamTotal = 0;
-      if(tam) {
-        const tamTgl = tam._tanggalISO || '';
-        const inRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
-        if(inRange) {
-          tamTotal = tam.total > 0 ? tam.total :
-            (tam.items ? Object.values(tam.items).reduce((s,it)=>s+(it.jumlah||0),0) : 0);
-        }
-      }
+      const tamTotal = getTambahanLocal(nama, dari, sampai).total;
       return { items:rows, subtotal, potongan, tamTotal, total:subtotal+tamTotal-potongan, bagian };
     }
 
@@ -6713,11 +6749,7 @@ window.onBayarNama = () => {
   const dari = _getISO('rekapMulai');
   const sampai = _getISO('rekapAkhir');
   const res = getRincianLocal(nama, dari, sampai);
-  const tam = _rcTambahan[nama];
-  const tamTgl = tam?._tanggalISO || '';
-  const tamDalamRange = !tamTgl || ((!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai));
-  const tamTotalFromItems2 = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
-  const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems2) : 0;
+  const tamTotal = getTambahanLocal(nama, dari, sampai).total;
   
   const potMap = {};
   _CACHE.bayar.filter(b => {
@@ -6864,6 +6896,10 @@ window.simpanBayar = async () => {
   }
   
   const totalBayar = toBayar.reduce((s, b) => s + b.bayar, 0);
+  if (toBayar.some(b => b.bayar > b.sisa)) {
+    showToast('⚠ Pembayaran tidak boleh melebihi sisa pinjaman!');
+    return;
+  }
   if (!_bayarLuarGaji && totalBayar > _bayarPendapatanBersih) {
     showToast('⚠ Total bayar melebihi pendapatan!');
     return;
@@ -7657,12 +7693,7 @@ window.tutupNumpadBayar = () => {
   // Summary bar
   let totalKotor = 0, totalTambahan = 0, totalPotongan = 0, totalBersih = 0;
   rows.forEach(r => {
-    const tam = _rcTambahan[r.nama];
-    const tamTgl = tam?._tanggalISO || '';
-    // Tanpa tanggal = tidak valid, harus dianggap di luar range (bukan otomatis lolos)
-    const tamDalamRange = tamTgl && ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
-    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
-    const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
+    const tamTotal = getTambahanLocal(r.nama, _dari, _sampai).total;
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
     const adaPinjaman = sisaPinjaman > 0;
@@ -7678,11 +7709,8 @@ window.tutupNumpadBayar = () => {
 
   // Card list
   rows.forEach((r, idx) => {
-    const tam = _rcTambahan[r.nama];
-    const tamTgl = tam?._tanggalISO || '';
-    const tamDalamRange = !tamTgl || ((!_dari || tamTgl >= _dari) && (!_sampai || tamTgl <= _sampai));
-    const tamTotalFromItems = (tam && tam.items) ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
-    const tamTotal = tamDalamRange ? ((tam && tam.total > 0) ? tam.total : tamTotalFromItems) : 0;
+    const tam = getTambahanLocal(r.nama, _dari, _sampai);
+    const tamTotal = tam.total;
     const adaTambahan = tamTotal > 0;
     const pinData = pinjamanAktifMap[r.nama];
     const sisaPinjaman = pinData ? pinData.total : 0;
@@ -8209,6 +8237,26 @@ window.simpanEditNominalBayar = async () => {
     showToast('❌ ID tidak valid');
     return;
   }
+
+  // Jangan percaya batas dari UI saja. Hitung ulang sisa dari data terbaru
+  // agar nominal edit tidak bisa membuat pembayaran melebihi pokok pinjaman.
+  const pembayaranSaatIni = _CACHE.bayar.find(b => b.id === _editBayarCurrentId);
+  if (!pembayaranSaatIni) {
+    showToast('❌ Data pembayaran sudah tidak ditemukan');
+    return;
+  }
+  const jenis = pembayaranSaatIni.jenisPinjaman || '(lainnya)';
+  const totalPinjamanJenis = _CACHE.pinjaman
+    .filter(p => p.nama === pembayaranSaatIni.nama && (p.jenis || '(lainnya)') === jenis)
+    .reduce((sum, p) => sum + Number(p.nominal || 0), 0);
+  const pembayaranLain = _CACHE.bayar
+    .filter(b => b.id !== _editBayarCurrentId && b.nama === pembayaranSaatIni.nama && (b.jenisPinjaman || '(lainnya)') === jenis)
+    .reduce((sum, b) => sum + Number(b.bayar || 0), 0);
+  const maksimum = Math.max(0, totalPinjamanJenis - pembayaranLain);
+  if (newNominal > maksimum) {
+    showToast('⚠ Nominal melebihi sisa pinjaman (maks. Rp ' + fmt(maksimum) + ')');
+    return;
+  }
   
   const btn = $('btnSimpanEditNominal');
   btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Menyimpan...</span>';
@@ -8481,6 +8529,11 @@ window.hapusBayar = async (id) => {
         payload.hariBonus = _findQty('BONUS');
         payload.jumlahBonus = _findJumlah('BONUS');
         await sbUpsert(sbDoc(db, 'tambahan', docId), payload, { merge: true });
+        // Realtime biasanya langsung memperbarui cache, tetapi sinkronkan juga
+        // cache lokal agar rekap/slip tidak terlambat berubah setelah tombol Simpan.
+        const idx = _tambahanRecords.findIndex(r => r.nama === nama && r.tanggalISO === payload.tanggalISO);
+        if (idx >= 0) _tambahanRecords[idx] = payload;
+        else _tambahanRecords.push(payload);
         return true;
       } catch(e) { console.error('❌ Gagal simpan tambahan:', e); showToast('⚠️ Gagal simpan ke database: ' + e.message); return false; }
     }
@@ -8540,12 +8593,10 @@ window.hapusBayar = async (id) => {
   $('slipSubPekerjaan').textContent = 'Rp ' + fmt(totalPekerjaan);
 
   // === TAMBAHAN ===
-  const tam = _rcTambahan[nama];
-  const tamTgl = tam?._tanggalISO || '';
-  const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
+  const tam = getTambahanLocal(nama, dari, sampai);
   const secTambahan = $('slipSecTambahan');
   
-  if (tam && tamDalamRange) {
+  if (tam.total > 0) {
     const _tamFromItemsSlip = tam.items ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah > 0 ? it.jumlah : (it.qty||0)*(it.harga||0)), 0) : 0;
     const _tamTotalSlip = tam.total > 0 ? tam.total : _tamFromItemsSlip;
     if(_tamTotalSlip > 0) {
@@ -8564,7 +8615,6 @@ window.hapusBayar = async (id) => {
             <div class="slip-item-left">
               <div class="slip-item-name">${it.jenis}</div>
               <div class="slip-item-meta">${it.qty} ${(it.satuan||'HARI').toLowerCase()} × Rp ${fmt(it.harga)}</div>
-              <div class="slip-item-meta" style="font-size:6px;color:#aaa;">${tam._tanggalISO || ''}</div>
             </div>
             <div class="slip-item-right">
               <div class="slip-item-amt g">+ Rp ${fmt(jumlahIt)}</div>
@@ -8670,7 +8720,7 @@ window.hapusBayar = async (id) => {
   const totalBersih = $('slipTotalBersih').textContent;
   
   // Ambil tambahan
-  const tam = _rcTambahan[nama];
+  const tam = getTambahanLocal(nama, dari, sampai);
   let tamHTMLCetak = '';
   let tamTotal = 0;
   if(tam) {
@@ -8737,7 +8787,7 @@ window.hapusBayar = async (id) => {
     
     const data=getRincianLocal(nama, dari, sampai);
     const _cekBayar = _CACHE.bayar.some(b => b.nama===nama && !b.luarGaji && (!dari||b.tanggalISO>=dari) && (!sampai||b.tanggalISO<=sampai));
-    const _cekTam = _rcTambahan[nama] && (_rcTambahan[nama].total||0) > 0;
+    const _cekTam = getTambahanLocal(nama, dari, sampai).total > 0;
     
     if(!data.items.length && !_cekBayar && !_cekTam) continue;
     
@@ -8756,7 +8806,7 @@ window.hapusBayar = async (id) => {
       ).join('');
     }
     
-    const tam = _rcTambahan[nama];
+    const tam = getTambahanLocal(nama, dari, sampai);
     let tamTotal = 0;
     let tamHTMLMassal = '';
     if(tam) {
@@ -9239,12 +9289,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const namaAktif = [...new Set(items.map(r=>r.nama))];
       let totalTambahan = 0;
       namaAktif.forEach(nama => {
-        const tam = _rcTambahan[nama];
-        if(tam && tam.total > 0) {
-          const tamTgl = tam._tanggalISO || '';
-          const inRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
-          if(inRange) totalTambahan += tam.total;
-        }
+        totalTambahan += getTambahanLocal(nama, dari, sampai).total;
       });
       let totalPotongan=0;
       _CACHE.bayar.forEach(b => {
@@ -9554,6 +9599,12 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
           okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
           callback: () => {
             showLoading('Menghapus pinjaman...');
+            const adaPembayaran = _CACHE.bayar.some(b => b.nama === nama && (b.jenisPinjaman || '(lainnya)') === (p.jenis || '(lainnya)'));
+            if (adaPembayaran) {
+              hideLoading();
+              showToast('⚠ Hapus atau batalkan pembayaran pinjaman ini terlebih dahulu');
+              return;
+            }
             sbDelete(sbDoc(db, COL.pinjaman, p.id))
               .then(() => {
                 showToast('🗑 Pinjaman berhasil dihapus');
@@ -9618,6 +9669,12 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
           okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
           callback: () => {
             showLoading('Menghapus pinjaman...');
+            const adaPembayaran = _CACHE.bayar.some(b => b.nama === nama && (b.jenisPinjaman || '(lainnya)') === (jenis || '(lainnya)'));
+            if (adaPembayaran) {
+              hideLoading();
+              showToast('⚠ Hapus atau batalkan pembayaran pinjaman ini terlebih dahulu');
+              return;
+            }
             sbDelete(sbDoc(db, COL.pinjaman, id))
               .then(() => {
                 showToast('🗑 Pinjaman berhasil dihapus');
@@ -9819,11 +9876,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const data = getRincianLocal(nama, dari, sampai);
 
       // Ambil tambahan
-      const tam = _rcTambahan[nama];
-      const tamTgl = tam?._tanggalISO || '';
-      const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
-      const tamTotalFromItems = tam?.items ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah||0), 0) : 0;
-      data.tamTotal = tamDalamRange ? (tam?.total > 0 ? tam.total : tamTotalFromItems) : 0;
+      data.tamTotal = getTambahanLocal(nama, dari, sampai).total;
 
       cetakRawBT(nama, data, periode);
     };
@@ -9845,15 +9898,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
         const data = getRincianLocal(nama, dari, sampai);
 
         // Hitung tambahan (sama persis dengan cetakSlipRawBT)
-        const tam = _rcTambahan[nama];
-        const tamTgl = tam?._tanggalISO || '';
-        const tamDalamRange = (!dari || tamTgl >= dari) && (!sampai || tamTgl <= sampai);
-        const tamTotalFromItems = tam?.items
-          ? Object.values(tam.items).reduce((s, it) => s + (it.jumlah||0), 0)
-          : 0;
-        data.tamTotal = tamDalamRange
-          ? (tam?.total > 0 ? tam.total : tamTotalFromItems)
-          : 0;
+        data.tamTotal = getTambahanLocal(nama, dari, sampai).total;
 
         if (!data.items.length && !data.tamTotal && !(data.potongan > 0)) return;
 
