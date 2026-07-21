@@ -9918,8 +9918,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
         iconColor: '#1A56DB',
         title: 'Pilih Pinjaman',
         msg: `<div style="text-align:left;"><b>${nama}</b> memiliki ${pinjamanList.length} pinjaman aktif. Pilih yang akan dihapus:<br><br>${listHtml}</div>`,
-        okLabel: 'Batal',
-        okBg: 'linear-gradient(135deg,var(--muted),#9CA3AF)',
+        hideOk: true,
         callback: () => {} // Just close
       });
     };
@@ -10240,13 +10239,17 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     };
 
     // ===== CONFIRM =====
-    window.bukaConfirm = ({ icon, iconBg, iconColor, title, msg, okLabel, okBg, callback }) => {
+    window.bukaConfirm = ({ icon, iconBg, iconColor, title, msg, okLabel, okBg, callback, hideOk }) => {
       const el = id => document.getElementById(id);
       el('confirmIcon').innerHTML = icon;
       el('confirmIcon').style.background = iconBg || 'var(--primaryDim)';
       el('confirmIcon').style.color = iconColor || 'var(--primary3)';
       el('confirmTitle').textContent = title;
       el('confirmMsg').innerHTML = msg;
+      // hideOk: dipakai utk modal yang isinya cuma daftar pilihan (mis. "Pilih
+      // Pinjaman") sehingga tidak perlu tombol OK terpisah — mencegah 2 tombol
+      // "Batal" tampil bersamaan (tombol Batal bawaan + okLabel:'Batal').
+      el('confirmBtnOk').style.display = hideOk ? 'none' : '';
       el('confirmBtnOk').textContent = okLabel || 'Ya, Lanjutkan';
       el('confirmBtnOk').style.background = okBg || 'linear-gradient(135deg, var(--primary3), var(--primary))';
       el('confirmBtnOk').style.boxShadow = '0 4px 16px rgba(0,180,216,.28)';
