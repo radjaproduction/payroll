@@ -5955,18 +5955,26 @@
       return result;
     }
 
-    function getRekapPinjamanLocal() {
+    function getRekapPinjamanLocal(sampai) {
+      // sampai (opsional, format ISO 'YYYY-MM-DD'): kalau diisi, fungsi ini
+      // menghitung SNAPSHOT posisi pinjaman per akhir tanggal tsb — hanya
+      // dokumen pinjaman & pembayaran yang tanggalnya <= sampai yang dihitung.
+      // Kalau kosong (dipanggil tanpa argumen), berarti "posisi saat ini"
+      // (semua riwayat, seperti perilaku sebelumnya) — dipakai oleh
+      // dashboard & popup edit yang memang butuh saldo terkini, bukan
+      // snapshot periode tertentu.
+      const _lolos = v => !sampai || (v.tanggalISO && v.tanggalISO <= sampai);
       const docMap = {};
-      _CACHE.pinjaman.forEach(v => { const j = v.jenis || '(lainnya)'; const key = v.nama + '||' + j; if (!docMap[key]) docMap[key] = []; docMap[key].push({ id: v.id, nominal: v.nominal || 0, tanggalISO: v.tanggalISO || '', waktu: v.waktu || '' }); });
+      _CACHE.pinjaman.filter(_lolos).forEach(v => { const j = v.jenis || '(lainnya)'; const key = v.nama + '||' + j; if (!docMap[key]) docMap[key] = []; docMap[key].push({ id: v.id, nominal: v.nominal || 0, tanggalISO: v.tanggalISO || '', waktu: v.waktu || '' }); });
       // FIX: sama seperti di getRekapPinjamanPerJenisLocal — urutkan pakai `waktu`
       // presisi detik + id sebagai tie-breaker, supaya urutan FIFO deterministik dan
       // tidak berubah-ubah tiap kali cache di-refetch dari Supabase.
       Object.keys(docMap).forEach(key => { docMap[key].sort((a,b) => (_waktuSortMs(a) - _waktuSortMs(b)) || String(a.id).localeCompare(String(b.id))); });
       const bayarMap = {};
-      _CACHE.bayar.forEach(v => { const j = v.jenisPinjaman || '(lainnya)'; const key = v.nama + '||' + j; bayarMap[key] = (bayarMap[key] || 0) + (v.bayar || 0); });
-      const allNama = new Set(_CACHE.pinjaman.map(v => v.nama));
+      _CACHE.bayar.filter(v => !sampai || (v.tanggalISO && v.tanggalISO <= sampai)).forEach(v => { const j = v.jenisPinjaman || '(lainnya)'; const key = v.nama + '||' + j; bayarMap[key] = (bayarMap[key] || 0) + (v.bayar || 0); });
+      const allNama = new Set(_CACHE.pinjaman.filter(_lolos).map(v => v.nama));
       return [...allNama].map(nama => {
-        const semuaJenis = new Set(_CACHE.pinjaman.filter(v => v.nama === nama).map(v => v.jenis || '(lainnya)'));
+        const semuaJenis = new Set(_CACHE.pinjaman.filter(v => v.nama === nama && _lolos(v)).map(v => v.jenis || '(lainnya)'));
         let totalPinjamanAktif = 0, totalBayarAktif = 0;
         const jenisAktif = new Set();
         semuaJenis.forEach(j => {
@@ -8261,7 +8269,8 @@ window.toggleCheckAllRekap = function(cb) {
 };
 
     function muatRekapPinjaman() {
-      rekapPinRows = getRekapPinjamanLocal().filter(r => r.sisa > 0);
+      const sampai = _getISO('rekapAkhir');
+      rekapPinRows = getRekapPinjamanLocal(sampai).filter(r => r.sisa > 0);
       renderTabelPinjaman();
     }
 
