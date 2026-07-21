@@ -1,11 +1,8 @@
-const CACHE_NAME = "payroll-radja-v3.0.2";
+const CACHE_NAME = "payroll-radja-v3.0.3";
 
 const STATIC_ASSETS = [
   "./",
-  "./index.html",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "./index.html"
 ];
 
 self.addEventListener("install", event => {
@@ -64,6 +61,22 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
 
   const url = new URL(event.request.url);
+
+  // JANGAN INTERCEPT manifest.json & file ikon.
+  // Chrome (Android WebAPK) melakukan pengecekan integritas ikon secara
+  // berkala dengan fetch manifest.json + icon-192.png/icon-512.png langsung.
+  // Kalau request ini kita tangkap lalu dijawab lewat cache.put()/match(),
+  // header seperti ETag/Last-Modified ikut berubah/hilang saat proses clone,
+  // sehingga Chrome mengira ikonnya "berubah" di SETIAP pengecekan meskipun
+  // byte-nya sama persis -> muncul popup "Tinjau pembaruan ikon" berulang.
+  // Biarkan browser fetch langsung ke network, tanpa campur tangan SW.
+  if (
+    url.pathname.endsWith("manifest.json") ||
+    url.pathname.endsWith("icon-192.png") ||
+    url.pathname.endsWith("icon-512.png")
+  ) {
+    return; // tidak panggil event.respondWith() -> browser handle sendiri
+  }
 
   // JANGAN CACHE SUPABASE
   if (
