@@ -5401,6 +5401,30 @@
       return new Date().toISOString();
     }
 
+    // FIX BUG: sebagian data lama menyimpan `waktu` bukan sebagai string ISO
+    // (mis. objek timestamp gaya Firestore {seconds,nanoseconds} atau angka
+    // epoch dari era sebelum migrasi ke Supabase). Kode lama pakai
+    // `.localeCompare()` langsung ke `waktu`, yang CRASH kalau nilainya bukan
+    // string (TypeError: ...localeCompare is not a function) — ini yang bikin
+    // proses sort di getRekapPinjamanLocal/getRekapPinjamanPerJenisLocal
+    // berhenti di tengah jalan sehingga tabel Rekap Pinjaman kelihatan kosong.
+    // Fungsi ini menormalkan SEMUA kemungkinan format jadi angka milidetik
+    // yang bisa dibandingkan langsung, dengan fallback ke tanggalISO.
+    function _waktuSortMs(item) {
+      const w = item && item.waktu;
+      if (w && typeof w === 'object') {
+        if (typeof w.seconds === 'number') return w.seconds * 1000 + ((w.nanoseconds || 0) / 1e6);
+        if (typeof w.toMillis === 'function') { try { return w.toMillis(); } catch(e) {} }
+      }
+      if (typeof w === 'number' && !isNaN(w)) return w;
+      if (typeof w === 'string' && w) {
+        const t = Date.parse(w);
+        if (!isNaN(t)) return t;
+      }
+      const t2 = Date.parse((item && item.tanggalISO) || '');
+      return isNaN(t2) ? 0 : t2;
+    }
+
     function _mkError(rawErr, fallbackCode) {
       const e = new Error((rawErr && rawErr.message) || 'Terjadi kesalahan pada Supabase');
       e.code = (rawErr && (rawErr.code || rawErr.hint)) || fallbackCode || 'supabase/error';
@@ -5457,11 +5481,14 @@
       // Pagination: Supabase/PostgREST default hanya balikin maksimal 1000
       // baris per request. Tanpa ini, tabel besar akan terpotong diam-diam
       // (mis. saat hapus pegawai, data lama pegawai bisa tidak ikut terhapus).
+      // FIX: .order('id') WAJIB ada kalau pakai .range() — tanpa ORDER BY,
+      // PostgreSQL tidak menjamin urutan baris yang sama antar query, jadi
+      // pagination bisa melompati atau menduplikasi baris secara diam-diam.
       const PAGE_SIZE = 1000;
       let rows = [];
       let from = 0;
       while (true) {
-        const { data: page, error } = await sb.from(collRef.__table).select('id, data').range(from, from + PAGE_SIZE - 1);
+        const { data: page, error } = await sb.from(collRef.__table).select('id, data').order('id', { ascending: true }).range(from, from + PAGE_SIZE - 1);
         if (error) throw _mkError(error, 'supabase/get-failed');
         rows = rows.concat(page || []);
         if (!page || page.length < PAGE_SIZE) break;
@@ -5499,9 +5526,14 @@
       // PAGE_SIZE + .range(): Supabase/PostgREST default hanya mengembalikan
       // maksimal 1000 baris per request. Tanpa pagination, tabel yang sudah
       // >1000 baris akan terpotong diam-diam (data seolah "macet"/hilang).
+      // FIX: .order('id') WAJIB ada kalau pakai .range() — tanpa ORDER BY,
+      // PostgreSQL tidak menjamin urutan baris yang sama antar query/refetch,
+      // jadi pagination bisa lompat/dobel DAN urutan baris di cache lokal
+      // (_CACHE.pinjaman, _CACHE.bayar, dst) bisa berubah-ubah walau datanya
+      // sendiri tidak berubah.
       const PAGE_SIZE = 1000;
       function _buildQuery(from, to) {
-        let q = sb.from(table).select('id, data');
+        let q = sb.from(table).select('id, data').order('id', { ascending: true });
         if (queryModifier) q = queryModifier(q);
         if (typeof from === 'number') q = q.range(from, to);
         return q;
@@ -5883,9 +5915,16 @@
       _CACHE.pinjaman.filter(p => p.nama === nama).forEach(p => {
         const j = p.jenis || '(lainnya)';
         if (!docPerJenis[j]) docPerJenis[j] = [];
-        docPerJenis[j].push({ id: p.id, nominal: p.nominal || 0, tanggalISO: p.tanggalISO || '' });
+        docPerJenis[j].push({ id: p.id, nominal: p.nominal || 0, tanggalISO: p.tanggalISO || '', waktu: p.waktu || '' });
       });
-      Object.keys(docPerJenis).forEach(j => { docPerJenis[j].sort((a,b) => a.tanggalISO.localeCompare(b.tanggalISO)); });
+      // FIX: urutkan pakai `waktu` (timestamp presisi detik) dulu, baru fallback ke
+      // tanggalISO+id. tanggalISO doang cuma presisi harian — kalau ada 2 pinjaman
+      // jenis sama di HARI YANG SAMA, urutan "siapa duluan" jadi tidak pasti dan
+      // ikut urutan mentah dari Supabase (yang TIDAK dijamin konsisten tanpa ORDER BY
+      // di query-nya). Itu bikin alokasi FIFO pembayaran bisa "lompat" ke pinjaman
+      // lain tiap kali data di-refetch, sehingga pinjaman yang sudah lunas minggu lalu
+      // bisa kelihatan belum lunas lagi minggu ini walau tidak ada perubahan nyata.
+      Object.keys(docPerJenis).forEach(j => { docPerJenis[j].sort((a,b) => (_waktuSortMs(a) - _waktuSortMs(b)) || String(a.id).localeCompare(String(b.id))); });
       const bayarPerJenis = {};
       _CACHE.bayar.filter(b => b.nama === nama).forEach(b => { const j = b.jenisPinjaman || '(lainnya)'; bayarPerJenis[j] = (bayarPerJenis[j] || 0) + (b.bayar || 0); });
       const result = [];
@@ -5903,8 +5942,11 @@
 
     function getRekapPinjamanLocal() {
       const docMap = {};
-      _CACHE.pinjaman.forEach(v => { const j = v.jenis || '(lainnya)'; const key = v.nama + '||' + j; if (!docMap[key]) docMap[key] = []; docMap[key].push({ id: v.id, nominal: v.nominal || 0, tanggalISO: v.tanggalISO || '' }); });
-      Object.keys(docMap).forEach(key => { docMap[key].sort((a,b) => a.tanggalISO.localeCompare(b.tanggalISO)); });
+      _CACHE.pinjaman.forEach(v => { const j = v.jenis || '(lainnya)'; const key = v.nama + '||' + j; if (!docMap[key]) docMap[key] = []; docMap[key].push({ id: v.id, nominal: v.nominal || 0, tanggalISO: v.tanggalISO || '', waktu: v.waktu || '' }); });
+      // FIX: sama seperti di getRekapPinjamanPerJenisLocal — urutkan pakai `waktu`
+      // presisi detik + id sebagai tie-breaker, supaya urutan FIFO deterministik dan
+      // tidak berubah-ubah tiap kali cache di-refetch dari Supabase.
+      Object.keys(docMap).forEach(key => { docMap[key].sort((a,b) => (_waktuSortMs(a) - _waktuSortMs(b)) || String(a.id).localeCompare(String(b.id))); });
       const bayarMap = {};
       _CACHE.bayar.forEach(v => { const j = v.jenisPinjaman || '(lainnya)'; const key = v.nama + '||' + j; bayarMap[key] = (bayarMap[key] || 0) + (v.bayar || 0); });
       const allNama = new Set(_CACHE.pinjaman.map(v => v.nama));
