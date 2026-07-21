@@ -2615,6 +2615,8 @@
       background:var(--card);
       border-radius:24px; padding:28px 24px 20px;
       width:100%; max-width:320px;
+      max-height:85vh;
+      display:flex; flex-direction:column;
       box-shadow:var(--shadow2);
       animation:popIn .25s cubic-bezier(.34,1.4,.64,1);
     }
@@ -2628,8 +2630,8 @@
       font-size:22px; margin:0 auto 16px;
     }
     .confirm-title { font-size:17px; font-weight:900; color:var(--text); text-align:center; margin-bottom:8px; letter-spacing:-.01em }
-    .confirm-msg { font-size:13px; color:var(--muted); font-weight:500; text-align:center; margin-bottom:22px; line-height:1.5 }
-    .confirm-btns { display:flex; gap:10px }
+    .confirm-msg { font-size:13px; color:var(--muted); font-weight:500; text-align:center; margin-bottom:22px; line-height:1.5; overflow-y:auto; min-height:0; -webkit-overflow-scrolling:touch }
+    .confirm-btns { display:flex; gap:10px; flex-shrink:0 }
     .confirm-btn-cancel {
       flex:1; border:1.5px solid var(--muted);
       background:var(--card2); color:var(--muted);
@@ -5860,8 +5862,21 @@
     }
 
     let _initTimeout;
+    let _lunasSweepDone = false;
+    async function _sweepPinjamanLunasSekaliJalan() {
+      // Bersihkan SEKALI saja saat data pertama kali termuat: pinjaman lama yang
+      // total bayarnya sudah menyamai/melebihi pokoknya (lunas) tapi belum
+      // terhapus (misal karena fitur ini baru ditambahkan) akan otomatis
+      // dibuang beserta riwayat pembayarannya.
+      if(_lunasSweepDone) return;
+      _lunasSweepDone = true;
+      try {
+        const semuaNama = new Set(_CACHE.pinjaman.map(p => p.nama));
+        for(const nama of semuaNama) { await _autoHapusPinjamanLunas(nama); }
+      } catch(e) { console.error('Sweep pinjaman lunas gagal:', e); }
+    }
     function _tryInit() {
-      if(Object.values(_initFlags).every(Boolean)) { clearTimeout(_initTimeout); hideLoading(); loadDashboardDana(); }
+      if(Object.values(_initFlags).every(Boolean)) { clearTimeout(_initTimeout); hideLoading(); loadDashboardDana(); _sweepPinjamanLunasSekaliJalan(); }
     }
     function _showDbError(msg) {
       clearTimeout(_initTimeout);
@@ -5979,6 +5994,41 @@
       // FIX 7: Include tambahan dalam return
       const tamTotal = getTambahanLocal(nama, dari, sampai).total;
       return { items:rows, subtotal, potongan, tamTotal, total:subtotal+tamTotal-potongan, bagian };
+    }
+
+    // ===== AUTO HAPUS PINJAMAN YANG SUDAH LUNAS =====
+    // Dipanggil tiap kali ada perubahan pembayaran (simpan/edit nominal). Untuk
+    // setiap jenis pinjaman milik seorang pegawai, kalau total bayar sudah
+    // menyamai/melebihi total pokok pinjaman jenis tsb (artinya SEMUA pinjaman
+    // jenis itu sudah lunas), dokumen pinjaman & seluruh riwayat pembayaran
+    // jenis tsb otomatis dihapus dari Supabase + cache lokal. Ini mencegah data
+    // yang sudah beres menumpuk dan nyangkut di daftar seperti "Pilih Pinjaman
+    // untuk dihapus" (yang sebelumnya bisa menampilkan pinjaman berstatus
+    // "Sisa: Rp 0" seolah masih aktif).
+    async function _autoHapusPinjamanLunas(nama) {
+      if (!nama) return false;
+      let adaYangDihapus = false;
+      try {
+        const jenisSet = new Set(_CACHE.pinjaman.filter(p => p.nama === nama).map(p => p.jenis || '(lainnya)'));
+        for (const jenis of jenisSet) {
+          const pinjamanDocs = _CACHE.pinjaman.filter(p => p.nama === nama && (p.jenis || '(lainnya)') === jenis);
+          if (!pinjamanDocs.length) continue;
+          const totalPinjaman = pinjamanDocs.reduce((s, p) => s + (p.nominal || 0), 0);
+          if (totalPinjaman <= 0) continue;
+          const bayarDocs = _CACHE.bayar.filter(b => b.nama === nama && (b.jenisPinjaman || '(lainnya)') === jenis);
+          const totalBayar = bayarDocs.reduce((s, b) => s + (b.bayar || 0), 0);
+          if (totalBayar >= totalPinjaman) {
+            for (const p of pinjamanDocs) { await sbDelete(sbDoc(db, COL.pinjaman, p.id)); }
+            for (const b of bayarDocs) { await sbDelete(sbDoc(db, COL.bayar, b.id)); }
+            _CACHE.pinjaman = _CACHE.pinjaman.filter(p => !(p.nama === nama && (p.jenis || '(lainnya)') === jenis));
+            _CACHE.bayar = _CACHE.bayar.filter(b => !(b.nama === nama && (b.jenisPinjaman || '(lainnya)') === jenis));
+            adaYangDihapus = true;
+          }
+        }
+      } catch (e) {
+        console.error('Auto-hapus pinjaman lunas gagal:', e);
+      }
+      return adaYangDihapus;
     }
 
     // ===== WINDOW FUNCTIONS =====
@@ -7060,7 +7110,8 @@ window.simpanBayar = async () => {
       belumTersimpan.shift();
     }
     
-    showToast('✅ Pembayaran tersimpan!');
+    const adaLunas = await _autoHapusPinjamanLunas(nama);
+    showToast(adaLunas ? '✅ Pembayaran tersimpan! Pinjaman lunas & riwayat dibersihkan otomatis' : '✅ Pembayaran tersimpan!');
     tutupPopupBayar();
     btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
     btn.disabled = false;
@@ -8451,14 +8502,17 @@ window.simpanEditNominalBayar = async () => {
       showToast('✅ Pembayaran berhasil diupdate');
     }
     
+    const adaLunas = await _autoHapusPinjamanLunas(_editBayarCurrentNama);
+    if (adaLunas) showToast('✅ Pinjaman lunas & riwayat dibersihkan otomatis');
+    
     tutupPopup('editNominalBayarPopup');
     
     // Refresh list
     setTimeout(() => {
       // Cek masih ada bayar?
       const sisaBayar = _CACHE.bayar.filter(b => b.nama === _editBayarCurrentNama && !b.luarGaji);
-      if (sisaBayar.length === 0 && newNominal === 0) {
-        // Kalau semua bayar dihapus, tutup popup edit
+      if (sisaBayar.length === 0 && (newNominal === 0 || adaLunas)) {
+        // Kalau semua bayar dihapus / pinjaman sudah lunas & dibersihkan, tutup popup edit
         tutupPopup('editBayarPopup');
       } else {
         bukaEditBayar(_editBayarCurrentNama);
@@ -9771,9 +9825,32 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     window.hapusPinjamanRekap = (nama) => {
       if(!nama) { showToast('❌ Nama pegawai tidak valid'); return; }
 
-      // Find pinjaman records for this user
-      const pinjamanList = _CACHE.pinjaman.filter(p => p.nama === nama);
-      if(!pinjamanList.length) { showToast('ℹ Tidak ada pinjaman untuk ' + nama); return; }
+      // Ambil semua dokumen pinjaman milik pegawai ini, lalu hitung sisa per
+      // dokumen secara FIFO per jenis (sama seperti kalkulasi rekap), supaya
+      // pinjaman yang sudah lunas (Sisa: Rp 0) tidak lagi muncul di daftar ini.
+      const semuaPinjaman = _CACHE.pinjaman.filter(p => p.nama === nama);
+      if(!semuaPinjaman.length) { showToast('ℹ Tidak ada pinjaman untuk ' + nama); return; }
+
+      const jenisGroups = {};
+      semuaPinjaman.forEach(p => {
+        const j = p.jenis || '(lainnya)';
+        if(!jenisGroups[j]) jenisGroups[j] = [];
+        jenisGroups[j].push(p);
+      });
+      const pinjamanList = [];
+      Object.keys(jenisGroups).forEach(j => {
+        const docs = jenisGroups[j].slice().sort((a,b) => (_waktuSortMs(a) - _waktuSortMs(b)) || String(a.id).localeCompare(String(b.id)));
+        let sisaBayar = _CACHE.bayar
+          .filter(b => b.nama === nama && (b.jenisPinjaman || '(lainnya)') === j && !b.luarGaji)
+          .reduce((s, b) => s + (b.bayar || 0), 0);
+        docs.forEach(doc => {
+          const terbayar = Math.min(sisaBayar, doc.nominal || 0);
+          sisaBayar -= terbayar;
+          const sisa = (doc.nominal || 0) - terbayar;
+          if (sisa > 0) pinjamanList.push({ ...doc, _sisa: sisa });
+        });
+      });
+      if(!pinjamanList.length) { showToast('ℹ Tidak ada pinjaman aktif untuk ' + nama); return; }
 
       // Sort by date (newest first)
       pinjamanList.sort((a, b) => (b.tanggalISO || '').localeCompare(a.tanggalISO || ''));
@@ -9822,9 +9899,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       // Multiple pinjaman: show selection dialog
       const q = s => String(s).replace(/'/g,"\'");
       const listHtml = pinjamanList.map((p, i) => {
-        const sisa = (p.nominal || 0) - (_CACHE.bayar
-          .filter(b => b.nama === nama && b.jenisPinjaman === (p.jenis || 'Pinjaman') && !b.luarGaji)
-          .reduce((s, b) => s + (b.bayar || 0), 0));
+        const sisa = p._sisa;
         return `<button onclick="window._hapusPinjamanTerpilih('${q(p.id)}', '${q(nama)}', '${q(p.jenis || 'Pinjaman')}', ${p.nominal || 0})" 
           style="width:100%;text-align:left;background:var(--card2);border:1.5px solid var(--muted);border-radius:12px;padding:13px 16px;margin-bottom:8px;cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;transition:all .15s;"
           onmouseover="this.style.borderColor='var(--red)';this.style.background='#FEE2E2';"
