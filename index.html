@@ -101,12 +101,12 @@
     /* HOME HEADER (blue gradient, like reference image) */
     .home-header {
       background: var(--header-grad);
-      padding: 0 18px 24px;
-      padding-top: calc(16px + var(--safe-top));
+      padding: 0 18px 16px;
+      padding-top: calc(12px + var(--safe-top));
       flex-shrink: 0;
       position: relative;
       overflow: hidden;
-      border-radius: 0 0 32px 32px;
+      border-radius: 0 0 28px 28px;
     }
     .home-header::before {
       content:'';
@@ -125,25 +125,25 @@
 
     /* BRAND ROW inside header */
     .home-brand {
-      display:flex; align-items:center; gap:12px;
-      margin-bottom: 20px;
+      display:flex; align-items:center; gap:10px;
+      margin-bottom: 12px;
       position: relative; z-index:1;
     }
     .brand-icon {
-      width:46px; height:46px;
+      width:38px; height:38px;
       background:rgba(255,255,255,.20);
-      border-radius:14px;
+      border-radius:12px;
       display:flex; align-items:center; justify-content:center;
-      color:#fff; font-size:20px; flex-shrink:0;
+      color:#fff; font-size:17px; flex-shrink:0;
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,.25);
     }
-    .brand-title { font-size:20px; font-weight:900; color:#fff; line-height:1; letter-spacing:-.01em }
-    .brand-sub { font-size:11px; color:rgba(255,255,255,.7); font-weight:500; margin-top:2px; }
+    .brand-title { font-size:17px; font-weight:900; color:#fff; line-height:1; letter-spacing:-.01em }
+    .brand-sub { font-size:10px; color:rgba(255,255,255,.7); font-weight:500; margin-top:2px; }
     .brand-badge {
       display:flex; align-items:center; gap:4px;
       font-size:9px; color:rgba(255,255,255,.8);
-      font-weight:700; letter-spacing:.06em; margin-top:4px;
+      font-weight:700; letter-spacing:.06em; margin-top:3px;
     }
     .brand-badge i { color:#22C55E; }
 
@@ -153,8 +153,8 @@
       position:relative; z-index:1;
     }
     .summary-card {
-      border-radius:20px; padding:16px;
-      display:flex; flex-direction:column; gap:8px;
+      border-radius:18px; padding:12px;
+      display:flex; flex-direction:column; gap:5px;
     }
     .summary-card.blue-card {
       background: rgba(255,255,255,.15);
@@ -185,20 +185,20 @@
       color:#fff;
     }
     .sc-icon {
-      width:36px; height:36px; border-radius:50%;
+      width:30px; height:30px; border-radius:50%;
       display:flex; align-items:center; justify-content:center;
-      font-size:16px;
+      font-size:14px;
     }
-    .sc-val { font-size:18px; font-weight:800; line-height:1.2; word-break:break-all; }
+    .sc-val { font-size:16px; font-weight:800; line-height:1.2; word-break:break-all; }
     .sc-label { font-size:9px; font-weight:700; opacity:.85; letter-spacing:.04em; text-transform:uppercase; }
 
     /* SCROLL BODY */
     .home-body {
       flex:1; overflow-y:auto; overflow-x:hidden;
-      padding: 16px 14px;
-      padding-bottom: calc(20px + var(--safe-bottom));
+      padding: 12px 14px;
+      padding-bottom: calc(14px + var(--safe-bottom));
       display:flex; flex-direction:column;
-      gap:10px;
+      gap:8px;
     }
 
     /* MENU CARDS – full-width row style (like reference) */
@@ -2682,8 +2682,8 @@
       .rc-card { max-height:96vh; max-height:96dvh }
       .rc-nama { font-size:32px }
       .rekap-inner { height:calc(100vh - 60px - var(--safe-top)); height:calc(100dvh - 60px - var(--safe-top)) }
-      .home-header { padding-bottom:18px; }
-      .home-body { padding:12px 12px; }
+      .home-header { padding-bottom:12px; }
+      .home-body { padding:10px 12px; }
       .exit-btn { padding:12px }
     }
     @media (max-height:600px) {
