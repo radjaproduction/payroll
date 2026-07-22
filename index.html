@@ -312,6 +312,7 @@
     .menu-card-sm:active { transform:scale(.97); box-shadow:none }
     .menu-card-sm.card-setting .m-icon { background:#E11D78; color:#FFE4F0; }
     .menu-card-sm.card-harga .m-icon { background:#0D9488; color:#CCFBF1; }
+    .menu-card-sm.card-log .m-icon { background:#7C3AED; color:#EDE9FE; }
     .menu-card-sm .m-icon {
       width:42px; height:42px;
       border-radius:14px;
@@ -322,6 +323,7 @@
     .menu-card-sm .m-label { font-size:13px; font-weight:800; color:var(--text); letter-spacing:.01em }
     .menu-card-sm.card-setting .m-label { color:#E11D78; }
     .menu-card-sm.card-harga .m-label { color:#0D9488; }
+    .menu-card-sm.card-log .m-label { color:#7C3AED; }
     .menu-card-sm .m-sub { font-size:10px; color:var(--muted); font-weight:500 }
     .menu-card-sm .m-arrow-sm {
       position:absolute; top:14px; right:14px;
@@ -331,6 +333,7 @@
     }
     .menu-card-sm.card-setting .m-arrow-sm { background:#FFE4F0; color:#E11D78; }
     .menu-card-sm.card-harga .m-arrow-sm { background:#CCFBF1; color:#0D9488; }
+    .menu-card-sm.card-log .m-arrow-sm { background:#EDE9FE; color:#7C3AED; }
 
     /* ===== BOTTOM NAVIGATION BAR ===== */
     /* EXIT ROW */
@@ -4221,6 +4224,12 @@
           <div class="m-label">HARGA</div>
           <div class="m-sub">Atur harga &amp; komponen</div>
         </div>
+        <div class="menu-card-sm card-log" style="grid-column:1 / -1;" onclick="bukaLogPinjamanLunas()">
+          <div class="m-arrow-sm"><i class="fa-solid fa-chevron-right"></i></div>
+          <div class="m-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          <div class="m-label">LOG</div>
+          <div class="m-sub">Riwayat auto-hapus pinjaman lunas</div>
+        </div>
       </div>
     </div>
 
@@ -5366,7 +5375,8 @@
       harga: 'payroll_harga',
       input: 'payroll_input',
       pinjaman: 'payroll_pinjaman',
-      bayar: 'payroll_bayar'
+      bayar: 'payroll_bayar',
+      pinjamanLunasLog: 'payroll_pinjaman_lunas_log'
     };
 
     // ====================================================================
@@ -6026,6 +6036,25 @@
           const bayarDocs = _CACHE.bayar.filter(b => b.nama === nama && (b.jenisPinjaman || '(lainnya)') === jenis);
           const totalBayar = bayarDocs.reduce((s, b) => s + (b.bayar || 0), 0);
           if (totalBayar >= totalPinjaman) {
+            // Catat dulu ke log audit SEBELUM data dihapus permanen. Penghapusan
+            // di sini berjalan otomatis tanpa konfirmasi user, jadi kalau suatu
+            // saat ada yang kelihatan "hilang" tanpa jejak, log ini jadi satu-satunya
+            // cara menelusuri: pinjaman/pembayaran siapa, jenis apa, dan kapan.
+            // Kegagalan menulis log TIDAK boleh membatalkan proses hapus-lunas
+            // (fitur inti tetap jalan meski audit trail gagal tersimpan).
+            try {
+              await sbInsert(sbTable(db, COL.pinjamanLunasLog), {
+                nama,
+                jenis,
+                totalPinjaman,
+                totalBayar,
+                pinjamanDihapus: pinjamanDocs.map(p => ({ id: p.id, nominal: p.nominal || 0, tanggal: p.tanggal || '' })),
+                bayarDihapus: bayarDocs.map(b => ({ id: b.id, bayar: b.bayar || 0, tanggal: b.tanggal || '' })),
+                waktu: sbTimestamp()
+              });
+            } catch (logErr) {
+              console.error('Gagal menyimpan log auto-hapus pinjaman lunas:', logErr);
+            }
             for (const p of pinjamanDocs) { await sbDelete(sbDoc(db, COL.pinjaman, p.id)); }
             for (const b of bayarDocs) { await sbDelete(sbDoc(db, COL.bayar, b.id)); }
             _CACHE.pinjaman = _CACHE.pinjaman.filter(p => !(p.nama === nama && (p.jenis || '(lainnya)') === jenis));
@@ -6038,6 +6067,59 @@
       }
       return adaYangDihapus;
     }
+
+    // ===== LOG AUDIT: RIWAYAT AUTO-HAPUS PINJAMAN LUNAS =====
+    // Menampilkan seluruh catatan yang ditulis _autoHapusPinjamanLunas, supaya
+    // penghapusan otomatis (yang berjalan tanpa konfirmasi user) tetap bisa
+    // ditelusuri: kapan, pegawai mana, jenis apa, dan berapa dokumen/pembayaran
+    // yang ikut terhapus.
+    window.bukaLogPinjamanLunas = async () => {
+      const existing = document.getElementById('logPinjamanLunasOverlay');
+      if (existing) existing.remove();
+      showLoading('Memuat log...');
+      try {
+        const snap = await sbGetAll(sbTable(db, COL.pinjamanLunasLog));
+        const entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        entries.sort((a, b) => (_waktuSortMs(b) - _waktuSortMs(a)));
+
+        const rows = entries.length
+          ? entries.map(e => {
+              const jmlPin = (e.pinjamanDihapus || []).length;
+              const jmlBayar = (e.bayarDihapus || []).length;
+              const waktuStr = (() => { const t = Date.parse(e.waktu || ''); return isNaN(t) ? '-' : new Date(t).toLocaleString('id-ID'); })();
+              return `<div style="background:var(--card2);border:1.5px solid var(--muted);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                  <div>
+                    <div style="font-size:13px;font-weight:800;color:var(--text);">${e.nama || '-'}</div>
+                    <div style="font-size:11px;color:var(--muted);margin-top:2px;">${e.jenis || '(lainnya)'} • ${waktuStr}</div>
+                  </div>
+                  <div style="text-align:right;font-size:11px;color:var(--muted);">
+                    ${jmlPin} pinjaman<br>${jmlBayar} bayar
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding-top:8px;margin-top:8px;border-top:1px solid var(--muted);font-size:12px;">
+                  <span>Total Pinjaman: <b>Rp ${fmt(e.totalPinjaman || 0)}</b></span>
+                  <span>Total Bayar: <b>Rp ${fmt(e.totalBayar || 0)}</b></span>
+                </div>
+              </div>`;
+            }).join('')
+          : `<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada riwayat auto-hapus pinjaman lunas.</div>`;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'logPinjamanLunasOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99999999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+        overlay.innerHTML = `<div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;">
+          <div style="font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Log Auto-Hapus Pinjaman Lunas (${entries.length})</div>
+          ${rows}
+          <button onclick="document.getElementById('logPinjamanLunasOverlay').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;">Tutup</button>
+        </div>`;
+        document.body.appendChild(overlay);
+      } catch (e) {
+        showToast('❌ Gagal memuat log: ' + e.message);
+      } finally {
+        hideLoading();
+      }
+    };
 
     // ===== WINDOW FUNCTIONS =====
     // Flag: user keluar dari inputPage tanpa save
@@ -9787,6 +9869,29 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const nominal = parseInt(document.getElementById('ep_nominal').value) || 0;
       if(!id || id.trim() === ''){ showToast('ID tidak valid'); return; }
       if(nominal < 0){ showToast('⚠ Nominal tidak boleh negatif'); return; }
+
+      // Jangan biarkan nominal diturunkan sampai di bawah total pembayaran yang
+      // sudah tercatat untuk nama+jenis ini. Pembayaran dilacak secara agregat
+      // per nama+jenis (bukan per dokumen), jadi kalau totalPinjaman < totalBayar,
+      // "sisa" jenis ini langsung terlihat lunas di rekap dan _autoHapusPinjamanLunas
+      // akan menghapus dokumen ini + seluruh riwayat bayarnya secara diam-diam
+      // pada trigger berikutnya (pembayaran baru / reload aplikasi).
+      const pinDoc = _CACHE.pinjaman.find(p => p.id === id);
+      if(pinDoc) {
+        const jenis = pinDoc.jenis || '(lainnya)';
+        const totalBayarJenis = _CACHE.bayar
+          .filter(b => b.nama === pinDoc.nama && (b.jenisPinjaman || '(lainnya)') === jenis)
+          .reduce((s, b) => s + (b.bayar || 0), 0);
+        const totalPinjamanLain = _CACHE.pinjaman
+          .filter(p => p.id !== id && p.nama === pinDoc.nama && (p.jenis || '(lainnya)') === jenis)
+          .reduce((s, p) => s + (p.nominal || 0), 0);
+        const batasMin = Math.max(0, totalBayarJenis - totalPinjamanLain);
+        if(nominal < batasMin) {
+          showToast('⚠ Nominal tidak boleh lebih kecil dari total pembayaran yang sudah tercatat (min. Rp ' + fmt(batasMin) + ')');
+          return;
+        }
+      }
+
       showLoading('Menyimpan perubahan...');
       try {
         await sbUpdate(sbDoc(db, COL.pinjaman, id), { nominal });
@@ -9802,11 +9907,28 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const nama = document.getElementById('ep_nama').value;
       const jenis = document.getElementById('ep_jenis').value;
       if(!id) return;
+      // Cek dulu apakah ada pembayaran terkait nama+jenis ini SEBELUM menampilkan
+      // dialog, supaya pesannya akurat (dan tidak menjanjikan penghapusan riwayat
+      // bayar yang sebenarnya tidak akan terjadi / tidak boleh terjadi).
+      const jenisKey = jenis || '(lainnya)';
+      const adaPembayaran = _CACHE.bayar.some(b => b.nama === nama && (b.jenisPinjaman || '(lainnya)') === jenisKey);
+      if(adaPembayaran) {
+        bukaConfirm({
+          icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+          iconBg: '#FEF3C7', iconColor: '#D97706',
+          title: 'Tidak Bisa Dihapus Langsung',
+          msg: `Pinjaman "${jenis}" milik ${nama} masih punya riwayat pembayaran.<br>Hapus atau batalkan pembayaran pinjaman jenis ini terlebih dahulu sebelum menghapus pinjamannya.`,
+          okLabel: 'Mengerti',
+          okBg: 'linear-gradient(135deg,#D97706,#F59E0B)',
+          callback: () => {}
+        });
+        return;
+      }
       bukaConfirm({
         icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
         iconBg: '#FEE2E2', iconColor: '#EF4444',
         title: 'Hapus Pinjaman?',
-        msg: `Pinjaman "${jenis}" milik ${nama} akan dihapus.<br>Semua riwayat pembayaran terkait juga akan dihapus.<br>Tindakan ini tidak bisa dibatalkan.`,
+        msg: `Pinjaman "${jenis}" milik ${nama} akan dihapus.<br>Tindakan ini tidak bisa dibatalkan.`,
         okLabel: 'Ya, Hapus',
         okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
         callback: () => hapusPinjamanById(id)
@@ -9818,13 +9940,22 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       showLoading('Menghapus pinjaman...');
       try {
         const pinDoc = _CACHE.pinjaman.find(p => p.id === id);
-        await sbDelete(sbDoc(db, COL.pinjaman, id));
+        // Jaga-jaga (mis. dipanggil dari jalur lain tanpa lewat konfirmasiHapusPinjaman
+        // di atas): tetap blokir kalau masih ada riwayat pembayaran terkait, supaya
+        // tidak pernah menghapus/menyisakan data pembayaran yang salah alokasi, dan
+        // supaya tidak memicu auto-hapus "lunas" yang keliru di kemudian hari.
         if(pinDoc) {
-          const relatedBayar = _CACHE.bayar.filter(b => b.nama === pinDoc.nama && b.jenisPinjaman === (pinDoc.jenis || '(lainnya)'));
-          for(const b of relatedBayar) { await sbDelete(sbDoc(db, COL.bayar, b.id)); }
+          const jenis = pinDoc.jenis || '(lainnya)';
+          const adaPembayaran = _CACHE.bayar.some(b => b.nama === pinDoc.nama && (b.jenisPinjaman || '(lainnya)') === jenis);
+          if(adaPembayaran) {
+            hideLoading();
+            showToast('⚠ Hapus atau batalkan pembayaran pinjaman ini terlebih dahulu');
+            return;
+          }
         }
+        await sbDelete(sbDoc(db, COL.pinjaman, id));
         tutupPopup('editPinjamanPopup');
-        showToast('🗑 Pinjaman & riwayat bayar berhasil dihapus');
+        showToast('🗑 Pinjaman berhasil dihapus');
         setTimeout(() => { muatRekapPinjaman(); muatRekapPegawai(); }, 300);
       } catch(e) { showToast('❌ Gagal hapus: ' + e.message); }
       finally { hideLoading(); }
