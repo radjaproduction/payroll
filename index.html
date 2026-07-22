@@ -335,21 +335,6 @@
     .menu-card-sm.card-harga .m-arrow-sm { background:#CCFBF1; color:#0D9488; }
     .menu-card-sm.card-log .m-arrow-sm { background:#EDE9FE; color:#7C3AED; }
 
-    /* ===== BOTTOM NAVIGATION BAR ===== */
-    /* EXIT ROW */
-    .exit-row { display:flex; gap:10px; flex-shrink:0; min-height:52px }
-    .exit-btn {
-      flex:1; border:none; background:#fff;
-      border-radius:18px; padding:15px;
-      font-size:13px; font-weight:700; color:var(--muted);
-      cursor:pointer; font-family:inherit;
-      box-shadow:var(--shadow);
-      display:flex; align-items:center; justify-content:center;
-      gap:8px; transition:color .2s;
-      border:1.5px solid var(--muted);
-    }
-    .exit-btn:active { color:var(--red) }
-
     /* ===== CSS POPUP UNIVERSAL — SEMUA POPUP DARI BAWAH ===== */
 /* ============================================================
    ===== CSS POPUP SYSTEM — PINJAMAN & BAYAR =====
@@ -415,10 +400,6 @@
 
 .popup-header-blue {
   background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-}
-
-.popup-header-green {
-  background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%);
 }
 
 .popup-header-bg::after {
@@ -539,11 +520,6 @@
   border: 1.5px solid rgba(26, 86, 219, 0.12);
 }
 
-.popup-info-green {
-  background: linear-gradient(135deg, #D1FAE5 0%, #ECFDF5 100%);
-  border: 1.5px solid rgba(16, 185, 129, 0.15);
-}
-
 .popup-info-icon {
   width: 24px;
   height: 24px;
@@ -557,7 +533,6 @@
 }
 
 .popup-info-icon-blue { background: #1A56DB; }
-.popup-info-icon-green { background: #059669; }
 
 .popup-info-text {
   font-size: 10px;
@@ -567,7 +542,6 @@
 }
 
 .popup-info-text-blue { color: #1A56DB; }
-.popup-info-text-green { color: #059669; }
 
 /* ===== FORM GROUPS ===== */
 .popup-form-group {
@@ -686,13 +660,6 @@
   pointer-events: none;
 }
 
-/* ===== INPUT ===== */
-.popup-input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
 .popup-input-prefix {
   position: absolute;
   left: 14px;
@@ -751,48 +718,8 @@
   display: none !important;
 }
 
-/* ===== QUICK AMOUNTS ===== */
-.popup-quick {
-  margin-top: 6px;
-}
-
 .popup-quick.hidden {
   display: none !important;
-}
-
-.popup-quick-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #7B8DB0;
-  margin-bottom: 8px;
-  letter-spacing: 0.04em;
-}
-
-.popup-quick-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.popup-quick-btn {
-  padding: 10px 6px;
-  border: 1.5px solid #DDE4F0;
-  border-radius: 10px;
-  background: #F7F9FC;
-  color: #2C3A5A;
-  font-size: 11px;
-  font-weight: 700;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.1s;
-  text-align: center;
-}
-
-.popup-quick-btn:active {
-  transform: scale(0.95);
-  border-color: #4B8EF8;
-  color: #1A56DB;
-  background: #E0EAFF;
 }
 
 .popup-quick-btn.active {
@@ -801,154 +728,16 @@
   border-color: #1A56DB;
 }
 
-/* ===== TOGGLE ===== */
-.popup-toggle-track {
-  width: 52px;
-  height: 28px;
-  border-radius: 14px;
-  background: #D1D5DB;
-  position: relative;
-  transition: background 0.2s;
-  cursor: pointer;
-}
-
 .popup-toggle-track.active {
   background: #EF4444;
-}
-
-.popup-toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #fff;
-  transition: left 0.2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .popup-toggle-track.active .popup-toggle-thumb {
   left: 26px;
 }
 
-.popup-toggle-label {
-  font-size: 8px;
-  font-weight: 700;
-  color: #7B8DB0;
-  text-align: center;
-  margin-top: 3px;
-  letter-spacing: 0.03em;
-}
-
-/* ===== PINJAMAN ITEMS (BAYAR) ===== */
-.popup-pinj-item {
-  background: #F7F9FC;
-  border: 1.5px solid #DDE4F0;
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-}
-
-.popup-pinj-header {
-  font-size: 10px;
-  font-weight: 800;
-  color: #1A56DB;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.popup-pinj-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  align-items: end;
-  margin-bottom: 8px;
-}
-
-.popup-pinj-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #7B8DB0;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-
-.popup-pinj-sisa {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid #DDE4F0;
-  border-radius: 10px;
-  background: #E8EEF5;
-  font-size: 13px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  color: #1A2340;
-  outline: none;
-}
-
-.popup-pinj-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid #DDE4F0;
-  border-radius: 10px;
-  background: #F7F9FC;
-  font-size: 13px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  color: #1A2340;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.popup-pinj-input:focus {
-  border-color: #4B8EF8;
-}
-
-.popup-pinj-lunas {
-  width: 100%;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.popup-pinj-info {
-  display: none;
-  margin-top: 6px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: #fff;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .popup-pinj-info.show {
   display: flex;
-}
-
-.popup-pinj-info-text {
-  font-size: 10px;
-  font-weight: 700;
-  color: #7B8DB0;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.popup-pinj-info-val {
-  font-size: 12px;
-  font-weight: 800;
 }
 
 .popup-pinj-info-val.lunas { color: #10B981; }
@@ -987,11 +776,6 @@
 .popup-btn-primary-blue {
   background: linear-gradient(135deg, #1A56DB, #4B8EF8);
   box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-}
-
-.popup-btn-primary-green {
-  background: linear-gradient(135deg, #059669, #10B981);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.28);
 }
 
 .popup-btn-primary:active:not(:disabled) {
@@ -1204,7 +988,6 @@
 @media (max-width: 390px) {
   .popup-header-title { font-size: 18px; }
   .popup-header-icon { width: 40px; height: 40px; font-size: 18px; }
-  .popup-quick-grid { grid-template-columns: repeat(2, 1fr); }
   .popup-body { padding: 12px 14px; }
 }
 
@@ -1217,23 +1000,6 @@
       from { transform:translateY(-100%) }
       to { transform:translateY(0) }
     }
-
-   /* ============================================================
-   ===== RINCIAN POPUP REDESIGN — FULL =====
-   ============================================================ */
-
-.rc-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 43, 110, 0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: none;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 999999;
-  padding: 0;
-}
 
 .rc-overlay.active {
   display: flex;
@@ -1330,300 +1096,8 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.rc-section {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.06);
-  border: 1px solid rgba(26, 86, 219, 0.08);
-}
-
-.rc-section-title {
-  font-size: 10px;
-  font-weight: 800;
-  color: #7B8DB0;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.rc-section-title i {
-  font-size: 12px;
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  background: #E0EAFF;
-  color: #1A56DB;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.rc-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 10px 0;
-  border-bottom: 1px solid #F2F5FA;
-}
-
-.rc-item:last-child {
-  border-bottom: none;
-}
-
-.rc-item-left {
-  flex: 1;
-  min-width: 0;
-}
-
-.rc-item-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1A2340;
-  line-height: 1.3;
-}
-
-.rc-item-meta {
-  font-size: 11px;
-  color: #7B8DB0;
-  font-weight: 600;
-  margin-top: 3px;
-}
-
-.rc-item-right {
-  text-align: right;
-  flex-shrink: 0;
-  margin-left: 12px;
-}
-
-.rc-item-qty {
-  font-size: 11px;
-  color: #7B8DB0;
-  font-weight: 600;
-}
-
-.rc-item-harga {
-  font-size: 11px;
-  color: #7B8DB0;
-  font-weight: 500;
-}
-
-.rc-item-jumlah {
-  font-size: 14px;
-  font-weight: 800;
-  color: #1A2340;
-  margin-top: 2px;
-}
-
-.rc-subtotal {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
-  margin-top: 4px;
-  border-top: 2px solid #E8EEF5;
-}
-
-.rc-subtotal-label {
-  font-size: 11px;
-  font-weight: 800;
-  color: #2C3A5A;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.rc-subtotal-val {
-  font-size: 16px;
-  font-weight: 900;
-  color: #1A56DB;
-}
-
-.rc-tambahan .rc-section-title i {
-  background: #D1FAE5;
-  color: #059669;
-}
-
-.rc-tambahan .rc-item-jumlah {
-  color: #059669;
-}
-
-.rc-tambahan .rc-subtotal-val {
-  color: #059669;
-}
-
-.rc-potongan .rc-section-title i {
-  background: #FEE2E2;
-  color: #EF4444;
-}
-
-.rc-potongan .rc-item-jumlah {
-  color: #EF4444;
-}
-
-.rc-potongan .rc-subtotal-val {
-  color: #EF4444;
-}
-
-.rc-total-card {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 12px;
-  position: relative;
-  overflow: hidden;
-}
-
-.rc-total-card::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-}
-
-.rc-total-card::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: -10px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-}
-
-.rc-total-label {
-  font-size: 10px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.8);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 4px;
-  position: relative;
-  z-index: 1;
-}
-
-.rc-total-val {
-  font-size: 24px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  position: relative;
-  z-index: 1;
-}
-
-.rc-total-detail {
-  font-size: 11px;
-  color: rgba(255,255,255,0.7);
-  font-weight: 600;
-  margin-top: 8px;
-  line-height: 1.5;
-  position: relative;
-  z-index: 1;
-}
-
-.rc-tambah-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  border: 2px solid rgba(255,255,255,0.4);
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-}
-
-.rc-tambah-btn:active {
-  background: rgba(255,255,255,0.3);
-  transform: scale(0.95);
-}
-
-.rc-footer {
-  padding: 12px 16px;
-  padding-bottom: calc(12px + var(--safe-bottom));
-  background: #fff;
-  border-top: 1px solid #E8EEF5;
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.rc-btn {
-  flex: 1;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 800;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.15s;
-  border: none;
-}
-
-.rc-btn-tutup {
-  background: #F2F5FA;
-  color: #7B8DB0;
-  border: 1.5px solid #DDE4F0;
-}
-
-.rc-btn-tutup:active {
-  background: #E8EEF5;
-}
-
-.rc-btn-download {
-  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-}
-
-.rc-btn-download:active {
-  transform: scale(0.97);
-}
-
-.rc-empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: #7B8DB0;
-}
-
-.rc-empty i {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: 0.3;
-  display: block;
-}
-
-.rc-empty-text {
-  font-size: 14px;
-  font-weight: 600;
-}
-
 @media (max-width: 390px) {
   .rc-nama { font-size: 28px; }
-  .rc-total-val { font-size: 28px; }
-  .rc-section { padding: 12px; }
-  .rc-item-name { font-size: 12px; }
-  .rc-btn { padding: 12px; font-size: 13px; }
 }
 
 @media (max-height: 700px) {
@@ -1936,24 +1410,6 @@
     tr:last-child td { border-bottom:none }
     td.nama-cell { font-weight:700; font-size:11px; text-align:left; padding-left:10px; word-break:break-word; }
 
-    .detail-btn {
-      background:var(--primaryDim);
-      border:none; border-radius:8px;
-      padding:6px 12px; font-size:10px; font-weight:700;
-      cursor:pointer; font-family:inherit;
-      color:var(--primary3);
-      letter-spacing:.03em;
-    }
-    .print-icon-btn {
-      background:var(--primaryDim);
-      border:none; cursor:pointer;
-      color:var(--primary3);
-      font-size:15px; padding:6px 10px; border-radius:8px;
-    }
-
-    .bersih-val { font-size:13px; font-weight:800; color:var(--green) }
-    .kotor-label { font-size:9px; color:var(--muted); display:block; font-weight:500 }
-
 /* ===== REDESIGNED REKAP CARD STYLES ===== */
 
 .rekap-card {
@@ -2122,9 +1578,6 @@
 }
 .rekap-amount-value.warning {
   color: #DC2626;
-}
-.rekap-amount-divider {
-  display: none;
 }
 
 /* Card Body - Expandable */
@@ -2370,47 +1823,6 @@
   font-weight: 600;
 }
 
-/* Summary bar at top */
-.rekap-summary-bar {
-  display: flex;
-  gap: 10px;
-  margin: 0 16px 12px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  flex-shrink: 0;
-}
-
-.rekap-summary-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.rekap-summary-chip {
-  flex-shrink: 0;
-  background: var(--card);
-  border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  min-width: 100px;
-}
-
-.rekap-summary-chip-label {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: 3px;
-}
-
-.rekap-summary-chip-value {
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--text);
-  line-height: 1;
-}
-
 .rekap-summary-chip-value.green {
   color: var(--green);
 }
@@ -2418,37 +1830,6 @@
 .rekap-summary-chip-value.red {
   color: #DC2626;
 }
-
-    /* PINJAMAN BADGE */
-    .pinjaman-badge {
-      display:inline-flex; align-items:center; gap:3px;
-      background:rgba(239,68,68,.12);
-      color:#DC2626;
-      font-size:8px; font-weight:800;
-      border-radius:5px; padding:2px 6px;
-      letter-spacing:.04em; margin-top:3px; white-space:nowrap;
-    }
-    .no-pinjaman-badge {
-      display:inline-flex; align-items:center; gap:3px;
-      background:rgba(16,185,129,.12);
-      color:#059669;
-      font-size:8px; font-weight:800;
-      border-radius:5px; padding:2px 6px;
-      letter-spacing:.04em; margin-top:3px; white-space:nowrap;
-    }
-    tr.row-has-pinjaman { background:rgba(239,68,68,.05) !important; }
-    tr.row-has-pinjaman td:first-child { border-left:3px solid #EF4444; }
-    tr.row-no-pinjaman td:first-child { border-left:3px solid transparent; }
-
-    .home-fab { display:none; }
-
-    /* REKAP PAGE INNER - rc-overlay-center untuk alignment tengah */
-    .rc-overlay-center {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.50);
-      display:none; justify-content:center; align-items:center;
-      z-index:999999; padding:20px;
-    }
     .rc-overlay-center.active { display:flex; animation:fadeIn .2s }
     @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
     .rc-card {
@@ -2478,9 +1859,6 @@
       background:var(--card2); border-bottom:1px solid var(--muted);
     }
     .rc-body { flex:1; overflow-y:auto }
-    
-    /* ===== SLIP GAJI A6 - ULTRA KOMPAK ===== */
-.slip-popup { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; justify-content: center; align-items: flex-end; z-index: 9999999; padding: 0; }
 .slip-popup.active { display: flex; }
 
 .slip-box {
@@ -2512,10 +1890,7 @@
   border-radius: 12px 12px 0 0;
 }
 .slip-hd-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; position: relative; z-index: 1; }
-.slip-badge-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .slip-logo { height: 30px; width: auto; object-fit: contain; display: block; }
-.slip-co { font-size: 7px; font-weight: 800; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .12em; }
-.slip-badge { font-size: 7px; font-weight: 700; color: rgba(255,255,255,.9); background: rgba(255,255,255,.15); padding: 2px 8px; border-radius: 4px; letter-spacing: .05em; }
 .slip-nm { font-size: 22px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -.02em; position: relative; z-index: 1; }
 .slip-info { display: flex; justify-content: space-between; align-items: center; margin-top: 3px; position: relative; z-index: 1; }
 .slip-dept { font-size: 8px; font-weight: 700; color: rgba(255,255,255,.85); text-transform: uppercase; letter-spacing: .06em; background: rgba(255,255,255,.12); padding: 2px 8px; border-radius: 4px; }
@@ -2661,12 +2036,9 @@
       .menu-card { padding:14px 12px }
       .menu-card .m-label { font-size:12px }
       .rc-nama { font-size:34px }
-      .rc-tabel th, .rc-tabel td { font-size:10px; padding:8px 4px }
-      .rc-tabel .row-tot td { font-size:15px }
       td { font-size:11px; padding:8px 4px }
       th { font-size:9px }
       td.nama-cell { padding-left:8px; font-size:12px }
-      .detail-btn { padding:5px 8px; font-size:9px }
       .tab-btn { font-size:11px; padding:9px 6px }
       .date-chip { font-size:12px; padding:9px 10px }
     }
@@ -2674,17 +2046,14 @@
       .home-body { padding:12px 10px; }
       .menu-grid { gap:8px }
       .menu-card { padding:12px 14px }
-      .exit-btn { font-size:12px; padding:12px }
     }
     .popup-sheet { max-height:88vh; max-height:88dvh }
     @media (max-height:680px) {
-      .rc-overlay { padding:8px }
       .rc-card { max-height:96vh; max-height:96dvh }
       .rc-nama { font-size:32px }
       .rekap-inner { height:calc(100vh - 60px - var(--safe-top)); height:calc(100dvh - 60px - var(--safe-top)) }
       .home-header { padding-bottom:12px; }
       .home-body { padding:10px 12px; }
-      .exit-btn { padding:12px }
     }
     @media (max-height:600px) {
       .home-body { gap:8px }
@@ -2697,53 +2066,6 @@
       box-shadow:0 0 0 3px rgba(75,142,248,.12) !important;
       outline:none !important;
     }
-
-/* ===== BODY — SCROLLABLE AREA ===== */
-.pin-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 18px;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  /* Penting: scroll ke field aktif */
-  scroll-behavior: smooth;
-}
-
-/* ===== INFO CARD ===== */
-.pin-info-card {
-  background: linear-gradient(135deg, #E0EAFF 0%, #F0F7FF 100%);
-  border: 1.5px solid rgba(26, 86, 219, 0.12);
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.pin-info-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  background: var(--primary3);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  flex-shrink: 0;
-}
-
-.pin-info-text {
-  font-size: 10px;
-  color: var(--primary3);
-  font-weight: 600;
-  line-height: 1.5;
-  padding-top: 2px;
-}
-
-/* ===== FORM GROUPS ===== */
-.pin-form-group,
 .popup-form-group {
   margin-bottom: 14px;
 }
@@ -2764,131 +2086,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.pin-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.pin-label i {
-  color: var(--primary);
-  font-size: 11px;
-  width: 14px;
-  text-align: center;
-}
-
-/* ===== SELECT ===== */
-.pin-select-wrap {
-  position: relative;
-}
-
-.pin-select {
-  width: 100%;
-  padding: 12px 40px 12px 14px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  background: var(--card2);
-  font-size: 15px;
-  font-family: inherit;
-  font-weight: 600;
-  color: var(--text);
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  cursor: pointer;
-}
-
-.pin-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
-  background: var(--card);
-}
-
-.pin-select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--bg2);
-}
-
-.pin-select-arrow {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  font-size: 11px;
-  pointer-events: none;
-}
-
-/* ===== INPUT ===== */
-.pin-input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.pin-input-prefix {
-  position: absolute;
-  left: 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--primary3);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.pin-input {
-  width: 100%;
-  padding: 12px 14px 12px 44px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  background: var(--card2);
-  font-size: 16px; /* 16px = no zoom iOS */
-  font-family: inherit;
-  font-weight: 700;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.pin-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(75, 142, 248, 0.12);
-  background: var(--card);
-}
-
-.pin-input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--bg2);
-}
-
-.pin-input::placeholder {
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.pin-input-hint {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 4px;
-  font-weight: 500;
-  padding-left: 4px;
-}
-
-/* ===== QUICK AMOUNTS ===== */
-.pin-quick-amounts,
-.popup-quick {
-  margin-top: 6px;
-}
-
 .pin-quick-amounts.hidden,
 .popup-quick.hidden {
   display: none !important;
@@ -2900,129 +2097,10 @@
   animation: pinFieldShow 0.2s ease-out;
 }
 
-.pin-quick-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  margin-bottom: 8px;
-  letter-spacing: 0.04em;
-}
-
-.pin-quick-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.pin-quick-btn {
-  padding: 10px 6px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  background: var(--card2);
-  color: var(--text2);
-  font-size: 11px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.1s;
-  text-align: center;
-}
-
-.pin-quick-btn:active {
-  transform: scale(0.95);
-  border-color: var(--primary);
-  color: var(--primary3);
-  background: var(--primaryDim);
-}
-
 .pin-quick-btn.active {
   background: linear-gradient(135deg, var(--primary3), var(--primary));
   color: #fff;
   border-color: var(--primary);
-}
-
-/* ===== FOOTER — STICKY, SELALI TERLIHAT ===== */
-.pin-footer {
-  padding: 10px 18px;
-  padding-bottom: calc(10px + var(--safe-bottom));
-  background: var(--card);
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex-shrink: 0;
-  /* Penting: selalu di atas */
-  z-index: 3;
-}
-
-.pin-btn-primary {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary3), var(--primary));
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-  transition: opacity 0.15s, transform 0.1s;
-}
-
-.pin-btn-primary:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.pin-btn-primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: var(--muted);
-  box-shadow: none;
-}
-
-.pin-btn-ghost {
-  width: 100%;
-  padding: 10px;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  background: var(--card2);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.pin-btn-ghost:active {
-  transform: scale(0.97);
-  border-color: var(--primary);
-  color: var(--primary3);
-}
-
-/* ===== KEYBOARD ACTIVE — POPUP NAIK ===== */
-.pinjaman-sheet.keyboard-active {
-  max-height: 50vh;
-  max-height: 50dvh;
-  transition: transform 0.15s ease, max-height 0.15s ease;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 390px) {
-  .pin-header-title { font-size: 18px; }
-  .pin-header-icon { width: 40px; height: 40px; font-size: 18px; }
-  .pin-quick-grid { grid-template-columns: repeat(2, 1fr); }
-  .pin-body { padding: 12px 14px; }
-}
-
-@media (max-height: 700px) {
-  .pinjaman-sheet { max-height: 90vh; max-height: 90dvh; }
-  .pin-header-bg { padding: 14px 14px 20px; }
 }
 
 /* ===== BAYAR PINJAMAN — VARIASI ===== */
@@ -3298,21 +2376,6 @@
   .edit-bayar-btn { font-size: 11px; padding: 8px; }
 }
 
-/* ===== RINCIAN POPUP REDESIGN ===== */
-
-/* Overlay backdrop */
-.rc-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 43, 110, 0.6);
-  backdrop-filter: blur(4px);
-  display: none;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 999999;
-  padding: 0;
-}
-
 .rc-overlay.active {
   display: flex;
 }
@@ -3393,277 +2456,14 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* Section Card */
-.rc-section {
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.06);
-  border: 1px solid rgba(26, 86, 219, 0.08);
-}
-
-.rc-section-title {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.rc-section-title i {
-  font-size: 10px;
-  color: var(--primary);
-}
-
-/* Item row */
-.rc-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 4px 0;
-  border-bottom: 1px solid #F2F5FA;
-}
-
-.rc-item:last-child {
-  border-bottom: none;
-}
-
-.rc-item-left {
-  flex: 1;
-  min-width: 0;
-}
-
-.rc-item-name {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.25;
-}
-
-.rc-item-meta {
-  font-size: 9px;
-  color: var(--muted);
-  font-weight: 600;
-  margin-top: 1px;
-}
-
-.rc-item-right {
-  text-align: right;
-  flex-shrink: 0;
-  margin-left: 10px;
-}
-
-.rc-item-qty {
-  font-size: 9px;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.rc-item-harga {
-  font-size: 9px;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.rc-item-jumlah {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text);
-  margin-top: 1px;
-}
-
-/* Subtotal dalam section */
-.rc-subtotal {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 8px;
-  margin-top: 2px;
-  border-top: 1.5px solid #E8EEF5;
-}
-
-.rc-subtotal-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text2);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.rc-subtotal-val {
-  font-size: 13px;
-  font-weight: 900;
-  color: var(--primary3);
-}
-
-/* Tambahan section */
-.rc-tambahan .rc-item-jumlah {
-  color: var(--green);
-}
-
-.rc-tambahan .rc-section-title {
-  color: var(--green);
-}
-
-.rc-tambahan .rc-section-title i {
-  color: var(--green);
-}
-
-/* Potongan section */
-.rc-potongan .rc-item-jumlah {
-  color: var(--red);
-}
-
-.rc-potongan .rc-section-title {
-  color: var(--red);
-}
-
-.rc-potongan .rc-section-title i {
-  color: var(--red);
-}
-
-/* Total Bersih — Card khusus */
-.rc-total-card {
-  background: linear-gradient(135deg, #1A2A8C 0%, #2347D8 50%, #3B7BF8 100%);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 8px;
-  position: relative;
-  overflow: hidden;
-}
-
-.rc-total-card::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-}
-
-.rc-total-label {
-  font-size: 9px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.8);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 3px;
-}
-
-.rc-total-val {
-  font-size: 24px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.rc-total-detail {
-  font-size: 9px;
-  color: rgba(255,255,255,0.7);
-  font-weight: 600;
-  margin-top: 5px;
-}
-
-/* Footer */
-.rc-footer {
-  padding: 12px 16px;
-  padding-bottom: calc(12px + var(--safe-bottom));
-  background: #fff;
-  border-top: 1px solid #E8EEF5;
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.rc-btn {
-  flex: 1;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 800;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.15s;
-}
-
-.rc-btn-tutup {
-  background: #F2F5FA;
-  color: var(--muted);
-  border: 1.5px solid #DDE4F0;
-}
-
-.rc-btn-tutup:active {
-  background: #E8EEF5;
-}
-
-.rc-btn-download {
-  background: linear-gradient(135deg, #1A56DB, #4B8EF8);
-  color: #fff;
-  border: none;
-  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.28);
-}
-
-.rc-btn-download:active {
-  transform: scale(0.97);
-}
-
-/* Tombol + (tambahan) */
-.rc-tambah-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  border: 2px solid rgba(255,255,255,0.4);
-  color: #fff;
-  font-size: 20px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-}
-
-.rc-tambah-btn:active {
-  background: rgba(255,255,255,0.3);
-  transform: scale(0.95);
-}
-
 /* Responsive */
 @media (max-width: 390px) {
   .rc-nama { font-size: 28px; }
-  .rc-total-val { font-size: 28px; }
-  .rc-section { padding: 12px; }
-  .rc-item-name { font-size: 12px; }
 }
 
     ::-webkit-scrollbar { width:4px; height:4px }
     ::-webkit-scrollbar-track { background:transparent }
     ::-webkit-scrollbar-thumb { background:rgba(26,86,219,.20); border-radius:4px }
-
-    /* ===== CUSTOM NUMPAD ===== */
-    .numpad-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(13, 43, 110, 0.4);
-      display: none;
-      justify-content: center;
-      align-items: flex-end;
-      z-index: 100000;
-      padding: 0;
-    }
 
     .numpad-sheet {
       width: 100%;
@@ -3874,18 +2674,6 @@
       transition: none !important;
     }
 
-    .pin-sheet.no-push {
-      max-height: 85vh !important;
-      max-height: 85dvh !important;
-      transform: translateY(0) !important;
-      transition: none !important;
-    }
-
-    /* Hide quick amounts (diganti numpad) */
-    .popup-quick.hidden-force {
-      display: none !important;
-    }
-
     /* Input wrapper untuk trigger numpad */
     .popup-input-trigger {
       position: relative;
@@ -3901,19 +2689,8 @@
       cursor: pointer;
       z-index: 2;
     }
-
-    /* ═══════════════════════════════════════════════════════════════
-       OPTIMASI POPUP — PERFORMANCE FIXES
-       ═══════════════════════════════════════════════════════════════ */
-    /* 1. HAPUS backdrop-filter blur — ganti dengan opacity saja */
-    .rc-overlay {
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      background: rgba(13, 43, 110, 0.75) !important;
-    }
     /* 2. GPU layer promotion — translateZ(0) saja, will-change diset via JS saat animasi */
     .popup-sheet,
-    .pinjaman-sheet,
     .bayar-sheet,
     .rc-card,
     .numpad-sheet {
@@ -3923,7 +2700,6 @@
     }
     /* 3. Sederhanakan box-shadow */
     .popup-sheet,
-    .pinjaman-sheet,
     .bayar-sheet {
       box-shadow: 0 -4px 16px rgba(13, 43, 110, 0.15) !important;
     }
@@ -3951,21 +2727,12 @@
     }
 
     /* 6. Percepat overlay fade */
-    .popup,
-    .rc-overlay,
-    .numpad-overlay {
+    .popup{
       transition: opacity 0.15s ease;
     }
-    /* 7. contain dihapus — menyebabkan lag pada animasi popup */
-    /* 8. Z-index — harus di atas .page (z-index:9999) */
-    .rc-overlay { z-index: 99999 !important; }
     .popup { z-index: 99999 !important; }
     #pinjamanPopup { z-index: 99999 !important; }
     #tambahanPopup { z-index: 999999 !important; }
-    /* Numpad generik (bukaNumpadGen) dipanggil DI ATAS popup lain
-       (pinjaman, bayar, tambahan, edit nominal) — z-index-nya wajib
-       lebih tinggi dari semua popup tersebut agar tidak tertutup. */
-    .numpad-overlay { z-index: 9999990 !important; }
     #slipPopup { z-index: 9999999 !important; }
 
     /* ===== PWA INSTALL MODAL ===== */
@@ -5606,6 +4373,20 @@
     let _tambahanRecords = [];
     let _rcNamaAktif = '';
     let _bayarLuarGaji = false;
+
+    window.toggleLuarGaji = () => {
+      _bayarLuarGaji = !_bayarLuarGaji;
+      const lgTrack = $('lgTrack');
+      const lgThumb = $('lgThumb');
+      if (lgTrack) lgTrack.classList.toggle('lg-active', _bayarLuarGaji);
+      if (lgThumb) lgThumb.style.left = _bayarLuarGaji ? '26px' : '2px';
+      // Refresh validasi input yang sudah diisi supaya batas "luar gaji" langsung berlaku
+      _bayarJenisData.forEach((p, i) => {
+        if ($('bayar_input_' + i)) onBayarJenisInput(i, p.sisa || 0);
+      });
+      if (typeof cekSimpanBayar === 'function') cekSimpanBayar();
+    };
+
     let _bayarPendapatanBersih = 0;
     let _bayarJenisData = [];
     let _pegMode = 'select';
@@ -9531,17 +8312,6 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       window._slipApS = _apS;
       window.addEventListener('beforeprint', _bpS);
       window.addEventListener('afterprint', _apS);
-    }
-
-    function _mergeItemsForPrint(items) {
-      const map = {};
-      items.forEach(r => {
-        const key = (r.jenis||'') + '||' + (r.harga||0);
-        if(!map[key]) map[key] = { jenis:r.jenis, qty:0, harga:r.harga, jumlah:0 };
-        map[key].qty += (r.qty||0);
-        map[key].jumlah += (r.jumlah||0);
-      });
-      return Object.values(map);
     }
 
     // ===== DATE PICKER =====
