@@ -1924,7 +1924,7 @@
     }
     #tablePinjaman th:last-child,
     #tablePinjaman td:last-child {
-      min-width:110px;
+      min-width:44px;
     }
     td {
       padding:8px 5px;
@@ -4680,12 +4680,12 @@
   <div class="table-wrap" id="tablePinjaman" style="display:none">
     <table style="table-layout:fixed;">
       <colgroup>
-        <col style="width:16%">
+        <col style="width:20%">
+        <col style="width:21%">
         <col style="width:18%">
-        <col style="width:16%">
-        <col style="width:14%">
-        <col style="width:14%">
-        <col style="width:22%">
+        <col style="width:15.5%">
+        <col style="width:15.5%">
+        <col style="width:10%">
       </colgroup>
       <thead><tr><th>Nama</th><th>Jenis</th><th>Pinjaman</th><th>Dibayar</th><th>Sisa</th><th>Aksi</th></tr></thead>
       <tbody id="tbodyPinjaman"></tbody>
@@ -8374,13 +8374,11 @@ window.toggleCheckAllRekap = function(cb) {
       <td style="font-weight:600;font-size:11px;">${fmt(r.pinjaman)}</td>
       <td style="color:var(--green);font-weight:600;font-size:11px;">${r.bayar > 0 ? fmt(r.bayar) : '-'}</td>
       <td style="color:var(--red);font-weight:700;font-size:11px;">${fmt(r.sisa)}</td>
-      <td style="padding:5px 3px;">
-        <div style="display:flex;flex-direction:row;gap:4px;justify-content:center;align-items:center;flex-wrap:nowrap;">
-          <button onclick="bukaEditBayar('${q(r.nama)}')" 
-            style="flex:1;min-width:0;background:var(--primaryDim);border:none;border-radius:8px;padding:7px 4px;cursor:pointer;color:var(--primary3);font-size:10px;font-weight:800;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:3px;">
-            <i class="fa-solid fa-pen-to-square"></i> Edit
-          </button>
-        </div>
+      <td style="padding:5px 3px;text-align:center;">
+        <button onclick="bukaEditBayar('${q(r.nama)}')" title="Edit"
+          style="width:30px;height:30px;background:var(--primaryDim);border:none;border-radius:9px;cursor:pointer;color:var(--primary3);font-size:13px;display:inline-flex;align-items:center;justify-content:center;">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </button>
       </td>
     </tr>`;
   }).join('');
@@ -9792,7 +9790,13 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const margin = 14; // jarak aman ke bar bawah
       const bottomLimit = backBar ? backBar.getBoundingClientRect().top : window.innerHeight;
       const h = bottomLimit - cardTop - margin;
-      card.style.height = Math.max(h, 220) + 'px';
+      // FIX: floor lama (220px) bisa memaksa kartu lebih tinggi dari ruang yang
+      // benar-benar tersedia di layar pendek (device dengan navigation bar besar) —
+      // karena scroll di panel ini sengaja dimatikan, itu bikin bagian bawah kartu
+      // (Entri Terbaru) kepotong tanpa bisa digeser, sama seperti bug header Home.
+      // Floor diturunkan jadi sekadar jaga-jaga dari h negatif/0 (belum sempat
+      // ter-layout), bukan memaksa ukuran minimum yang mengabaikan ruang asli.
+      card.style.height = Math.max(h, 120) + 'px';
       _fitQsRecent();
     };
     window.addEventListener('resize', () => { if (document.getElementById('inputPage')?.classList.contains('active')) _sizeQsCard(); });
