@@ -6746,6 +6746,27 @@ window.tutupNumpadBayar = () => {
         if(!grouped[r.nama]) grouped[r.nama]={total:0};
         grouped[r.nama].total += (r.jumlah||0);
       });
+      // FIX: sebelumnya baris rekap HANYA dibuat dari data payroll_input (kerja).
+      // Akibatnya pegawai yang tidak punya input kerja pada periode ini — tapi
+      // punya TAMBAHAN pada periode ini — tidak pernah dapat kartu sama sekali,
+      // sehingga TAMBAHAN-nya (dan badge PINJAMAN yang menempel di kartu itu)
+      // ikut hilang dari tampilan rekap. Di sini kita tambahkan baris kosong
+      // (total kerja = 0) untuk pegawai seperti itu supaya kartunya tetap muncul.
+      MASTER.pegawai.forEach(nama => {
+        if (grouped[nama]) return;
+        const tamTotal = getTambahanLocal(nama, dari, sampai).total;
+        if (tamTotal > 0) { grouped[nama] = { total: 0 }; return; }
+      });
+      // FIX: sama seperti di atas, tapi untuk PINJAMAN — pegawai dengan sisa
+      // pinjaman aktif (belum lunas) juga harus tetap dapat kartu di rekap,
+      // supaya badge "Pinjaman" tidak hilang hanya karena tidak ada input
+      // kerja/tambahan pada periode yang sedang dilihat.
+      MASTER.pegawai.forEach(nama => {
+        if (grouped[nama]) return;
+        const totalPinjaman = _CACHE.pinjaman.filter(p => p.nama === nama).reduce((s,p)=>s+(p.nominal||0),0);
+        const totalBayar = _CACHE.bayar.filter(b => b.nama === nama && !b.luarGaji).reduce((s,b)=>s+(b.bayar||0),0);
+        if ((totalPinjaman - totalBayar) > 0) grouped[nama] = { total: 0 };
+      });
       const potMap = {};
       _CACHE.bayar.filter(b => { if(dari && b.tanggalISO<dari) return false; if(sampai && b.tanggalISO>sampai) return false; if(b.luarGaji) return false; return true; }).forEach(b => { potMap[b.nama]=(potMap[b.nama]||0)+(b.bayar||0); });
       rekapRows = Object.entries(grouped).map(([nama,v]) => { const pot=potMap[nama]||0; return { nama, total:v.total, potongan:pot, bersih:v.total-pot }; }).sort((a,b)=>a.nama.localeCompare(b.nama));
@@ -7551,6 +7572,25 @@ window.hapusBayar = (id) => {
       else { el.textContent = 'nominal...'; el.style.color = 'var(--muted)'; el.style.fontWeight = '700'; }
     };
 
+    // FIX: sebelumnya Tambahan yang ditambahkan lewat tombol "+ Tambahan" di
+    // kartu Rekap SELALU disimpan dengan tanggal HARI INI (new Date()), bukan
+    // tanggal dari periode yang sedang dibuka di Rekap. Akibatnya kalau admin
+    // membuka "Rekap Minggu Lalu" lalu menambahkan Tambahan di sana, datanya
+    // malah tersimpan dengan tanggalISO minggu INI — jadi waktu rekap minggu
+    // lalu dibuka lagi, Tambahan itu sudah tidak kelihatan (ke-filter keluar
+    // dari rentang tanggal minggu lalu oleh getTambahanLocal). Sekarang kita
+    // pakai tanggal SAMPAI dari periode Rekap yang sedang aktif sebagai
+    // tanggal Tambahan, supaya datanya tetap berada di periode yang sedang
+    // dilihat saat disimpan.
+    function _tambahanTargetDate() {
+      const iso = _getISO('rekapAkhir');
+      if (iso) {
+        const d = new Date(iso + 'T12:00:00');
+        if (!isNaN(d.getTime())) return d;
+      }
+      return new Date();
+    }
+
     window.simpanTambahanRincian = async () => {
       const nama = _rcNamaAktif;
       if(!nama){ showToast('Error: nama pegawai tidak ditemukan'); return; }
@@ -7560,13 +7600,13 @@ window.hapusBayar = (id) => {
       const existingTam = _rcTambahan[nama];
       if(existingTam && existingTam.total > 0) {
         const tamTgl = existingTam._tanggalISO || '';
-        const todayISO = _localISODate(new Date());
-        if(tamTgl === todayISO) {
+        const targetISO = _localISODate(_tambahanTargetDate());
+        if(tamTgl === targetISO) {
           bukaConfirm({
             icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
             iconBg: '#FEF3C7', iconColor: '#D97706',
             title: 'Ganti Data Tambahan?',
-            msg: `${nama} sudah punya tambahan hari ini (Rp ${fmt(existingTam.total)}). Ganti?`,
+            msg: `${nama} sudah punya tambahan pada periode ini (Rp ${fmt(existingTam.total)}). Ganti?`,
             okLabel: 'Ya, Ganti',
             okBg: 'linear-gradient(135deg, #1A56DB, #4B8EF8)',
             callback: () => _lanjutSimpanTambahanRincian(nama, saveBtn)
@@ -7592,8 +7632,9 @@ window.hapusBayar = (id) => {
           savedItems[key] = { jenis: t.jenis, harga: t.harga || 0, qty, jumlah, satuan: t.satuan || 'HARI' };
         }
       });
-      const _todayISO = _localISODate(new Date());
-      const _todayWeekId = _getWeekId(new Date());
+      const _targetDate = _tambahanTargetDate();
+      const _todayISO = _localISODate(_targetDate);
+      const _todayWeekId = _getWeekId(_targetDate);
       showLoading('Menyimpan data...');
       try {
         // ✅ FIX 5: Simpan ke Supabase DULU, baru update local state
@@ -7629,9 +7670,16 @@ window.hapusBayar = (id) => {
     async function _saveTambahanDinamisFB(nama) {
       if(!nama || !_rcTambahan[nama]) return false;
       try {
-        const docId = `${nama.replace(/\s+/g,'_')}_${_localISODate(new Date())}`;
+        // FIX: dulu selalu pakai new Date() (hari ini), sekarang pakai tanggal
+        // yang sudah disiapkan di _rcTambahan[nama]._tanggalISO (mengikuti
+        // periode Rekap yang sedang aktif — lihat _tambahanTargetDate()),
+        // supaya Tambahan tidak "pindah" ke minggu berjalan saat disimpan
+        // dari layar Rekap periode lama.
+        const _tglSimpan = tam => (tam && tam._tanggalISO) ? new Date(tam._tanggalISO + 'T12:00:00') : new Date();
+        const targetDate = _tglSimpan(_rcTambahan[nama]);
+        const docId = `${nama.replace(/\s+/g,'_')}_${_localISODate(targetDate)}`;
         const tam = _rcTambahan[nama];
-        const payload = { nama, total: tam.total || 0, tanggal: new Date(), tanggalISO: _localISODate(new Date()), weekId: _getWeekId(new Date()), updatedAt: sbTimestamp(), itemsJSON: JSON.stringify(tam.items || {}) };
+        const payload = { nama, total: tam.total || 0, tanggal: targetDate, tanggalISO: _localISODate(targetDate), weekId: _getWeekId(targetDate), updatedAt: sbTimestamp(), itemsJSON: JSON.stringify(tam.items || {}) };
         const items = tam.items || {};
         const _findQty = (jenis) => { const e = Object.entries(items).find(([k]) => k.toUpperCase().endsWith('|' + jenis)); return e ? (e[1].qty || 0) : 0; };
         const _findJumlah = (jenis) => { const e = Object.entries(items).find(([k]) => k.toUpperCase().endsWith('|' + jenis)); return e ? (e[1].jumlah || 0) : 0; };
@@ -9023,18 +9071,44 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
         out += BOLD_ON + _row2('Subtotal', 'Rp ' + fmt(data.subtotal)) + BOLD_OFF + LF;
       }
 
-      // ===== TAMBAHAN =====
+      // ===== TAMBAHAN (rincian per item, sama seperti format laser) =====
       if (data.tamTotal > 0) {
         out += _line('-') + LF;
         out += BOLD_ON + '>> TAMBAHAN' + BOLD_OFF + LF;
-        out += _row2('Total Tambahan', '+Rp ' + fmt(data.tamTotal)) + LF;
+        if (data.tamItems?.length > 0) {
+          data.tamItems.forEach(it => {
+            const satuan = (it.satuan || 'HARI').toLowerCase();
+            const jenis = _cleanText(it.jenis || '-').substring(0, PAPER_WIDTH);
+            out += ' ' + jenis + LF;
+            out += _row2('   ' + (it.qty || 0) + ' ' + satuan + ' x Rp ' + fmt(it.harga || 0), '+Rp ' + fmt(it.jumlah || 0)) + LF;
+          });
+          out += _line('-') + LF;
+          out += BOLD_ON + _row2('Subtotal Tambahan', '+Rp ' + fmt(data.tamTotal)) + BOLD_OFF + LF;
+        } else {
+          out += _row2('Total Tambahan', '+Rp ' + fmt(data.tamTotal)) + LF;
+        }
       }
 
-      // ===== POTONGAN =====
+      // ===== SUBTOTAL SEBELUM POTONGAN (Pekerjaan + Tambahan) =====
+      if (data.potongan > 0) {
+        const subKotor = (data.subtotal || 0) + (data.tamTotal || 0);
+        out += _line('-') + LF;
+        out += BOLD_ON + _row2('Subtotal (Sblm Potongan)', 'Rp ' + fmt(subKotor)) + BOLD_OFF + LF;
+      }
+
+      // ===== POTONGAN / PINJAMAN (rincian per jenis, sama seperti format laser) =====
       if (data.potongan > 0) {
         out += _line('-') + LF;
-        out += BOLD_ON + '>> POTONGAN' + BOLD_OFF + LF;
-        out += _row2('Total Potongan', '-Rp ' + fmt(data.potongan)) + LF;
+        out += BOLD_ON + '>> POTONGAN / PINJAMAN' + BOLD_OFF + LF;
+        if (data.pinjamanBreakdown && Object.keys(data.pinjamanBreakdown).length > 0) {
+          Object.entries(data.pinjamanBreakdown).forEach(([jenis, jumlah]) => {
+            out += _row2(' ' + _cleanText(jenis).substring(0, PAPER_WIDTH - 1), '-Rp ' + fmt(jumlah)) + LF;
+          });
+          out += _line('-') + LF;
+          out += BOLD_ON + _row2('Subtotal Potongan', '-Rp ' + fmt(data.potongan)) + BOLD_OFF + LF;
+        } else {
+          out += _row2('Total Potongan', '-Rp ' + fmt(data.potongan)) + LF;
+        }
       }
 
       // ===== TOTAL BERSIH =====
@@ -9054,15 +9128,45 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     }
 
     // ===== WRAPPER UNTUK SLIP POPUP =====
+    /**
+     * Ambil rincian tambahan (per item) & breakdown pinjaman (per jenis)
+     * untuk satu pegawai — dipakai bersama oleh cetakSlipRawBT & cetakMassalRawBT
+     * supaya rinciannya identik dengan format slip printer laser.
+     */
+    function _lengkapiDataSlipThermal(nama, dari, sampai, data) {
+      const tam = getTambahanLocal(nama, dari, sampai);
+      data.tamTotal = tam.total;
+      data.tamItems = Object.values(tam.items || {}).map(it => ({
+        jenis: it.jenis,
+        qty: it.qty,
+        satuan: it.satuan,
+        harga: it.harga,
+        jumlah: it.jumlah > 0 ? it.jumlah : (it.qty || 0) * (it.harga || 0)
+      })).filter(it => it.jumlah > 0);
+
+      const allBayar = _CACHE.bayar.filter(b => {
+        if (b.nama !== nama) return false;
+        if (b.luarGaji) return false;
+        if (dari && b.tanggalISO < dari) return false;
+        if (sampai && b.tanggalISO > sampai) return false;
+        return true;
+      });
+      const pinjamanMap = {};
+      allBayar.forEach(b => {
+        const jenis = b.jenisPinjaman || 'Pinjaman';
+        pinjamanMap[jenis] = (pinjamanMap[jenis] || 0) + (b.bayar || 0);
+      });
+      data.pinjamanBreakdown = pinjamanMap;
+
+      return data;
+    }
+
     window.cetakSlipRawBT = function() {
       const nama = document.getElementById('slipNama').textContent;
       const periode = document.getElementById('slipPeriode').textContent.replace('Periode: ', '');
       const dari = _getISO('rekapMulai');
       const sampai = _getISO('rekapAkhir');
-      const data = getRincianLocal(nama, dari, sampai);
-
-      // Ambil tambahan
-      data.tamTotal = getTambahanLocal(nama, dari, sampai).total;
+      const data = _lengkapiDataSlipThermal(nama, dari, sampai, getRincianLocal(nama, dari, sampai));
 
       cetakRawBT(nama, data, periode);
     };
@@ -9081,10 +9185,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
         const nama = cb.value;
         if (!nama?.trim() || nama === '-') return;
 
-        const data = getRincianLocal(nama, dari, sampai);
-
-        // Hitung tambahan (sama persis dengan cetakSlipRawBT)
-        data.tamTotal = getTambahanLocal(nama, dari, sampai).total;
+        const data = _lengkapiDataSlipThermal(nama, dari, sampai, getRincianLocal(nama, dari, sampai));
 
         if (!data.items.length && !data.tamTotal && !(data.potongan > 0)) return;
 
