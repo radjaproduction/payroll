@@ -4795,18 +4795,23 @@
       return { items:rows, subtotal, potongan, tamTotal, total:subtotal+tamTotal-potongan, bagian };
     }
 
-    // ===== AUTO HAPUS PINJAMAN YANG SUDAH LUNAS =====
+    // ===== DETEKSI PINJAMAN YANG SUDAH LUNAS (TANPA HAPUS DATA) =====
     // Dipanggil tiap kali ada perubahan pembayaran (simpan/edit nominal). Untuk
     // setiap jenis pinjaman milik seorang pegawai, kalau total bayar sudah
-    // menyamai/melebihi total pokok pinjaman jenis tsb (artinya SEMUA pinjaman
-    // jenis itu sudah lunas), dokumen pinjaman & seluruh riwayat pembayaran
-    // jenis tsb otomatis dihapus dari Supabase + cache lokal. Ini mencegah data
-    // yang sudah beres menumpuk dan nyangkut di daftar seperti "Pilih Pinjaman
-    // untuk dihapus" (yang sebelumnya bisa menampilkan pinjaman berstatus
-    // "Sisa: Rp 0" seolah masih aktif).
+    // menyamai/melebihi total pokok pinjaman jenis tsb, jenis itu dianggap lunas.
+    //
+    // PENTING: dokumen pinjaman & riwayat pembayaran (bayar) TIDAK dihapus lagi.
+    // Sebelumnya keduanya dihapus otomatis di sini, tapi itu ikut menghapus
+    // riwayat pembayaran (bayar) yang dipakai untuk menghitung "Potongan" pada
+    // rekap pegawai periode berjalan (getRincianLocal, muatRekapPegawai, dll).
+    // Akibatnya begitu pinjaman lunas, potongan minggu itu hilang dari rekap
+    // (Diterima jadi tidak terpotong) padahal slip yang sudah dicetak
+    // sebelumnya sudah benar memotongnya. Daftar "Pilih Pinjaman untuk dihapus"
+    // sudah difilter sisa > 0 di tempat lain, jadi pinjaman yang sudah lunas
+    // otomatis tidak muncul di sana walau datanya tetap disimpan.
     async function _autoHapusPinjamanLunas(nama) {
       if (!nama) return false;
-      let adaYangDihapus = false;
+      let adaYangLunas = false;
       try {
         const jenisSet = new Set(_CACHE.pinjaman.filter(p => p.nama === nama).map(p => p.jenis || '(lainnya)'));
         for (const jenis of jenisSet) {
@@ -4817,12 +4822,8 @@
           const bayarDocs = _CACHE.bayar.filter(b => b.nama === nama && (b.jenisPinjaman || '(lainnya)') === jenis);
           const totalBayar = bayarDocs.reduce((s, b) => s + (b.bayar || 0), 0);
           if (totalBayar >= totalPinjaman) {
-            // Catat dulu ke log audit SEBELUM data dihapus permanen. Penghapusan
-            // di sini berjalan otomatis tanpa konfirmasi user, jadi kalau suatu
-            // saat ada yang kelihatan "hilang" tanpa jejak, log ini jadi satu-satunya
-            // cara menelusuri: pinjaman/pembayaran siapa, jenis apa, dan kapan.
-            // Kegagalan menulis log TIDAK boleh membatalkan proses hapus-lunas
-            // (fitur inti tetap jalan meski audit trail gagal tersimpan).
+            // Cuma dicatat ke log audit sebagai jejak "kapan jenis ini lunas" —
+            // datanya sendiri (pinjaman & bayar) sengaja TIDAK dihapus.
             try {
               await sbInsert(sbTable(db, COL.pinjamanLunasLog), {
                 nama,
@@ -4834,19 +4835,15 @@
                 waktu: sbTimestamp()
               });
             } catch (logErr) {
-              console.error('Gagal menyimpan log auto-hapus pinjaman lunas:', logErr);
+              console.error('Gagal menyimpan log lunas pinjaman:', logErr);
             }
-            for (const p of pinjamanDocs) { await sbDelete(sbDoc(db, COL.pinjaman, p.id)); }
-            for (const b of bayarDocs) { await sbDelete(sbDoc(db, COL.bayar, b.id)); }
-            _CACHE.pinjaman = _CACHE.pinjaman.filter(p => !(p.nama === nama && (p.jenis || '(lainnya)') === jenis));
-            _CACHE.bayar = _CACHE.bayar.filter(b => !(b.nama === nama && (b.jenisPinjaman || '(lainnya)') === jenis));
-            adaYangDihapus = true;
+            adaYangLunas = true;
           }
         }
       } catch (e) {
-        console.error('Auto-hapus pinjaman lunas gagal:', e);
+        console.error('Cek lunas pinjaman gagal:', e);
       }
-      return adaYangDihapus;
+      return adaYangLunas;
     }
 
     // ===== LOG AUDIT: RIWAYAT AUTO-HAPUS PINJAMAN LUNAS =====
@@ -5982,7 +5979,7 @@ window.simpanBayar = async () => {
     }
     
     const adaLunas = await _autoHapusPinjamanLunas(nama);
-    showToast(adaLunas ? '✅ Pembayaran tersimpan! Pinjaman lunas & riwayat dibersihkan otomatis' : '✅ Pembayaran tersimpan!');
+    showToast(adaLunas ? '✅ Pembayaran tersimpan! Pinjaman sudah lunas' : '✅ Pembayaran tersimpan!');
     tutupPopupBayar();
     btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Simpan Pembayaran</span>';
     btn.disabled = false;
@@ -7394,7 +7391,7 @@ window.simpanEditNominalBayar = async () => {
     }
     
     const adaLunas = await _autoHapusPinjamanLunas(_editBayarCurrentNama);
-    if (adaLunas) showToast('✅ Pinjaman lunas & riwayat dibersihkan otomatis');
+    if (adaLunas) showToast('✅ Pinjaman sudah lunas');
     
     tutupPopup('editNominalBayarPopup');
     
@@ -7402,8 +7399,8 @@ window.simpanEditNominalBayar = async () => {
     setTimeout(() => {
       // Cek masih ada bayar?
       const sisaBayar = _CACHE.bayar.filter(b => b.nama === _editBayarCurrentNama && !b.luarGaji);
-      if (sisaBayar.length === 0 && (newNominal === 0 || adaLunas)) {
-        // Kalau semua bayar dihapus / pinjaman sudah lunas & dibersihkan, tutup popup edit
+      if (adaLunas || (sisaBayar.length === 0 && newNominal === 0)) {
+        // Kalau pinjaman sudah lunas, atau semua bayar dihapus (nominal di-0-kan), tutup popup edit
         tutupPopup('editBayarPopup');
       } else {
         bukaEditBayar(_editBayarCurrentNama);
