@@ -215,7 +215,7 @@
     }
     .menu-grid-bottom {
       display:grid;
-      grid-template-columns:1fr 1fr;
+      grid-template-columns:1fr 1fr 1fr;
       gap:12px;
       width:100%;
     }
@@ -278,6 +278,23 @@
       border-color: rgba(255, 255, 255, 0.12);
     } */
 
+    /* Watermark ikon dekoratif di pojok kanan-bawah card */
+    .m-watermark {
+      position:absolute;
+      right:-14px; bottom:-18px;
+      font-size:76px;
+      opacity:.07;
+      transform:rotate(-12deg);
+      pointer-events:none;
+      line-height:1;
+      z-index:0;
+    }
+    .menu-card > *:not(.m-watermark) { position:relative; z-index:1; }
+    .menu-card.card-input .m-watermark { color: var(--primary3); }
+    .menu-card.card-pinjaman .m-watermark { color: #059669; }
+    .menu-card.card-bayar .m-watermark { color: #D97706; }
+    .menu-card.card-rekap .m-watermark { color: #7C3AED; }
+
     /* HIGHLIGHTED MENU CARD (old, keep for backward compat) */
     .menu-card.highlight {
       background:linear-gradient(135deg, var(--primary3), var(--primary)) !important;
@@ -334,6 +351,21 @@
     .menu-card-sm.card-setting .m-arrow-sm { background:#FFE4F0; color:#E11D78; }
     .menu-card-sm.card-harga .m-arrow-sm { background:#CCFBF1; color:#0D9488; }
     .menu-card-sm.card-log .m-arrow-sm { background:#EDE9FE; color:#7C3AED; }
+
+    .menu-card-sm .m-watermark {
+      position:absolute;
+      right:-10px; bottom:-12px;
+      font-size:52px;
+      opacity:.08;
+      transform:rotate(-12deg);
+      pointer-events:none;
+      line-height:1;
+      z-index:0;
+    }
+    .menu-card-sm > *:not(.m-watermark) { position:relative; z-index:1; }
+    .menu-card-sm.card-setting .m-watermark { color:#E11D78; }
+    .menu-card-sm.card-harga .m-watermark { color:#0D9488; }
+    .menu-card-sm.card-log .m-watermark { color:#7C3AED; }
 
     /* ===== CSS POPUP UNIVERSAL — SEMUA POPUP DARI BAWAH ===== */
 /* ============================================================
@@ -2944,6 +2976,7 @@
       <div class="menu-section-title">Menu Utama</div>
       <div class="menu-grid">
         <div class="menu-card card-input" onclick="bukaInputData()">
+          <i class="fa-solid fa-keyboard m-watermark"></i>
           <div class="m-icon"><i class="fa-solid fa-keyboard"></i></div>
           <div class="m-text">
             <div class="m-label">INPUT DATA</div>
@@ -2952,6 +2985,7 @@
           <div class="m-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
         <div class="menu-card card-pinjaman" onclick="bukaPinjaman()">
+          <i class="fa-solid fa-hand-holding-dollar m-watermark"></i>
           <div class="m-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
           <div class="m-text">
             <div class="m-label">PINJAMAN</div>
@@ -2960,6 +2994,7 @@
           <div class="m-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
         <div class="menu-card card-bayar" onclick="bukaBayar()">
+          <i class="fa-solid fa-money-bill-transfer m-watermark"></i>
           <div class="m-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
           <div class="m-text">
             <div class="m-label">BAYAR</div>
@@ -2968,6 +3003,7 @@
           <div class="m-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </div>
         <div class="menu-card card-rekap" onclick="openRekap()">
+          <i class="fa-solid fa-table-list m-watermark"></i>
           <div class="m-icon"><i class="fa-solid fa-table-list"></i></div>
           <div class="m-text">
             <div class="m-label">REKAP</div>
@@ -2980,18 +3016,21 @@
       <div class="menu-section-title" style="margin-top:6px;">Pengaturan</div>
       <div class="menu-grid-bottom">
         <div class="menu-card-sm card-setting" onclick="openSetting()">
+          <i class="fa-solid fa-gear m-watermark"></i>
           <div class="m-arrow-sm"><i class="fa-solid fa-chevron-right"></i></div>
           <div class="m-icon"><i class="fa-solid fa-gear"></i></div>
           <div class="m-label">SETTING</div>
           <div class="m-sub">Atur master data</div>
         </div>
         <div class="menu-card-sm card-harga" onclick="bukaHarga()">
+          <i class="fa-solid fa-tag m-watermark"></i>
           <div class="m-arrow-sm"><i class="fa-solid fa-chevron-right"></i></div>
           <div class="m-icon"><i class="fa-solid fa-tag"></i></div>
           <div class="m-label">HARGA</div>
           <div class="m-sub">Atur harga &amp; komponen</div>
         </div>
-        <div class="menu-card-sm card-log" style="grid-column:1 / -1;" onclick="bukaLogPinjamanLunas()">
+        <div class="menu-card-sm card-log" onclick="bukaLogPinjamanLunas()">
+          <i class="fa-solid fa-clock-rotate-left m-watermark"></i>
           <div class="m-arrow-sm"><i class="fa-solid fa-chevron-right"></i></div>
           <div class="m-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
           <div class="m-label">LOG</div>
