@@ -9067,8 +9067,6 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
           out += ' ' + jenis + LF;
           out += _row2('   ' + rincian, 'Rp ' + fmt(item.jumlah || 0)) + LF;
         });
-        out += _line('-') + LF;
-        out += BOLD_ON + _row2('Subtotal', 'Rp ' + fmt(data.subtotal)) + BOLD_OFF + LF;
       }
 
       // ===== TAMBAHAN (rincian per item, sama seperti format laser) =====
