@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Input Data — Radja Production</title>
+<meta name="theme-color" content="#1A2A8C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Input Radja">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<style>
+  :root{
+    --bg:#F2F5FA; --bg2:#E8EEF5; --card:#FFFFFF; --card2:#F7F9FC;
+    --primary:#4B8EF8; --primary2:#6BA3FF; --primary3:#1A56DB; --primaryDim:#E0EAFF; --primaryDark:#0D2B6E;
+    --text:#1A2340; --text2:#2C3A5A; --muted:#7B8DB0; --border:#DDE4F0;
+    --shadow:0 4px 20px rgba(26,86,219,.12); --shadow2:0 8px 36px rgba(26,86,219,.18);
+    --red:#EF4444; --green:#10B981; --gold:#F59E0B;
+    --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
+    --header-grad:linear-gradient(160deg,#1A2A8C 0%,#2347D8 55%,#3B7BF8 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--text);
+    font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden}
+
+  /* LOADING */
+  .loading-overlay{position:fixed;inset:0;background:rgba(242,245,250,.97);display:none;
+    justify-content:center;align-items:center;z-index:999999;flex-direction:column;gap:14px;text-align:center;padding:24px}
+  .loading-overlay.active{display:flex}
+  .spin-ring{width:44px;height:44px;border:4px solid var(--bg2);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-text{color:var(--primary3);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;max-width:280px;line-height:1.6}
+  .loading-retry{display:none;margin-top:6px;padding:10px 22px;border-radius:99px;border:none;background:var(--primary3);color:#fff;font-weight:800;font-size:12px;font-family:inherit;cursor:pointer}
+
+  /* TOAST */
+  .toast{position:fixed;top:calc(16px + var(--safe-top));left:50%;transform:translateX(-50%) translateY(-80px);
+    background:linear-gradient(135deg,var(--primary3),var(--primary));color:#fff;padding:11px 22px;border-radius:99px;
+    font-size:13px;font-weight:600;z-index:999999;transition:.35s cubic-bezier(.34,1.56,.64,1);opacity:0;
+    max-width:90vw;text-align:center;pointer-events:none;box-shadow:var(--shadow2)}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+  /* APP SHELL */
+  .app{width:100%;max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+
+  .app-header{background:var(--header-grad);padding:0 18px 18px;padding-top:calc(16px + var(--safe-top));
+    flex-shrink:0;position:relative;overflow:hidden;border-radius:0 0 26px 26px}
+  .app-header::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)}
+  .app-header::after{content:'';position:absolute;top:20px;right:30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.04)}
+  .hdr-row{display:flex;align-items:center;gap:11px;position:relative;z-index:1}
+  .hdr-icon{width:40px;height:40px;background:rgba(255,255,255,.20);border-radius:12px;display:flex;align-items:center;
+    justify-content:center;color:#fff;font-size:18px;flex-shrink:0;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25)}
+  .hdr-title{font-size:16px;font-weight:900;color:#fff;line-height:1.2;letter-spacing:-.01em}
+  .hdr-sub{font-size:10px;color:rgba(255,255,255,.72);font-weight:600;margin-top:3px;letter-spacing:.02em}
+  .hdr-date{margin-top:14px;position:relative;z-index:1;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.22);border-radius:13px;padding:9px 13px;display:flex;align-items:center;gap:8px;
+    color:#fff;font-size:12px;font-weight:700}
+  .hdr-date i{opacity:.85;font-size:11px}
+
+  .app-body{flex:1;padding:14px 14px calc(24px + var(--safe-bottom));display:flex;flex-direction:column;gap:10px}
+
+  /* CARD */
+  .card{background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .card-label{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .field-group + .field-group{margin-top:13px}
+  .field-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  select.f-input, input.f-input{
+    width:100%;padding:16px 14px;border:1.5px solid var(--border);border-radius:13px;background:var(--card2);
+    font-size:15.5px;font-family:inherit;font-weight:600;color:var(--text);appearance:none;-webkit-appearance:none;outline:none;
+    transition:border-color .15s;
+  }
+  select.f-input:focus, input.f-input:focus{border-color:var(--primary)}
+  select.f-input:disabled, input.f-input:disabled{background:var(--bg2);color:var(--muted);cursor:not-allowed}
+  select.f-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%237B8DB0' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 15px center;padding-right:36px}
+  .f-placeholder{color:var(--muted)!important}
+
+  .qty-trigger{opacity:.4;pointer-events:none;transition:opacity .15s}
+  .qty-trigger input{cursor:pointer;caret-color:transparent;-webkit-user-select:none;user-select:none}
+
+  .bagian-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primaryDim);color:var(--primary3);
+    font-size:12px;font-weight:800;padding:9px 13px;border-radius:12px;width:100%}
+  .bagian-chip i{font-size:11px;opacity:.8}
+  .bagian-chip.empty{background:var(--bg2);color:var(--muted)}
+
+  .harga-hint{margin-top:8px;font-size:11.5px;color:var(--muted);font-weight:600;display:none;align-items:center;gap:6px}
+  .harga-hint.show{display:flex}
+  .harga-hint b{color:var(--primary3)}
+  .harga-hint.warn{color:#D97706}
+  .harga-hint.warn b{color:#D97706}
+
+  .btn-tambah, .btn-simpan{
+    width:100%;padding:16px;font-size:14.5px;border-radius:14px;letter-spacing:.06em;
+    background:var(--bg2);color:var(--muted);border:none;font-weight:800;cursor:not-allowed;font-family:inherit;
+    transition:background .2s,color .2s,box-shadow .2s;text-transform:uppercase
+  }
+  .btn-tambah.active, .btn-simpan.active{
+    background:linear-gradient(135deg,#F59E0B,#FBBF24);color:#1A1A1A;cursor:pointer;box-shadow:0 4px 14px rgba(245,158,11,.35)
+  }
+  .btn-simpan.active{background:linear-gradient(135deg,var(--primary3),var(--primary));color:#fff;box-shadow:0 4px 16px rgba(26,86,219,.35)}
+
+  /* STAGING */
+  .staging-card{padding:0;overflow:hidden}
+  .staging-head{padding:13px 15px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+  .staging-head-l{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--primary3);display:flex;align-items:center;gap:6px}
+  .staging-count{background:var(--primary3);color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800}
+  .staging-total{font-size:13px;font-weight:800;color:var(--green)}
+  .staging-empty{color:var(--muted);padding:22px;text-align:center;font-size:13px}
+  .staging-item{display:flex;align-items:center;gap:10px;padding:11px 15px;border-top:1px solid var(--border)}
+  .staging-item:nth-child(even){background:var(--card2)}
+  .si-main{flex:1;min-width:0}
+  .si-brand{font-size:12.5px;font-weight:800;color:var(--text2)}
+  .si-jenis{font-size:11px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .si-qty{font-size:12px;font-weight:800;color:var(--primary3);background:var(--primaryDim);border-radius:8px;padding:3px 8px;flex-shrink:0}
+  .si-jumlah{font-size:12.5px;font-weight:800;color:var(--green);flex-shrink:0;white-space:nowrap;min-width:78px;text-align:right}
+  .si-del{background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px 2px 4px 6px;flex-shrink:0}
+
+  /* RIWAYAT */
+  .riwayat-card{background:linear-gradient(160deg,var(--primary3),var(--primary));color:#fff;border:none}
+  .rw-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .rw-head-l{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:900;letter-spacing:.03em}
+  .rw-head-l i{opacity:.85}
+  .rw-refresh{background:rgba(255,255,255,.2);border:none;border-radius:9px;width:30px;height:30px;color:#fff;font-size:12px;cursor:pointer}
+  .rw-refresh.spin i{animation:spin .6s linear infinite}
+  .rw-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .rw-stat{background:rgba(255,255,255,.16);border-radius:13px;padding:10px}
+  .rw-stat-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.78);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .rw-stat-val{font-size:16px;font-weight:900;line-height:1.1;word-break:break-word}
+  .rw-list{background:rgba(255,255,255,.14);border-radius:13px;padding:4px;max-height:220px;overflow-y:auto}
+  .rw-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px}
+  .rw-item + .rw-item{margin-top:2px}
+  .rw-item-main{flex:1;min-width:0}
+  .rw-item-title{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rw-item-sub{font-size:10px;color:rgba(255,255,255,.7);margin-top:1px}
+  .rw-item-jum{font-size:12px;font-weight:800;white-space:nowrap}
+  .rw-empty{text-align:center;padding:18px;font-size:12px;color:rgba(255,255,255,.7)}
+
+  .id-note{font-size:11px;color:var(--muted);text-align:center;padding:0 10px;line-height:1.5}
+  .id-note b{color:var(--text2)}
+
+  /* POPUP / NUMPAD */
+  .popup{position:fixed;inset:0;background:rgba(13,20,45,.55);z-index:999998;display:none;align-items:flex-end;justify-content:center}
+  .popup.active{display:flex}
+  .popup-sheet{background:var(--card);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:20px 18px calc(20px + var(--safe-bottom));
+    box-shadow:0 -8px 40px rgba(13,20,45,.25);animation:sheetUp .25s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes sheetUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .numpad-display{text-align:center;margin-bottom:16px}
+  .numpad-display-label{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .numpad-display-value{font-size:36px;font-weight:900;color:var(--primary3)}
+  .numpad-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+  .numpad-btn{padding:16px 0;border-radius:14px;border:none;background:var(--card2);font-size:19px;font-weight:800;
+    color:var(--text);font-family:inherit;cursor:pointer}
+  .numpad-btn:active{background:var(--primaryDim)}
+  .numpad-btn.wide{grid-column:span 2}
+  .numpad-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+  .numpad-cancel, .numpad-confirm{padding:15px;border-radius:14px;border:none;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer}
+  .numpad-cancel{background:var(--bg2);color:var(--muted)}
+  .numpad-confirm{background:linear-gradient(135deg,var(--primary3),var(--primary));color:#fff}
+
+  .switch-pegawai{text-align:center;margin-top:2px}
+  .switch-pegawai button{background:none;border:none;color:var(--primary3);font-size:11.5px;font-weight:700;
+    font-family:inherit;cursor:pointer;padding:4px}
+
+  @media (max-width:360px){
+    .rw-stat-val{font-size:14px}
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay active" id="loadingOverlay">
+  <div class="spin-ring"></div>
+  <div class="loading-text" id="loadingText">MEMUAT DATA...</div>
+  <button class="loading-retry" id="loadingRetryBtn" onclick="location.reload()">Coba Lagi</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="app">
+  <div class="app-header">
+    <div class="hdr-row">
+      <div class="hdr-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+      <div>
+        <div class="hdr-title">RADJA PRODUCTION</div>
+        <div class="hdr-sub">Input Data Kerja Harian</div>
+      </div>
+    </div>
+    <div class="hdr-date"><i class="fa-solid fa-calendar-day"></i> <span id="hdrTanggal">—</span></div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- PILIH PEGAWAI -->
+    <div class="card">
+      <div class="field-group">
+        <div class="card-label">Nama Pegawai</div>
+        <select class="f-input" id="p_nama" onchange="onGantiNama()">
+          <option value="" class="f-placeholder">-- pilih nama kamu --</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div id="p_bagianChip" class="bagian-chip empty"><i class="fa-solid fa-layer-group"></i> <span>Bagian belum terpilih</span></div>
+      </div>
+      <div id="p_namaLockHint" class="field-group" style="display:none;font-size:10.5px;color:var(--muted);font-weight:600;line-height:1.5;">
+        <i class="fa-solid fa-lock" style="margin-right:4px;color:var(--primary3);"></i>Nama terkunci untuk HP ini. Kalau ini bukan HP kamu atau mau ganti nama, hubungi admin.
+      </div>
+    </div>
+
+    <!-- FORM PEKERJAAN -->
+    <div class="card">
+      <div class="field-group">
+        <div class="card-label">Brand</div>
+        <select class="f-input" id="p_brand" disabled onchange="onGantiBrand()">
+          <option value="" class="f-placeholder">-- pilih brand --</option>
+        </select>
+      </div>
+      <div class="field-row2 field-group">
+        <div>
+          <div class="card-label">Pekerjaan</div>
+          <select class="f-input" id="p_jenis" disabled onchange="onGantiJenis()">
+            <option value="" class="f-placeholder">-- pekerjaan --</option>
+          </select>
+        </div>
+        <div>
+          <div class="card-label">Qty</div>
+          <div class="qty-trigger" id="p_qtyTrigger" onclick="bukaNumpad()">
+            <input class="f-input f-placeholder" type="text" id="p_qtyDisplay" readonly placeholder="ketuk qty..." inputmode="none">
+            <input type="hidden" id="p_qty" value="">
+          </div>
+        </div>
+      </div>
+      <div class="harga-hint" id="p_hargaHint"></div>
+    </div>
+
+    <button class="btn-tambah" id="btnTambah" onclick="tambahKeStaging()">+ Tambah Item</button>
+
+    <!-- STAGING -->
+    <div class="card staging-card">
+      <div class="staging-head">
+        <div class="staging-head-l"><i class="fa-solid fa-list-check"></i> DAFTAR ITEM <span class="staging-count" id="stagingCount">0</span></div>
+        <div class="staging-total" id="stagingTotal">Rp 0</div>
+      </div>
+      <div id="stagingList"><div class="staging-empty">Belum ada item ditambahkan</div></div>
+    </div>
+
+    <button class="btn-simpan" id="btnSimpan" onclick="simpanData()">Simpan Data</button>
+
+    <div class="id-note">Pastikan <b>nama</b> dan <b>qty</b> sudah benar sebelum menyimpan. Data yang sudah disimpan tidak bisa diubah sendiri — hubungi admin bila salah input.</div>
+
+    <!-- RIWAYAT -->
+    <div class="card riwayat-card">
+      <div class="rw-head">
+        <div class="rw-head-l"><i class="fa-solid fa-clock-rotate-left"></i> RIWAYAT HARI INI</div>
+        <button class="rw-refresh" id="rwRefreshBtn" onclick="muatRiwayat(true)"><i class="fa-solid fa-rotate-right"></i></button>
+      </div>
+      <div class="rw-stats">
+        <div class="rw-stat"><div class="rw-stat-label">Entri</div><div class="rw-stat-val" id="rwEntri">—</div></div>
+        <div class="rw-stat"><div class="rw-stat-label">Total</div><div class="rw-stat-val" id="rwTotal">—</div></div>
+      </div>
+      <div class="rw-list" id="rwList"><div class="rw-empty">Pilih nama untuk melihat riwayat</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NUMPAD QTY -->
+<div class="popup" id="numpadOverlay">
+  <div class="popup-sheet">
+    <div class="numpad-display">
+      <div class="numpad-display-label">Qty</div>
+      <div class="numpad-display-value" id="numpadDisplay">0</div>
+    </div>
+    <div class="numpad-grid">
+      <button class="numpad-btn" onclick="numpadInput('1')">1</button>
+      <button class="numpad-btn" onclick="numpadInput('2')">2</button>
+      <button class="numpad-btn" onclick="numpadInput('3')">3</button>
+      <button class="numpad-btn" onclick="numpadInput('4')">4</button>
+      <button class="numpad-btn" onclick="numpadInput('5')">5</button>
+      <button class="numpad-btn" onclick="numpadInput('6')">6</button>
+      <button class="numpad-btn" onclick="numpadInput('7')">7</button>
+      <button class="numpad-btn" onclick="numpadInput('8')">8</button>
+      <button class="numpad-btn" onclick="numpadInput('9')">9</button>
+      <button class="numpad-btn wide" onclick="numpadInput('0')">0</button>
+      <button class="numpad-btn" onclick="numpadBackspace()"><i class="fa-solid fa-delete-left"></i></button>
+    </div>
+    <div class="numpad-actions">
+      <button class="numpad-cancel" onclick="tutupNumpad()">Batal</button>
+      <button class="numpad-confirm" onclick="numpadConfirm()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// ===== KONEKSI — sama persis dengan aplikasi utama Payroll Radja =====
+// (tabel & kredensial dipakai bersama supaya data yang diinput di sini
+// langsung sinkron ke aplikasi admin, tanpa perlu proses import manual)
+const SUPABASE_URL = "https://tnhfxiglwnkvchozwjzf.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuaGZ4aWdsd25rdmNob3p3anpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NTY3NTIsImV4cCI6MjEwMDAzMjc1Mn0.Tmrrfs1WHcb7xFMUs6O9ScWuMfS8XPDnTxfKh4TH_L0";
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const COL = { master: 'payroll_master', harga: 'payroll_harga', input: 'payroll_input' };
+const LS_KEY = 'radja_input_last_nama';
+// Menandai nama yang GAGAL tersimpan sebagai kunci resmi ke server (mis.
+// karena offline saat itu) -> perlu di-retry saat app dibuka lagi. Dipisah
+// dari LS_KEY supaya nama yang cuma "terakhir dipilih" (tanpa gagal insert)
+// tidak ikut dikunci ulang otomatis -- ini yang dulu bikin bug: begitu admin
+// buka kunci dari Setting, app langsung mengunci ulang ke nama lama karena
+// LS_KEY masih menyimpannya.
+const LOCK_PENDING_KEY = 'radja_lock_pending';
+
+// ID unik per perangkat (HP), dibuat sekali lalu disimpan permanen di
+// localStorage. Dipakai supaya admin di app Payroll bisa tahu & mengunci/
+// membuka kunci nama pegawai khusus untuk HP tsb, lewat tabel Supabase
+// yang sama (bukan cuma localStorage lokal yang tidak terlihat admin).
+const DEVICE_KEY = 'radja_device_id';
+function _getDeviceId(){
+  let id = localStorage.getItem(DEVICE_KEY);
+  if (!id) {
+    id = (crypto.randomUUID ? crypto.randomUUID() : ('dev' + Date.now() + Math.random().toString(36).slice(2)));
+    try { localStorage.setItem(DEVICE_KEY, id); } catch(e) {}
+  }
+  return id;
+}
+const DEVICE_ID = _getDeviceId();
+
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n||0).toLocaleString('id-ID');
+const showLoading = t => { $('loadingText').textContent = t || 'MEMUAT DATA...'; $('loadingOverlay').classList.add('active'); };
+const hideLoading = () => $('loadingOverlay').classList.remove('active');
+const showToast = (msg, dur=3000) => { const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), dur); };
+
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function todayLabel(){
+  const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date().getDay()];
+  const d = new Date();
+  return hari + ', ' + String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+}
+
+// Sama seperti aplikasi utama: tolak karakter yang bisa membentuk tag/atribut
+// agar input tidak bisa dipakai untuk XSS di halaman admin.
+function _validateRecordData(value){
+  if (typeof value === 'string' && /[<>&`\\]/.test(value)) {
+    throw new Error('Teks tidak boleh mengandung karakter <, >, &, `, atau \\');
+  }
+  if (value && typeof value === 'object') Object.values(value).forEach(_validateRecordData);
+}
+function _genId(){
+  return (crypto.randomUUID ? crypto.randomUUID().replace(/-/g,'') : ('id'+Date.now()+Math.random().toString(36).slice(2)));
+}
+async function sbInsertRow(table, data){
+  _validateRecordData(data);
+  const id = _genId();
+  const { error } = await sb.from(table).insert({ id, data });
+  if (error) throw error;
+  return { id };
+}
+async function sbGetAllRows(table){
+  const PAGE_SIZE = 1000;
+  let rows = [], from = 0;
+  while (true) {
+    const { data: page, error } = await sb.from(table).select('id, data').order('id', { ascending:true }).range(from, from+PAGE_SIZE-1);
+    if (error) throw error;
+    rows = rows.concat(page || []);
+    if (!page || page.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
+  }
+  return rows;
+}
+
+// ===== STATE =====
+let MASTER = { pegawai:[], pegawaiData:{}, hargaList:[], harga:{}, deviceLockNama:'', deviceLockId:'' };
+let _stagingList = [];
+let _initFlags = { master:false, harga:false };
+let _initTimeout;
+let _deviceLockSyncing = false;
+
+// Tampilkan/matikan status terkunci di dropdown Nama Pegawai.
+function _setNamaLockUI(locked){
+  const sel = $('p_nama');
+  const hint = $('p_namaLockHint');
+  if (sel) sel.disabled = !!locked;
+  if (hint) hint.style.display = locked ? 'flex' : 'none';
+}
+
+// Daftarkan nama ini sebagai kunci resmi perangkat ini ke server (Supabase),
+// supaya admin bisa lihat & buka kuncinya dari app Payroll. Kalau gagal
+// (mis. sedang offline), tidak apa — otomatis dicoba lagi lain kali tabel
+// master ter-refresh selama belum ada kunci resmi tersimpan.
+async function _ensureDeviceLockSynced(nama){
+  if (_deviceLockSyncing || MASTER.deviceLockNama) return;
+  _deviceLockSyncing = true;
+  try { localStorage.setItem(LOCK_PENDING_KEY, nama); } catch(e) {}
+  try {
+    await sbInsertRow(COL.master, { type:'device_lock', device: DEVICE_ID, nama, waktu: new Date().toISOString() });
+    try { localStorage.removeItem(LOCK_PENDING_KEY); } catch(e) {}
+  } catch (e) {
+    console.error('Gagal menyimpan kunci pegawai ke server:', e);
+  } finally {
+    _deviceLockSyncing = false;
+  }
+}
+
+function resetSelect(id, items, placeholder, disabled=false){
+  const el = $(id);
+  el.innerHTML = `<option value="" class="f-placeholder">${placeholder}</option>` +
+    items.map(x => `<option value="${x}">${x}</option>`).join('');
+  el.value = '';
+  el.disabled = disabled;
+}
+
+function _tryInit(){
+  if (Object.values(_initFlags).every(Boolean)) {
+    clearTimeout(_initTimeout);
+    hideLoading();
+    resetSelect('p_nama', MASTER.pegawai, '-- pilih nama kamu --');
+    if (MASTER.deviceLockNama && MASTER.pegawai.includes(MASTER.deviceLockNama)) {
+      // Perangkat ini sudah dikunci resmi ke satu nama (tersimpan di server).
+      // Buka kunci hanya bisa lewat app Payroll (admin) > Setting.
+      $('p_nama').value = MASTER.deviceLockNama;
+      onGantiNama();
+      _setNamaLockUI(true);
+    } else {
+      _setNamaLockUI(false);
+      const lastNama = localStorage.getItem(LS_KEY);
+      if (lastNama && MASTER.pegawai.includes(lastNama)) {
+        $('p_nama').value = lastNama;
+        // fromUser=false: cuma prefill tampilan, JANGAN ikut mengunci ulang.
+        // Kalau ini dipanggil dengan auto-lock aktif, begitu admin buka
+        // kunci di Setting, app pegawai akan langsung mengunci ulang ke
+        // nama lama sebelum pegawai sempat ganti (bug yang sudah terjadi).
+        onGantiNama(false);
+        // Retry HANYA kalau nama ini memang gagal tersimpan sebagai kunci
+        // resmi sebelumnya (mis. sempat offline) -- ditandai LOCK_PENDING_KEY.
+        // Sekadar "nama terakhir dipilih" tanpa penanda pending TIDAK di-retry,
+        // supaya kunci yang sudah sengaja dibuka admin tidak langsung terkunci lagi.
+        if (localStorage.getItem(LOCK_PENDING_KEY) === lastNama) {
+          _ensureDeviceLockSynced(lastNama);
+          _setNamaLockUI(true);
+        }
+      }
+    }
+  }
+}
+
+function _showDbError(msg){
+  clearTimeout(_initTimeout);
+  const el = $('loadingText');
+  el.innerHTML = msg;
+  el.style.color = '#EF4444';
+  el.style.fontSize = '11.5px';
+  el.style.letterSpacing = '0';
+  el.style.textTransform = 'none';
+  $('loadingRetryBtn').style.display = 'inline-block';
+}
+
+function watchTable(table, onNext, onError){
+  let seq = 0;
+  function fetchAndPush(){
+    const mySeq = ++seq;
+    sbGetAllRows(table).then(rows => { if (mySeq === seq) onNext(rows); }).catch(err => onError && onError(err));
+  }
+  fetchAndPush();
+  const channel = sb.channel('realtime:'+table+':'+Math.random().toString(36).slice(2))
+    .on('postgres_changes', { event:'*', schema:'public', table }, () => fetchAndPush())
+    .subscribe();
+  return () => sb.removeChannel(channel);
+}
+
+function initMaster(){
+  watchTable(COL.master, rows => {
+    const m = { pegawai:[], pegawaiData:{} };
+    let deviceLockId = '', deviceLockNama = '';
+    rows.forEach(r => {
+      const data = r.data || {};
+      if (data.type === 'pegawai') { m.pegawai.push(data.nama); m.pegawaiData[data.nama] = { bagian:data.bagian||'', subbagian:data.subbagian||'' }; }
+      if (data.type === 'device_lock' && data.device === DEVICE_ID) { deviceLockId = r.id; deviceLockNama = data.nama || ''; }
+    });
+    MASTER.pegawai = m.pegawai.sort((a,b)=>String(a).localeCompare(String(b),'id'));
+    MASTER.pegawaiData = m.pegawaiData;
+    MASTER.deviceLockId = deviceLockId;
+    MASTER.deviceLockNama = deviceLockNama;
+    _initFlags.master = true;
+    _tryInit();
+  }, err => _showDbError('⚠ Gagal membaca data pegawai.<br>Cek koneksi internet, lalu coba lagi.<br><span style="opacity:.6">' + (err.message||'') + '</span>'));
+
+  watchTable(COL.harga, rows => {
+    MASTER.harga = {};
+    MASTER.hargaList = [];
+    rows.forEach(r => {
+      const data = r.data || {};
+      if (data.brand) {
+        const key = data.pekerjaan ? (data.brand + '|' + data.pekerjaan) : data.brand;
+        MASTER.harga[key] = data.harga;
+        MASTER.hargaList.push({ brand:data.brand, bagian:data.bagian||'', pekerjaan:data.pekerjaan||'', harga:data.harga });
+      }
+    });
+    _initFlags.harga = true;
+    _tryInit();
+  }, err => _showDbError('⚠ Gagal membaca data harga.<br>Cek koneksi internet, lalu coba lagi.<br><span style="opacity:.6">' + (err.message||'') + '</span>'));
+}
+
+// ===== FORM PEGAWAI =====
+window.onGantiNama = (fromUser = true) => {
+  const nama = $('p_nama').value;
+  const peg = MASTER.pegawaiData[nama] || { bagian:'' };
+  const chip = $('p_bagianChip');
+  if (peg.bagian) {
+    chip.classList.remove('empty');
+    chip.innerHTML = `<i class="fa-solid fa-layer-group"></i> <span>Bagian: ${peg.bagian}</span>`;
+  } else {
+    chip.classList.add('empty');
+    chip.innerHTML = `<i class="fa-solid fa-layer-group"></i> <span>Bagian belum diset — hubungi admin</span>`;
+  }
+  if (nama) localStorage.setItem(LS_KEY, nama); else localStorage.removeItem(LS_KEY);
+
+  const brandsForBagian = [...new Set(MASTER.hargaList.filter(h => (!peg.bagian || !h.bagian || h.bagian === peg.bagian)).map(h => h.brand))].filter(Boolean).sort();
+  resetSelect('p_brand', brandsForBagian, '-- pilih brand --', !nama || !brandsForBagian.length);
+  resetSelect('p_jenis', [], '-- pekerjaan --', true);
+  _resetQty();
+  _updateBtnTambah();
+  muatRiwayat();
+
+  // Kunci nama ini ke perangkat ini kalau belum ada kunci resmi tersimpan
+  // di server. Setelah ini dropdown terkunci — buka kunci hanya lewat
+  // app Payroll (admin) > Setting.
+  if (fromUser && nama && !MASTER.deviceLockNama) {
+    _ensureDeviceLockSynced(nama);
+    _setNamaLockUI(true);
+  }
+};
+
+window.onGantiBrand = () => {
+  const brand = $('p_brand').value;
+  const bagian = (MASTER.pegawaiData[$('p_nama').value] || {}).bagian || '';
+  const pekerjaanList = [...new Set(MASTER.hargaList.filter(h => h.brand === brand && (!bagian || !h.bagian || h.bagian === bagian) && h.pekerjaan).map(h => h.pekerjaan))].sort();
+  resetSelect('p_jenis', pekerjaanList, '-- pekerjaan --', !brand || !pekerjaanList.length);
+  _resetQty();
+  _updateBtnTambah();
+};
+
+window.onGantiJenis = () => {
+  const brand = $('p_brand').value;
+  const jenis = $('p_jenis').value;
+  _resetQty();
+  const hint = $('p_hargaHint');
+  if (brand && jenis) {
+    const harga = MASTER.harga[brand+'|'+jenis] || 0;
+    if (harga) {
+      $('p_qtyTrigger').style.opacity = '1'; $('p_qtyTrigger').style.pointerEvents = 'auto';
+      hint.className = 'harga-hint show'; hint.innerHTML = `Harga satuan: <b>Rp ${fmt(harga)}</b>`;
+    } else {
+      hint.className = 'harga-hint show warn'; hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Harga belum diset admin untuk pekerjaan ini`;
+    }
+  } else {
+    hint.className = 'harga-hint';
+  }
+  _updateBtnTambah();
+};
+
+function _resetQty(){
+  $('p_qty').value = ''; $('p_qtyDisplay').value = '';
+  $('p_qtyDisplay').classList.add('f-placeholder');
+  $('p_qtyTrigger').style.opacity = '0.4'; $('p_qtyTrigger').style.pointerEvents = 'none';
+}
+function _updateBtnTambah(){
+  const nama = $('p_nama').value, brand = $('p_brand').value, jenis = $('p_jenis').value;
+  const qty = parseInt($('p_qty').value) || 0;
+  const harga = MASTER.harga[brand+'|'+jenis] || 0;
+  const ok = nama && brand && jenis && qty > 0 && harga > 0;
+  $('btnTambah').classList.toggle('active', !!ok);
+}
+
+// ===== NUMPAD QTY =====
+let _numpadValue = '';
+window.bukaNumpad = () => {
+  _numpadValue = $('p_qty').value || '';
+  $('numpadDisplay').textContent = _numpadValue || '0';
+  $('numpadOverlay').classList.add('active');
+};
+window.tutupNumpad = () => { $('numpadOverlay').classList.remove('active'); _numpadValue = ''; };
+window.numpadInput = (d) => {
+  if (_numpadValue.length >= 6) return;
+  if (_numpadValue === '0') _numpadValue = '';
+  _numpadValue += d;
+  $('numpadDisplay').textContent = _numpadValue || '0';
+};
+window.numpadBackspace = () => { _numpadValue = _numpadValue.slice(0,-1); $('numpadDisplay').textContent = _numpadValue || '0'; };
+window.numpadConfirm = () => {
+  const val = parseInt(_numpadValue) || 0;
+  $('p_qty').value = val || '';
+  $('p_qtyDisplay').value = val > 0 ? val : '';
+  $('p_qtyDisplay').classList.toggle('f-placeholder', !(val>0));
+  if (val < 1) showToast('⚠ Qty minimal 1!');
+  tutupNumpad();
+  _updateBtnTambah();
+};
+
+// ===== STAGING =====
+function _renderStaging(){
+  const list = $('stagingList');
+  const countEl = $('stagingCount');
+  const totalEl = $('stagingTotal');
+  if (_stagingList.length === 0) {
+    list.innerHTML = '<div class="staging-empty">Belum ada item ditambahkan</div>';
+    countEl.textContent = '0';
+    totalEl.textContent = 'Rp 0';
+    $('btnSimpan').classList.remove('active');
+    return;
+  }
+  countEl.textContent = _stagingList.length;
+  const grandTotal = _stagingList.reduce((s,i)=>s+i.jumlah,0);
+  totalEl.textContent = 'Rp ' + fmt(grandTotal);
+  list.innerHTML = _stagingList.map((item, idx) => `
+    <div class="staging-item">
+      <div class="si-main">
+        <div class="si-brand">${item.brand}</div>
+        <div class="si-jenis">${item.jenis}</div>
+      </div>
+      <div class="si-qty">${item.qty}x</div>
+      <div class="si-jumlah">Rp ${fmt(item.jumlah)}</div>
+      <button class="si-del" onclick="hapusStaging(${idx})"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  `).join('');
+  $('btnSimpan').classList.add('active');
+}
+window.hapusStaging = (idx) => { _stagingList.splice(idx,1); _renderStaging(); };
+
+window.tambahKeStaging = () => {
+  const nama = $('p_nama').value;
+  const bagian = (MASTER.pegawaiData[nama]||{}).bagian || '';
+  const brand = $('p_brand').value;
+  const jenis = $('p_jenis').value;
+  const qty = parseInt($('p_qty').value) || 0;
+  if (!nama || !brand || !jenis || qty < 1) { showToast('⚠ Lengkapi semua field dulu!'); return; }
+  const harga = MASTER.harga[brand+'|'+jenis] || 0;
+  if (!harga) { showToast('⚠ Harga belum diset admin!'); return; }
+  _stagingList.push({ nama, bagian, jenis, brand, qty, harga, jumlah: harga*qty });
+  _renderStaging();
+  // brand & bagian tetap, pekerjaan+qty direset supaya cepat input item berikutnya
+  const brandsForBagian = [...new Set(MASTER.hargaList.filter(h => (!bagian || !h.bagian || h.bagian === bagian) && h.brand).map(h=>h.brand))].sort();
+  resetSelect('p_brand', brandsForBagian, '-- pilih brand --', false);
+  $('p_brand').value = brand;
+  onGantiBrand();
+  showToast('✅ Item ditambahkan!');
+};
+
+window.simpanData = async () => {
+  if (_stagingList.length === 0) { showToast('⚠ Belum ada item untuk disimpan!'); return; }
+  const btn = $('btnSimpan');
+  const label = btn.textContent;
+  btn.textContent = 'Menyimpan...'; btn.classList.remove('active'); btn.style.pointerEvents = 'none';
+  showLoading('MENYIMPAN DATA...');
+  const totalAwal = _stagingList.length;
+  try {
+    const tanggalISO = todayISO();
+    const tanggal = String(new Date().getDate()).padStart(2,'0') + '/' + String(new Date().getMonth()+1).padStart(2,'0') + '/' + new Date().getFullYear();
+    while (_stagingList.length) {
+      const item = _stagingList[0];
+      await sbInsertRow(COL.input, { tanggal, tanggalISO, nama:item.nama, bagian:item.bagian, jenis:item.jenis, brand:item.brand, qty:item.qty, harga:item.harga, jumlah:item.jumlah, waktu:new Date().toISOString() });
+      _stagingList.shift();
+      _renderStaging();
+    }
+    showToast('✅ ' + totalAwal + ' data berhasil disimpan!');
+    btn.textContent = label;
+    // form pekerjaan direset, nama pegawai TETAP tersimpan (device dipakai pegawai yang sama tiap hari)
+    resetSelect('p_brand', [], '-- pilih brand --', true);
+    resetSelect('p_jenis', [], '-- pekerjaan --', true);
+    _resetQty();
+    $('p_hargaHint').className = 'harga-hint';
+    onGantiNama();
+    muatRiwayat(true);
+  } catch (e) {
+    const sisaGagal = _stagingList.length;
+    const sudahMasuk = totalAwal - sisaGagal;
+    showToast('❌ Gagal simpan: ' + e.message + (sudahMasuk>0 ? ' ('+sudahMasuk+' dari '+totalAwal+' sudah tersimpan)' : ''));
+    btn.textContent = label;
+  } finally {
+    btn.style.pointerEvents = '';
+    hideLoading();
+  }
+};
+
+// ===== RIWAYAT HARI INI (khusus pegawai yang sedang dipilih) =====
+window.muatRiwayat = async (manual) => {
+  const nama = $('p_nama').value;
+  const rwList = $('rwList');
+  if (!nama) {
+    $('rwEntri').textContent = '—'; $('rwTotal').textContent = '—';
+    rwList.innerHTML = '<div class="rw-empty">Pilih nama untuk melihat riwayat</div>';
+    return;
+  }
+  const btn = $('rwRefreshBtn');
+  if (manual) btn.classList.add('spin');
+  try {
+    const { data: rows, error } = await sb.from(COL.input)
+      .select('id, data')
+      .eq('data->>tanggalISO', todayISO())
+      .eq('data->>nama', nama);
+    if (error) throw error;
+    const items = (rows||[]).map(r => r.data).sort((a,b) => String(b.waktu||'').localeCompare(String(a.waktu||'')));
+    $('rwEntri').textContent = items.length;
+    $('rwTotal').textContent = 'Rp ' + fmt(items.reduce((s,i)=>s+(i.jumlah||0),0));
+    if (items.length === 0) {
+      rwList.innerHTML = '<div class="rw-empty">Belum ada data tersimpan hari ini</div>';
+    } else {
+      rwList.innerHTML = items.map(it => {
+        const jam = it.waktu ? new Date(it.waktu).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '';
+        return `<div class="rw-item">
+          <div class="rw-item-main">
+            <div class="rw-item-title">${it.brand||''} — ${it.jenis||''}</div>
+            <div class="rw-item-sub">${jam} · ${it.qty||0}x @ Rp ${fmt(it.harga)}</div>
+          </div>
+          <div class="rw-item-jum">Rp ${fmt(it.jumlah)}</div>
+        </div>`;
+      }).join('');
+    }
+  } catch (e) {
+    rwList.innerHTML = '<div class="rw-empty">Gagal memuat riwayat: ' + e.message + '</div>';
+  } finally {
+    if (manual) btn.classList.remove('spin');
+  }
+};
+
+// Peringatkan kalau ada item belum tersimpan saat menutup/refresh halaman
+window.addEventListener('beforeunload', (e) => {
+  if (_stagingList.length > 0) { e.preventDefault(); e.returnValue = ''; }
+});
+
+// ===== INIT =====
+(function init(){
+  $('hdrTanggal').textContent = todayLabel();
+  _initTimeout = setTimeout(() => {
+    const flags = Object.entries(_initFlags).filter(([,v])=>!v).map(([k])=>k);
+    _showDbError('⚠ Koneksi timeout.<br>Data belum termuat: <b>' + flags.join(', ') + '</b><br><br>Cek koneksi internet, lalu coba lagi.');
+  }, 12000);
+  initMaster();
+})();
+</script>
+</body>
+</html>
