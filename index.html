@@ -3220,6 +3220,18 @@
       </div>
       <div style="height:1px;background:var(--muted);margin:16px 0;"></div>
       <div class="setting-form-box">
+        <div style="background:linear-gradient(135deg, #1A2A8C, #2347D8);border-radius:10px;padding:10px 14px;margin-bottom:14px;">
+          <span style="color:#fff;font-weight:800;font-size:12px;letter-spacing:.08em;"><i class="fa-solid fa-mobile-screen-button" style="margin-right:6px;"></i>PERANGKAT PEGAWAI (APP INPUT)</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px;line-height:1.5;">
+          HP pegawai yang sudah terkunci ke satu nama di aplikasi Input Pegawai (input-pegawai.html). Tekan "BUKA" supaya pegawai bisa pilih ulang namanya di HP tersebut.
+        </div>
+        <div id="deviceLockList" style="display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">Memuat...</div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--muted);margin:16px 0;"></div>
+      <div class="setting-form-box">
         <div style="background:linear-gradient(135deg, var(--primary3), var(--primary));border-radius:10px;padding:10px 14px;margin-bottom:14px;">
           <span style="color:#fff;font-weight:800;font-size:12px;letter-spacing:.08em;">TAMBAHAN PEGAWAI</span>
         </div>
@@ -4580,10 +4592,15 @@
     function initMasterListener() {
       sbWatch(sbTable(db, COL.master), snap => {
         const m = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[] };
+        const deviceLocks = [];
         _masterDocIds = {};
         snap.forEach(d => {
           const data = d.data();
-          _masterDocIds[data.type+'|'+data.nama] = d.id;
+          if (data.type === 'device_lock') {
+            deviceLocks.push({ docId: d.id, device: data.device || '', nama: data.nama || '', waktu: data.waktu || '' });
+          } else {
+            _masterDocIds[data.type+'|'+data.nama] = d.id;
+          }
           if(data.type==='pegawai') { m.pegawai.push(data.nama); m.pegawaiData[data.nama] = { bagian: data.bagian||'', subbagian: data.subbagian||'' }; }
           if(data.type==='bagian') m.bagian.push(data.nama);
           if(data.type==='brand') m.brand.push(data.nama);
@@ -4597,9 +4614,11 @@
         MASTER.subBagian = m.subBagian;
         MASTER.jenisPinjaman = m.jenisPinjaman.sort();
         MASTER.brands = MASTER.brand;
+        MASTER.deviceLocks = deviceLocks.sort((a,b)=>String(a.nama).localeCompare(String(b.nama),'id'));
         _initFlags.master = true;
         _tryInit();
         _autoRefresh();
+        _renderDeviceLockList();
         if($('listPopup').classList.contains('active')) renderListBody();
       }, err => _showDbError('⚠ Gagal membaca data master.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
 
@@ -4941,6 +4960,66 @@
     // ===== WINDOW FUNCTIONS =====
     // Flag: user keluar dari inputPage tanpa save
     let _inputExitedWithoutSave = false;
+
+    // ===== INPUT DATA DI APP ADMIN INI: SELALU TERBUKA, TIDAK PERNAH DIKUNCI =====
+    // Dulu di sini ada fitur "kunci nama pegawai per perangkat" khusus untuk
+    // menu Input Data pada app admin ini sendiri. Sengaja DIHAPUS: dropdown
+    // Nama Pegawai di app admin ini sekarang selalu bisa dipilih bebas.
+    // Fitur kunci nama per-perangkat TETAP ada, tapi HANYA berlaku di app
+    // terpisah "Input Pegawai" (input-pegawai.html) — lihat _renderDeviceLockList
+    // & bukaKunciPegawaiDeviceLuar di bawah untuk kelola kunci app tsb.
+
+    // ===== PERANGKAT PEGAWAI (App Input Pegawai — input-pegawai.html) =====
+    // Beda dengan kunci lokal di atas (yang hanya untuk halaman Input Data
+    // pada app admin ini sendiri): daftar di bawah ini berasal dari tabel
+    // Supabase 'payroll_master' (type: device_lock), diisi otomatis oleh
+    // HP pegawai yang pakai app Input Pegawai terpisah (input-pegawai.html)
+    // begitu mereka pilih nama pertama kali. Karena tersimpan di server
+    // (bukan cuma localStorage), admin bisa lihat & buka kuncinya dari sini
+    // meski beda perangkat dengan HP pegawai tsb.
+    function _renderDeviceLockList() {
+      const wrap = $('deviceLockList');
+      if (!wrap) return;
+      const list = MASTER.deviceLocks || [];
+      if (!list.length) {
+        wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">Belum ada perangkat pegawai yang terkunci</div>';
+        return;
+      }
+      wrap.innerHTML = list.map(dl => `
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--border);">
+          <div style="width:34px;height:34px;border-radius:10px;background:var(--primaryDim);color:var(--primary3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;"><i class="fa-solid fa-mobile-screen-button"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:800;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${dl.nama}</div>
+            <div style="font-size:10px;color:var(--muted);font-weight:600;">Perangkat: ${String(dl.device).slice(0,8)}…</div>
+          </div>
+          <button onclick="bukaKunciPegawaiDeviceLuar('${dl.docId}', '${String(dl.nama).replace(/'/g, "\\'")}')" style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:9px 12px;font-size:11px;font-weight:800;letter-spacing:.03em;font-family:inherit;cursor:pointer;flex-shrink:0;"><i class="fa-solid fa-unlock"></i> BUKA</button>
+        </div>
+      `).join('');
+    }
+
+    window.bukaKunciPegawaiDeviceLuar = (docId, nama) => {
+      bukaConfirm({
+        icon: '<i class="fa-solid fa-unlock"></i>',
+        iconBg: '#FEE2E2',
+        iconColor: '#EF4444',
+        title: 'Buka Kunci Perangkat?',
+        msg: `Kunci nama <b>${nama}</b> pada HP tersebut akan dilepas. Pegawai perlu pilih ulang namanya saat berikutnya buka app Input Pegawai.`,
+        okLabel: 'Ya, Buka Kunci',
+        okBg: 'linear-gradient(135deg, #EF4444, #F87171)',
+        callback: async () => {
+          try {
+            showLoading('MEMBUKA KUNCI...');
+            await sbDelete(sbDoc(db, COL.master, docId));
+            showToast('🔓 Kunci perangkat pegawai dibuka');
+          } catch (e) {
+            showToast('❌ Gagal buka kunci: ' + e.message);
+          } finally {
+            hideLoading();
+          }
+        }
+      });
+    };
+
 
     function _doResetInputForm() {
       resetSelect('inp_nama', MASTER.pegawai, 'Nama Pegawai....');
@@ -6083,6 +6162,7 @@ window.tutupNumpadBayar = () => {
     // ===== SETTING =====
     window.openSetting = () => {
       initSettingPegawai();
+      _renderDeviceLockList();
       $('settingPage').classList.add('active');
       history.pushState({ page: 'settingPage' }, '');
       setTimeout(_loadPrintMarginsToUI, 50);
