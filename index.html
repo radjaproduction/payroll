@@ -9248,6 +9248,18 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
      * supaya rinciannya identik dengan format slip printer laser.
      */
     function _lengkapiDataSlipThermal(nama, dari, sampai, data) {
+      // Gabung item pekerjaan yang jenis+harga-nya sama (samakan dengan slip laser)
+      if (data.items?.length > 0) {
+        const mergedPekerjaan = {};
+        data.items.forEach(r => {
+          const key = (r.jenis || '-') + '||' + (r.harga || 0);
+          if (!mergedPekerjaan[key]) mergedPekerjaan[key] = { jenis: r.jenis, harga: r.harga, qty: 0, jumlah: 0 };
+          mergedPekerjaan[key].qty += (r.qty || 0);
+          mergedPekerjaan[key].jumlah += (r.jumlah || 0);
+        });
+        data.items = Object.values(mergedPekerjaan);
+      }
+
       const tam = getTambahanLocal(nama, dari, sampai);
       data.tamTotal = tam.total;
       data.tamItems = Object.values(tam.items || {}).map(it => ({
