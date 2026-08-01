@@ -3252,6 +3252,18 @@
         <div style="background:linear-gradient(135deg, #1A2A8C, #2347D8);border-radius:10px;padding:10px 14px;margin-bottom:14px;">
           <span style="color:#fff;font-weight:800;font-size:12px;letter-spacing:.08em;"><i class="fa-solid fa-mobile-screen-button" style="margin-right:6px;"></i>PERANGKAT PEGAWAI (APP INPUT)</span>
         </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--card2); border:1.5px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+          <div>
+            <div style="font-size:12.5px; font-weight:800; color:var(--text);"><i class="fa-solid fa-lock" style="margin-right:6px;"></i>Status Input Pegawai</div>
+            <div style="font-size:10.5px; color:var(--muted); font-weight:600; margin-top:3px; max-width:210px;">DITUTUP akan mematikan tombol Simpan di app Input Pegawai untuk semua orang.</div>
+          </div>
+          <div id="pegawaiInputToggleWrap" onclick="togglePegawaiInputStatus()" style="flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; user-select:none;">
+            <div id="pegawaiInputToggleTrack" style="width:40px; height:22px; border-radius:11px; background:var(--primary); transition:background .25s; position:relative;">
+              <div id="pegawaiInputToggleThumb" style="position:absolute; top:2px; left:18px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .25s; box-shadow:0 1px 4px rgba(0,0,0,.2);"></div>
+            </div>
+            <span id="pegawaiInputToggleLabel" style="font-size:9px; font-weight:800; letter-spacing:.03em; color:var(--primary);">TERBUKA</span>
+          </div>
+        </div>
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px;line-height:1.5;">
           HP pegawai yang sudah terkunci ke satu nama di aplikasi Input Pegawai (input-pegawai.html). Tekan "BUKA" supaya pegawai bisa pilih ulang namanya di HP tersebut.
         </div>
@@ -4440,10 +4452,11 @@
     }
 
     // ===== STATE =====
-    let MASTER = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[], harga:{}, hargaList:[], brands:[], tambahanItemList:[], appStatus:{ status:'on', note:'', updatedAt:'' } };
+    let MASTER = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[], harga:{}, hargaList:[], brands:[], tambahanItemList:[], appStatus:{ status:'on', note:'', updatedAt:'' }, pegawaiInputStatus:{ status:'on', note:'', updatedAt:'' } };
     // ID dokumen tetap (singleton) di tabel payroll_master untuk status ON/OFF
     // aplikasi. Dipakai bareng semua perangkat/admin lewat Supabase realtime.
     const APP_STATUS_DOC_ID = 'app_status_singleton';
+    const PEGAWAI_INPUT_STATUS_DOC_ID = 'pegawai_input_status_singleton';
     let _masterDocIds = {}, _hargaDocIds = {};
     let _CACHE = { input:[], pinjaman:[], bayar:[] };
     let _initFlags = { master:false, harga:false, input:false, pinjaman:false, bayar:false, tambahan:false };
@@ -4633,6 +4646,8 @@
             deviceLocks.push({ docId: d.id, device: data.device || '', nama: data.nama || '', waktu: data.waktu || '' });
           } else if (data.type === 'app_status') {
             MASTER.appStatus = { status: data.status || 'on', note: data.note || '', updatedAt: data.updatedAt || '' };
+          } else if (data.type === 'pegawai_input_status') {
+            MASTER.pegawaiInputStatus = { status: data.status || 'on', note: data.note || '', updatedAt: data.updatedAt || '' };
           } else {
             _masterDocIds[data.type+'|'+data.nama] = d.id;
           }
@@ -4655,6 +4670,7 @@
         _autoRefresh();
         _renderDeviceLockList();
         _applyAppLockUI();
+        _renderPegawaiInputToggle();
         if($('listPopup').classList.contains('active')) renderListBody();
       }, err => _showDbError('⚠ Gagal membaca data master.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
 
@@ -5080,6 +5096,63 @@
         MASTER.appStatus = { status, note: status === 'off' ? 'Aplikasi ditutup sementara. Akan dibuka kembali hari Senin.' : '', updatedAt: sbTimestamp() };
         _applyAppLockUI();
         showToast(status === 'off' ? '🔒 Aplikasi ditutup' : '✅ Aplikasi diaktifkan kembali');
+      } catch (e) {
+        showToast('❌ Gagal ubah status: ' + e.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // ===== STATUS INPUT DI APP "INPUT PEGAWAI" (input-pegawai.html) =====
+    // Beda dengan appStatus di atas (yang menutup app Payroll/admin ini
+    // sendiri): toggle ini menutup kemampuan INPUT DATA di app terpisah
+    // "Input Pegawai" untuk SEMUA pegawai/perangkat sekaligus. Disimpan
+    // sebagai dokumen singleton (id tetap: PEGAWAI_INPUT_STATUS_DOC_ID) di
+    // tabel Supabase 'payroll_master', type:'pegawai_input_status'. Karena
+    // dibaca via realtime, begitu admin menutup, tombol Simpan di semua HP
+    // pegawai langsung terkunci tanpa perlu refresh.
+    function _renderPegawaiInputToggle() {
+      const track = $('pegawaiInputToggleTrack');
+      const thumb = $('pegawaiInputToggleThumb');
+      const label = $('pegawaiInputToggleLabel');
+      if (!track || !thumb || !label) return;
+      const isOn = ((MASTER.pegawaiInputStatus && MASTER.pegawaiInputStatus.status) || 'on') === 'on';
+      track.style.background = isOn ? 'var(--primary)' : 'var(--red)';
+      thumb.style.left = isOn ? '18px' : '2px';
+      label.textContent = isOn ? 'TERBUKA' : 'DITUTUP';
+      label.style.color = isOn ? 'var(--primary)' : 'var(--red)';
+    }
+
+    window.togglePegawaiInputStatus = () => {
+      const isOn = ((MASTER.pegawaiInputStatus && MASTER.pegawaiInputStatus.status) || 'on') === 'on';
+      if (isOn) {
+        // ON -> OFF: minta konfirmasi karena berdampak ke semua pegawai
+        bukaConfirm({
+          icon: '<i class="fa-solid fa-lock"></i>',
+          iconBg: '#FEE2E2', iconColor: '#EF4444',
+          title: 'Tutup Input Pegawai?',
+          msg: 'Semua pegawai <b>tidak akan bisa input data</b> di app Input Pegawai sampai Anda membukanya kembali lewat halaman Setting ini.',
+          okLabel: 'Ya, Tutup',
+          okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
+          callback: () => _setPegawaiInputStatus('off')
+        });
+      } else {
+        _setPegawaiInputStatus('on');
+      }
+    };
+
+    async function _setPegawaiInputStatus(status) {
+      showLoading(status === 'off' ? 'Menutup input pegawai...' : 'Membuka input pegawai...');
+      try {
+        await sbUpsert(sbDoc(db, COL.master, PEGAWAI_INPUT_STATUS_DOC_ID), {
+          type: 'pegawai_input_status',
+          status,
+          note: status === 'off' ? 'Admin sedang menutup input data untuk sementara. Silakan coba lagi nanti atau hubungi admin.' : '',
+          updatedAt: sbTimestamp()
+        }, { merge: true });
+        MASTER.pegawaiInputStatus = { status, note: status === 'off' ? 'Admin sedang menutup input data untuk sementara. Silakan coba lagi nanti atau hubungi admin.' : '', updatedAt: sbTimestamp() };
+        _renderPegawaiInputToggle();
+        showToast(status === 'off' ? '🔒 Input pegawai ditutup' : '✅ Input pegawai dibuka kembali');
       } catch (e) {
         showToast('❌ Gagal ubah status: ' + e.message);
       } finally {
