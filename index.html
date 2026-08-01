@@ -3226,6 +3226,7 @@
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px;line-height:1.5;">
           HP pegawai yang sudah terkunci ke satu nama di aplikasi Input Pegawai (input-pegawai.html). Tekan "BUKA" supaya pegawai bisa pilih ulang namanya di HP tersebut.
         </div>
+        <button onclick="bersihkanDuplikatDeviceLock()" style="width:100%;background:var(--card2);color:var(--primary3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:11.5px;font-weight:800;letter-spacing:.03em;font-family:inherit;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;"><i class="fa-solid fa-broom"></i> BERSIHKAN NAMA DUPLIKAT</button>
         <div id="deviceLockList" style="display:flex;flex-direction:column;gap:8px;">
           <div style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">Memuat...</div>
         </div>
@@ -5013,6 +5014,50 @@
             showToast('🔓 Kunci perangkat pegawai dibuka');
           } catch (e) {
             showToast('❌ Gagal buka kunci: ' + e.message);
+          } finally {
+            hideLoading();
+          }
+        }
+      });
+    };
+
+    // Cari nama pegawai yang punya lebih dari 1 device lock (dobel karena
+    // pindah HP/browser/clear cache), lalu untuk tiap nama simpan cuma
+    // kunci yang paling baru (waktu terakhir) dan hapus sisanya. Data
+    // input/gaji pegawai TIDAK disentuh sama sekali — ini cuma bersihin
+    // dokumen device_lock yang berlebih di tabel payroll_master.
+    window.bersihkanDuplikatDeviceLock = () => {
+      const list = MASTER.deviceLocks || [];
+      const byNama = {};
+      list.forEach(dl => { (byNama[dl.nama] = byNama[dl.nama] || []).push(dl); });
+      const dupeGroups = Object.entries(byNama).filter(([, arr]) => arr.length > 1);
+      if (!dupeGroups.length) {
+        showToast('✅ Tidak ada nama pegawai yang duplikat');
+        return;
+      }
+      const toDelete = [];
+      dupeGroups.forEach(([, arr]) => {
+        const sorted = [...arr].sort((a, b) => String(b.waktu).localeCompare(String(a.waktu)));
+        toDelete.push(...sorted.slice(1)); // simpan yang terbaru (index 0), hapus sisanya
+      });
+      const namaList = dupeGroups.map(([nama, arr]) => `${nama} (${arr.length}x)`).join(', ');
+      bukaConfirm({
+        icon: '<i class="fa-solid fa-broom"></i>',
+        iconBg: '#FEE2E2',
+        iconColor: '#EF4444',
+        title: 'Bersihkan Nama Duplikat?',
+        msg: `Ditemukan ${dupeGroups.length} nama dobel: <b>${namaList}</b>. Untuk tiap nama, kunci perangkat paling lama akan dihapus dan hanya kunci paling baru yang disimpan. Data input/gaji pegawai tidak akan berubah.`,
+        okLabel: 'Ya, Bersihkan',
+        okBg: 'linear-gradient(135deg, #EF4444, #F87171)',
+        callback: async () => {
+          try {
+            showLoading('MEMBERSIHKAN DUPLIKAT...');
+            for (const dl of toDelete) {
+              try { await sbDelete(sbDoc(db, COL.master, dl.docId)); } catch (e) { console.error('Gagal hapus duplikat:', dl.nama, e); }
+            }
+            showToast(`🧹 ${toDelete.length} kunci duplikat dibersihkan`);
+          } catch (e) {
+            showToast('❌ Gagal membersihkan duplikat: ' + e.message);
           } finally {
             hideLoading();
           }
