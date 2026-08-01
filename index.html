@@ -2897,6 +2897,20 @@
     </div>
   </div>
 
+  <!-- ===== LAYAR KUNCI APLIKASI (tampil kalau status = OFF) ===== -->
+  <!-- z-index sengaja di BAWAH .page (9999) supaya halaman Setting yang
+       dibuka lewat tombol "Buka Pengaturan" tetap bisa tampil di atasnya. -->
+  <div id="appLockScreen" style="display:none; position:fixed; inset:0; z-index:500; background:var(--bg); flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:32px;">
+    <div style="width:88px; height:88px; border-radius:26px; background:linear-gradient(135deg,#1A2A8C,#2347D8); display:flex; align-items:center; justify-content:center; color:#fff; font-size:36px; margin-bottom:22px; box-shadow:0 8px 24px rgba(26,86,219,.3);">
+      <i class="fa-solid fa-power-off"></i>
+    </div>
+    <div style="font-size:19px; font-weight:900; color:var(--text); margin-bottom:8px;">Aplikasi Ditutup Sementara</div>
+    <div id="appLockMsg" style="font-size:13px; color:var(--muted); font-weight:600; line-height:1.6; max-width:320px; margin-bottom:28px;">Aplikasi ditutup sementara. Akan dibuka kembali hari Senin.</div>
+    <button onclick="openSetting()" style="background:linear-gradient(135deg, var(--primary3), var(--primary)); color:#fff; border:none; border-radius:14px; padding:14px 26px; font-size:13px; font-weight:800; font-family:inherit; cursor:pointer; letter-spacing:.03em; display:flex; align-items:center; gap:8px; box-shadow:0 4px 16px rgba(26,86,219,.25);">
+      <i class="fa-solid fa-gear"></i> Buka Pengaturan
+    </button>
+  </div>
+
   <!-- ===== HOME ===== -->
   <div class="home-page" id="homePage">
     <!-- Blue Gradient Header -->
@@ -3205,6 +3219,21 @@
       <div class="page-title">Setting</div>
     </div>
     <div class="page-body">
+      <div class="setting-form-box" style="background:var(--card2); border:1.5px solid var(--border);">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div>
+            <div style="font-size:13px; font-weight:800; color:var(--text);"><i class="fa-solid fa-power-off" style="margin-right:6px;"></i>Status Aplikasi</div>
+            <div style="font-size:10.5px; color:var(--muted); font-weight:600; margin-top:3px; max-width:220px;">OFF akan menutup aplikasi untuk semua perangkat sampai diaktifkan lagi di sini.</div>
+          </div>
+          <div id="appStatusToggleWrap" onclick="toggleAppStatus()" style="flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; user-select:none;">
+            <div id="appStatusToggleTrack" style="width:40px; height:22px; border-radius:11px; background:var(--primary); transition:background .25s; position:relative;">
+              <div id="appStatusToggleThumb" style="position:absolute; top:2px; left:18px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .25s; box-shadow:0 1px 4px rgba(0,0,0,.2);"></div>
+            </div>
+            <span id="appStatusToggleLabel" style="font-size:9px; font-weight:800; letter-spacing:.03em; color:var(--primary);">AKTIF (ON)</span>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--muted);margin:16px 0;"></div>
       <div class="setting-section">Master Data</div>
       <div class="setting-row" onclick="bukaList('bagian')">
         <div class="setting-row-label"><i class="fa-solid fa-layer-group"></i> Bagian</div>
@@ -4411,7 +4440,10 @@
     }
 
     // ===== STATE =====
-    let MASTER = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[], harga:{}, hargaList:[], brands:[], tambahanItemList:[] };
+    let MASTER = { pegawai:[], pegawaiData:{}, bagian:[], brand:[], subBagian:{}, jenisPinjaman:[], harga:{}, hargaList:[], brands:[], tambahanItemList:[], appStatus:{ status:'on', note:'', updatedAt:'' } };
+    // ID dokumen tetap (singleton) di tabel payroll_master untuk status ON/OFF
+    // aplikasi. Dipakai bareng semua perangkat/admin lewat Supabase realtime.
+    const APP_STATUS_DOC_ID = 'app_status_singleton';
     let _masterDocIds = {}, _hargaDocIds = {};
     let _CACHE = { input:[], pinjaman:[], bayar:[] };
     let _initFlags = { master:false, harga:false, input:false, pinjaman:false, bayar:false, tambahan:false };
@@ -4599,6 +4631,8 @@
           const data = d.data();
           if (data.type === 'device_lock') {
             deviceLocks.push({ docId: d.id, device: data.device || '', nama: data.nama || '', waktu: data.waktu || '' });
+          } else if (data.type === 'app_status') {
+            MASTER.appStatus = { status: data.status || 'on', note: data.note || '', updatedAt: data.updatedAt || '' };
           } else {
             _masterDocIds[data.type+'|'+data.nama] = d.id;
           }
@@ -4620,6 +4654,7 @@
         _tryInit();
         _autoRefresh();
         _renderDeviceLockList();
+        _applyAppLockUI();
         if($('listPopup').classList.contains('active')) renderListBody();
       }, err => _showDbError('⚠ Gagal membaca data master.<br>Cek RLS Policy Supabase:<br><b>' + err.code + '</b>'));
 
@@ -4911,6 +4946,7 @@
     // ditelusuri: kapan, pegawai mana, jenis apa, dan berapa dokumen/pembayaran
     // yang ikut terhapus.
     window.bukaLogPinjamanLunas = async () => {
+      if (_isAppLocked()) return;
       const existing = document.getElementById('logPinjamanLunasOverlay');
       if (existing) existing.remove();
       showLoading('Memuat log...');
@@ -4969,6 +5005,87 @@
     // Fitur kunci nama per-perangkat TETAP ada, tapi HANYA berlaku di app
     // terpisah "Input Pegawai" (input-pegawai.html) — lihat _renderDeviceLockList
     // & bukaKunciPegawaiDeviceLuar di bawah untuk kelola kunci app tsb.
+
+    // ===== STATUS APLIKASI: ON / OFF (berlaku untuk SEMUA perangkat/admin) =====
+    // Disimpan sebagai satu dokumen singleton (id tetap: APP_STATUS_DOC_ID) di
+    // tabel Supabase 'payroll_master', type:'app_status'. Karena dibaca lewat
+    // sbWatch (realtime), begitu satu admin menekan OFF, semua perangkat lain
+    // yang sedang membuka app ini langsung ikut terkunci tanpa perlu refresh.
+    // Layar kunci menggantikan SELURUH Menu Utama; satu-satunya jalan masuk
+    // yang tetap terbuka adalah tombol "Buka Pengaturan" (openSetting()),
+    // karena halaman Setting (.page, z-index:9999) selalu tampil di ATAS
+    // layar kunci (#appLockScreen, z-index lebih rendah).
+    // Guard tambahan: dipanggil di awal setiap fungsi pembuka menu (selain
+    // Setting) supaya tetap terkunci walau dipanggil lewat jalur lain
+    // (mis. tombol back/forward browser), bukan cuma lewat kartu di Menu Utama.
+    function _isAppLocked() {
+      const locked = ((MASTER.appStatus && MASTER.appStatus.status) || 'on') === 'off';
+      if (locked) showToast('🔒 Aplikasi sedang ditutup. Buka Pengaturan untuk mengaktifkan.');
+      return locked;
+    }
+
+    function _applyAppLockUI() {
+      const st = (MASTER.appStatus && MASTER.appStatus.status) || 'on';
+      const isOff = st === 'off';
+      const scr = $('appLockScreen');
+      if (scr) scr.style.display = isOff ? 'flex' : 'none';
+      const msgEl = $('appLockMsg');
+      if (msgEl) {
+        msgEl.textContent = (MASTER.appStatus && MASTER.appStatus.note)
+          ? MASTER.appStatus.note
+          : 'Aplikasi ditutup sementara. Akan dibuka kembali hari Senin.';
+      }
+      _renderAppStatusToggle();
+    }
+
+    function _renderAppStatusToggle() {
+      const track = $('appStatusToggleTrack');
+      const thumb = $('appStatusToggleThumb');
+      const label = $('appStatusToggleLabel');
+      if (!track || !thumb || !label) return;
+      const isOn = ((MASTER.appStatus && MASTER.appStatus.status) || 'on') === 'on';
+      track.style.background = isOn ? 'var(--primary)' : 'var(--red)';
+      thumb.style.left = isOn ? '18px' : '2px';
+      label.textContent = isOn ? 'AKTIF (ON)' : 'DITUTUP (OFF)';
+      label.style.color = isOn ? 'var(--primary)' : 'var(--red)';
+    }
+
+    window.toggleAppStatus = () => {
+      const isOn = ((MASTER.appStatus && MASTER.appStatus.status) || 'on') === 'on';
+      if (isOn) {
+        // ON -> OFF: minta konfirmasi dulu karena berdampak ke semua orang
+        bukaConfirm({
+          icon: '<i class="fa-solid fa-power-off"></i>',
+          iconBg: '#FEE2E2', iconColor: '#EF4444',
+          title: 'Tutup Aplikasi?',
+          msg: 'Aplikasi akan ditutup untuk <b>semua pengguna</b> dan baru dibuka lagi hari Senin. Anda tetap bisa mengaktifkannya kapan saja lewat halaman Setting ini.',
+          okLabel: 'Ya, Tutup',
+          okBg: 'linear-gradient(135deg,#DC2626,#EF4444)',
+          callback: () => _setAppStatus('off')
+        });
+      } else {
+        _setAppStatus('on');
+      }
+    };
+
+    async function _setAppStatus(status) {
+      showLoading(status === 'off' ? 'Menutup aplikasi...' : 'Mengaktifkan aplikasi...');
+      try {
+        await sbUpsert(sbDoc(db, COL.master, APP_STATUS_DOC_ID), {
+          type: 'app_status',
+          status,
+          note: status === 'off' ? 'Aplikasi ditutup sementara. Akan dibuka kembali hari Senin.' : '',
+          updatedAt: sbTimestamp()
+        }, { merge: true });
+        MASTER.appStatus = { status, note: status === 'off' ? 'Aplikasi ditutup sementara. Akan dibuka kembali hari Senin.' : '', updatedAt: sbTimestamp() };
+        _applyAppLockUI();
+        showToast(status === 'off' ? '🔒 Aplikasi ditutup' : '✅ Aplikasi diaktifkan kembali');
+      } catch (e) {
+        showToast('❌ Gagal ubah status: ' + e.message);
+      } finally {
+        hideLoading();
+      }
+    }
 
     // ===== PERANGKAT PEGAWAI (App Input Pegawai — input-pegawai.html) =====
     // Beda dengan kunci lokal di atas (yang hanya untuk halaman Input Data
@@ -5117,6 +5234,7 @@
     };
 
     window.bukaInputData = () => {
+      if (_isAppLocked()) return;
       // Selalu mulai dari tab Input saat halaman dibuka
       gantiTabInput('input');
       // Jika sebelumnya keluar tanpa save, reset semua
@@ -5442,6 +5560,7 @@ function populatePinJenisForNama(nama) {
 // ===== PINJAMAN FUNCTIONS =====
 
 window.bukaPinjaman = () => {
+  if (_isAppLocked()) return;
   resetSelect('pin_nama', MASTER.pegawai, '-- Pilih Pegawai --');
   resetSelect('pin_jenis', MASTER.jenisPinjaman, '-- Pilih Jenis --');
   
@@ -5862,6 +5981,7 @@ window.bukaNumpadGenTam = (idx) => {
 // ===== BAYAR PINJAMAN FUNCTIONS =====
 
 window.bukaBayar = () => {
+  if (_isAppLocked()) return;
   const data = getRekapPinjamanLocal();
   _sisaPerNama = {};
   _nilaiPerNama = {};
@@ -6376,6 +6496,7 @@ window.tutupNumpadBayar = () => {
 
     // ===== HARGA =====
     window.bukaHarga = () => {
+      if (_isAppLocked()) return;
       initHargaPage();
       $('hargaPage').classList.add('active');
       history.pushState({ page: 'hargaPage' }, '');
@@ -6847,6 +6968,7 @@ window.tutupNumpadBayar = () => {
 
     // ===== REKAP =====
     window.openRekap = () => {
+      if (_isAppLocked()) return;
       $('rekapPage').classList.add('active');
       history.pushState({ page: 'rekapPage' }, '');
 
