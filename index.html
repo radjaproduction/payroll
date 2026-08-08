@@ -9742,13 +9742,12 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     // ===== INIT =====
     (function init() {
       const hariIni = new Date();
-      const dSenin = new Date(hariIni);
-      const hari = dSenin.getDay()||7;
-      dSenin.setDate(dSenin.getDate()-hari+1);
-      _setTgl('rekapMulai', fmtTgl(dSenin));
-      _setTgl('rekapAkhir', fmtTgl(hariIni));
-      _setTgl('printMulai', fmtTgl(dSenin));
-      _setTgl('printAkhir', fmtTgl(hariIni));
+      const dMinggu = _getMinggu(hariIni);
+      const dSabtu = new Date(dMinggu); dSabtu.setDate(dSabtu.getDate() + 6);
+      _setTgl('rekapMulai', fmtTgl(dMinggu));
+      _setTgl('rekapAkhir', fmtTgl(dSabtu));
+      _setTgl('printMulai', fmtTgl(dMinggu));
+      _setTgl('printAkhir', fmtTgl(dSabtu));
       _initTimeout = setTimeout(()=>{
         const flags = Object.entries(_initFlags).filter(([,v])=>!v).map(([k])=>k);
         _showDbError('⚠ Koneksi timeout.<br>Tabel belum merespons: <b>' + flags.join(', ') + '</b><br><br>Kemungkinan penyebab:<br>• RLS Policy Supabase belum mengizinkan akses<br>• Tidak ada koneksi internet<br><br>Coba refresh halaman.');
