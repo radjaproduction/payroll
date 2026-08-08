@@ -4557,6 +4557,8 @@
       const el=$(map[key]); if(el) el.textContent = label||'--/--/----';
     };
     const _getSenin = (d) => { const r=new Date(d); const day=r.getDay()||7; r.setDate(r.getDate()-day+1); r.setHours(0,0,0,0); return r; };
+    // Awal minggu versi Minggu-Sabtu (dipakai supaya periode payroll konsisten dengan Laporan Keuangan).
+    const _getMinggu = (d) => { const r=new Date(d); r.setDate(r.getDate()-r.getDay()); r.setHours(0,0,0,0); return r; };
     const _saveTambahanToSession = () => { try { sessionStorage.setItem('_rcTambahan', JSON.stringify(_rcTambahan)); } catch(e){} };
     const _loadTambahanFromSession = () => { try { const raw=sessionStorage.getItem('_rcTambahan'); if(raw) _rcTambahan=JSON.parse(raw); } catch(e){ _rcTambahan={}; } };
     function _getWeekId(date) {
@@ -8771,20 +8773,21 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
 
     window.setPeriodeMingguIni = () => {
       const hariIni = new Date();
-      const senin = _getSenin(hariIni);
-      _setTgl('rekapMulai', fmtTgl(senin));
-      _setTgl('rekapAkhir', fmtTgl(hariIni));
+      const minggu = _getMinggu(hariIni); // Minggu (Sunday) awal periode berjalan
+      const sabtu = new Date(minggu); sabtu.setDate(sabtu.getDate() + 6); // Sabtu akhir periode berjalan
+      _setTgl('rekapMulai', fmtTgl(minggu));
+      _setTgl('rekapAkhir', fmtTgl(sabtu));
       if(currentTab==='pegawai') muatRekapPegawai(); else muatRekapPinjaman();
     };
     window.setPeriodeMingguLalu = () => {
       const hariIni = new Date();
-      const seninIni = _getSenin(hariIni);
-      const seninLalu = new Date(seninIni);
-      seninLalu.setDate(seninLalu.getDate() - 7);
-      const mingguLalu = new Date(seninIni);
-      mingguLalu.setDate(mingguLalu.getDate() - 1);
-      _setTgl('rekapMulai', fmtTgl(seninLalu));
-      _setTgl('rekapAkhir', fmtTgl(mingguLalu));
+      const mingguIni = _getMinggu(hariIni);
+      const mingguLalu = new Date(mingguIni);
+      mingguLalu.setDate(mingguLalu.getDate() - 7); // Minggu awal periode lalu
+      const sabtuLalu = new Date(mingguLalu);
+      sabtuLalu.setDate(sabtuLalu.getDate() + 6); // Sabtu akhir periode lalu
+      _setTgl('rekapMulai', fmtTgl(mingguLalu));
+      _setTgl('rekapAkhir', fmtTgl(sabtuLalu));
       if(currentTab==='pegawai') muatRekapPegawai(); else muatRekapPinjaman();
     };
 
