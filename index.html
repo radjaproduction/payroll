@@ -4561,12 +4561,12 @@
     const _getMinggu = (d) => { const r=new Date(d); r.setDate(r.getDate()-r.getDay()); r.setHours(0,0,0,0); return r; };
     const _saveTambahanToSession = () => { try { sessionStorage.setItem('_rcTambahan', JSON.stringify(_rcTambahan)); } catch(e){} };
     const _loadTambahanFromSession = () => { try { const raw=sessionStorage.getItem('_rcTambahan'); if(raw) _rcTambahan=JSON.parse(raw); } catch(e){ _rcTambahan={}; } };
+    // ID periode payroll: Minggu-Sabtu. Gunakan tanggal awal periode
+    // sebagai ID agar tidak bercampur dengan definisi ISO week (Senin-Minggu).
     function _getWeekId(date) {
       const d = new Date(date); d.setHours(0,0,0,0);
-      d.setDate(d.getDate() + 4 - (d.getDay()||7));
-      const yearStart = new Date(d.getFullYear(),0,1);
-      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
-      return d.getFullYear() + '-W' + String(weekNo).padStart(2,'0');
+      d.setDate(d.getDate() - d.getDay());
+      return 'SUN-' + _localISODate(d);
     }
     // FIX TIMEZONE: ambil tanggal lokal (WIB) langsung dari getFullYear/getMonth/getDate,
     // JANGAN pakai .toISOString().slice(0,10) — itu convert ke UTC dulu (WIB = UTC+7),
@@ -4578,9 +4578,9 @@
       const day = String(d.getDate()).padStart(2, '0');
       return `${y}-${m}-${day}`;
     }
-    function _getMondayISO(date) {
-      const d = new Date(date); const day = d.getDay()||7;
-      d.setDate(d.getDate() - day + 1); d.setHours(0,0,0,0);
+    function _getMingguISO(date) {
+      const d = new Date(date);
+      d.setDate(d.getDate() - d.getDay()); d.setHours(0,0,0,0);
       return _localISODate(d);
     }
     function _initWeeklyReset() {
@@ -4591,7 +4591,7 @@
         _rcTambahan = {};
         sessionStorage.removeItem('_rcTambahan');
         localStorage.setItem('_tambahanWeekId', currentWeekId);
-        localStorage.setItem('_tambahanWeekStart', _getMondayISO(today));
+        localStorage.setItem('_tambahanWeekStart', _getMingguISO(today));
         console.log('🔄 Reset tambahan untuk minggu baru:', currentWeekId);
         return true;
       }
@@ -4715,17 +4715,16 @@
         _tambahanRecords = snap.docs.map(d => d.data());
         _rcTambahan = {};
         const _today = new Date();
-        const _day = _today.getDay() || 7;
-        const _senin = new Date(_today); _senin.setDate(_today.getDate() - _day + 1); _senin.setHours(0,0,0,0);
-        const _minggu = new Date(_senin); _minggu.setDate(_senin.getDate() + 6); _minggu.setHours(23,59,59,999);
-        const _seninISO = _localISODate(_senin);
+        const _minggu = new Date(_today); _minggu.setDate(_today.getDate() - _today.getDay()); _minggu.setHours(0,0,0,0);
+        const _sabtu = new Date(_minggu); _sabtu.setDate(_minggu.getDate() + 6); _sabtu.setHours(23,59,59,999);
         const _mingguISO = _localISODate(_minggu);
+        const _sabtuISO = _localISODate(_sabtu);
         snap.forEach(docSnap => {
           const data = docSnap.data();
           const nama = data.nama;
           if(!nama || nama.trim()==='' || nama==='-') return;
           const tglISO = (data.tanggalISO || '').slice(0,10);
-          if(tglISO < _seninISO || tglISO > _mingguISO) return;
+          if(tglISO < _mingguISO || tglISO > _sabtuISO) return;
           if(data.itemsJSON) {
             try {
               const itemsRaw = JSON.parse(data.itemsJSON);
@@ -4733,7 +4732,9 @@
                 Object.entries(itemsRaw).filter(([,it]) => (it.qty||0) > 0)
               );
               // FIX 9: Simpan dengan weekId untuk tracking
-              const weekId = data.weekId || _getWeekId(new Date(tglISO));
+              // Parse sebagai waktu lokal tengah hari supaya tanggal Minggu
+              // tidak bergeser ke Sabtu karena parsing ISO UTC di WIB.
+              const weekId = data.weekId || _getWeekId(new Date(tglISO + 'T12:00:00'));
               if(!_rcTambahan[nama] || tglISO >= (_rcTambahan[nama]._tanggalISO||'')) {
                 const calcTotal = Object.values(items).reduce((s, it) => s + (it.jumlah || 0), 0);
                 _rcTambahan[nama] = {
@@ -7332,8 +7333,8 @@ window.tutupNumpadBayar = () => {
 // ===== DETAIL PEKERJAAN (koreksi & hapus per-entri, dengan lock periode) =====
 function _isPeriodeLewat(tanggalISO) {
   if (!tanggalISO) return true; // data tanpa tanggal valid, amankan: kunci
-  const seninIni = _getMondayISO(new Date());
-  return tanggalISO < seninIni;
+  const mingguIni = _getMingguISO(new Date());
+  return tanggalISO < mingguIni;
 }
 
 window.bukaDetailPekerjaan = (idx, jenis, harga) => {
