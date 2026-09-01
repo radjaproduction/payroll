@@ -8808,6 +8808,14 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
         if(!namaAktif.includes(b.nama)) return;
         if(dari && b.tanggalISO<dari) return;
         if(sampai && b.tanggalISO>sampai) return;
+        // FIX: pembayaran "Luar Gaji" (dibayar tunai di luar potongan payroll,
+        // lihat toggle _bayarLuarGaji) TIDAK mengurangi uang yang dicairkan
+        // periode ini — sama seperti sudah diterapkan di muatRekapPegawai
+        // (potMap) & getRincianLocal (potongan). Sebelum perbaikan ini,
+        // pembayaran luar-gaji ikut mengurangi "Dana Bersih" di sini padahal
+        // TIDAK dipotong di kartu Rekap Pegawai manapun — bikin kedua angka
+        // beda kalau ada pembayaran luar-gaji di periode yang sama.
+        if(b.luarGaji) return;
         totalPotongan += (b.bayar||0);
       });
       // Card biru: Total Dana Disiapkan (gaji + tambahan, sebelum potongan hutang)
