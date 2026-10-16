@@ -8659,7 +8659,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
   .grn { color:#059669; font-size:7px; padding:2px 0 2px 8px; }
   .sub { color:#1A1A1A; font-weight:800; border-top:1px solid #ddd; padding-top:5px; margin-top:3px; font-size:8px; }
   .tot { color:var(--primary) !important; font-size:11px; font-weight:900; border-top:2px solid var(--primary) !important; margin-top:5px; padding-top:7px; }
-  @media print { @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; } html, body { width:100%; background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; } #slip-root { width:100%!important; max-width:100%!important; margin:0 auto; display:block; overflow:visible!important; } thead tr { background:var(--primary) !important; } th { color:#fff !important; background:var(--primary) !important; } .tot { color:var(--primary) !important; border-top-color:var(--primary) !important; } }
+  @media print { html, body { width:100%; background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; } #slip-root { width:100%!important; max-width:100%!important; margin:0 auto; display:block; overflow:visible!important; } thead tr { background:var(--primary) !important; } th { color:#fff !important; background:var(--primary) !important; } .tot { color:var(--primary) !important; border-top-color:var(--primary) !important; } }
 </style></head>
 <body><div id="slip-root"><div class="hd"><div class="hd-left"><div class="co">Slip Gaji</div><div class="nm">${nama}</div></div><div class="hd-right"><img src="LOGORD.png" class="hd-logo" alt="Radja Production" onerror="this.style.display='none'"><div class="bg">${bagian}</div></div></div><hr class="divider"><div class="pr">${periode}</div><table><thead><tr><th>PEKERJAAN</th><th>QTY</th><th>HARGA</th><th>JUMLAH</th></tr></thead><tbody>${rows}</tbody></table><div class="ln sub"><span>Pendapatan Kotor</span><span>${subtot}</span></div>${tamHTML}${subKotorLn}${pinjDetailHTML}<div class="ln tot"><span>Total Bersih</span><span>${total}</span></div></div>${_slipAutoShrinkScript}</body></html>`;
     }
@@ -8676,9 +8676,10 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const bodyMatch = html.match(/<body>([\s\S]*?)<\/body>/);
       const styleCSS = styleMatch ? styleMatch[1] : '';
       const bodyHTML = bodyMatch ? bodyMatch[1] : html;
+      const printMargins = _getPrintMargins();
       const printStyleEl = document.createElement('style');
       printStyleEl.id = '_printSlipStyle';
-      printStyleEl.textContent = styleCSS + '\n@media print {\n ._sp-bar { display:none!important; height:0!important; overflow:hidden!important; }\n html, body { background:transparent!important; overflow:visible!important; height:auto!important; margin:0!important; padding:0!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }\n body > * { display:none!important; }\n body > #_printSlipOverlay { display:block!important; position:static!important; padding:0!important; margin:0!important; overflow:visible!important; height:auto!important; width:100%!important; background:transparent!important; z-index:auto!important; }\n #slip-root { width:100%!important; max-width:100%!important; margin:0 auto!important; display:block!important; overflow:visible!important; }\n @page { size:A6; margin:4mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }\n}';
+      printStyleEl.textContent = styleCSS + '\n@media print {\n ._sp-bar { display:none!important; height:0!important; overflow:hidden!important; }\n #slipPopup { display:none!important; }\n html, body { background:transparent!important; overflow:visible!important; height:auto!important; margin:0!important; padding:0!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }\n body > * { display:none!important; }\n body > #_printSlipOverlay { display:block!important; position:static!important; padding:0!important; margin:0!important; overflow:visible!important; height:auto!important; width:100%!important; background:transparent!important; z-index:auto!important; }\n #_printSlipOverlay > div { display:block!important; width:100%!important; padding:0!important; overflow:visible!important; }\n #slip-root { width:100%!important; max-width:100%!important; margin:0 auto!important; display:block!important; overflow:visible!important; }\n @page { size:85mm 210mm; margin:' + printMargins.top + 'mm ' + printMargins.right + 'mm 2mm ' + printMargins.left + 'mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }\n}';
       document.head.appendChild(printStyleEl);
       const overlay = document.createElement('div');
       overlay.id = overlayId;
@@ -9584,6 +9585,18 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
     // ===== PRINT MARGIN =====
     const _PM_KEY = 'radja_print_margins';
     const _PM_DEFAULT = { top: 4, left: 8, right: 8 };
+    function _getPrintMargins() {
+      const saved = JSON.parse(localStorage.getItem(_PM_KEY) || '{}');
+      const readMargin = (value, fallback) => {
+        const margin = Number(value);
+        return Number.isFinite(margin) && margin >= 0 && margin <= 30 ? margin : fallback;
+      };
+      return {
+        top: readMargin(saved.top, _PM_DEFAULT.top),
+        left: readMargin(saved.left, _PM_DEFAULT.left),
+        right: readMargin(saved.right, _PM_DEFAULT.right)
+      };
+    }
     function _loadPrintMarginsToUI() {
       try {
         const saved = JSON.parse(localStorage.getItem(_PM_KEY) || '{}');
@@ -9604,7 +9617,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
       const left = parseInt(document.getElementById('pm_left')?.value ?? _PM_DEFAULT.left);
       const right = parseInt(document.getElementById('pm_right')?.value ?? _PM_DEFAULT.right);
       const el = document.getElementById('pm_preview_code');
-      if(el) el.innerHTML = `size: 100mm auto;<br>margin: ${top}mm ${right}mm 2mm ${left}mm;`;
+      if(el) el.innerHTML = `size: 85mm 210mm;<br>margin: ${top}mm ${right}mm 2mm ${left}mm;`;
     }
     window.updatePrintMarginLabel = function(side, val) {
       const el = document.getElementById('pm_' + side + '_val');
