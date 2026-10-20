@@ -13,9 +13,70 @@
   <meta name="msapplication-navbutton-color" content="#1A2A8C">
   <meta name="msapplication-starturl" content="./">
   <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"></noscript>
+  <script>
+    (function () {
+      function loadStyle(url, id) {
+        if (document.querySelector('link[' + id + ']')) return;
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = url;
+        link.setAttribute(id, 'true');
+        document.head.appendChild(link);
+      }
+
+      function loadScript(url, id) {
+        if (document.querySelector('script[' + id + ']')) return;
+        const script = document.createElement('script');
+        script.src = url;
+        script.async = true;
+        script.setAttribute(id, 'true');
+        document.head.appendChild(script);
+      }
+
+      window.ensureFaCss = function () {
+        loadStyle('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', 'data-fa-css');
+      };
+
+      window.ensureHtml2Canvas = function () {
+        return new Promise((resolve, reject) => {
+          if (window.html2canvas) {
+            resolve(window.html2canvas);
+            return;
+          }
+
+          const existing = document.querySelector('script[data-html2canvas]');
+          if (existing) {
+            existing.addEventListener('load', () => resolve(window.html2canvas), { once: true });
+            existing.addEventListener('error', () => reject(new Error('Failed to load html2canvas')), { once: true });
+            return;
+          }
+
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+          script.async = true;
+          script.setAttribute('data-html2canvas', 'true');
+          script.onload = () => resolve(window.html2canvas);
+          script.onerror = () => reject(new Error('Failed to load html2canvas'));
+          document.head.appendChild(script);
+        });
+      };
+
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(function () {
+          window.ensureFaCss();
+        }, { timeout: 1500 });
+      } else {
+        setTimeout(window.ensureFaCss, 500);
+      }
+    })();
+  </script>
   <style>
     /* ===== ROOT VARIABLES – DEEP BLUE THEME ===== */
     :root {
@@ -9300,40 +9361,45 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
 
   showLoading('Generating JPEG...');
 
-  // Clone offscreen dengan ukuran A6 fixed agar hasil konsisten
-  const W = 397; // 105mm @ 96dpi
-  const H = 559; // 148mm @ 96dpi
-  const clone = slipBox.cloneNode(true);
-  clone.style.cssText = `
-    position:absolute; left:-10000px; top:0;
-    width:${W}px; height:${H}px; max-height:${H}px;
-    border-radius:0; overflow:hidden;
-    background:#fff; z-index:-1;
-    display:flex; flex-direction:column;
-  `;
-  document.body.appendChild(clone);
-  await new Promise(r => setTimeout(r, 80));
-
   try {
-    const canvas = await html2canvas(clone, {
-      scale: 3,
-      useCORS: true,
-      backgroundColor: '#FFFFFF',
-      logging: false,
-      width: W,
-      height: H
-    });
+    const html2canvasLib = await window.ensureHtml2Canvas();
 
-    const link = document.createElement('a');
-    const tglLabel = (_tgl.rekapMulai || 'slip').replace(/\//g, '-');
-    link.download = `Slip_${nama}_${tglLabel}.jpg`;
-    link.href = canvas.toDataURL('image/jpeg', 0.92);
-    link.click();
-    showToast('✅ Download Berhasil!');
+    // Clone offscreen dengan ukuran A6 fixed agar hasil konsisten
+    const W = 397; // 105mm @ 96dpi
+    const H = 559; // 148mm @ 96dpi
+    const clone = slipBox.cloneNode(true);
+    clone.style.cssText = `
+      position:absolute; left:-10000px; top:0;
+      width:${W}px; height:${H}px; max-height:${H}px;
+      border-radius:0; overflow:hidden;
+      background:#fff; z-index:-1;
+      display:flex; flex-direction:column;
+    `;
+    document.body.appendChild(clone);
+    await new Promise(r => setTimeout(r, 80));
+
+    try {
+      const canvas = await html2canvasLib(clone, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#FFFFFF',
+        logging: false,
+        width: W,
+        height: H
+      });
+
+      const link = document.createElement('a');
+      const tglLabel = (_tgl.rekapMulai || 'slip').replace(/\//g, '-');
+      link.download = `Slip_${nama}_${tglLabel}.jpg`;
+      link.href = canvas.toDataURL('image/jpeg', 0.92);
+      link.click();
+      showToast('✅ Download Berhasil!');
+    } finally {
+      document.body.removeChild(clone);
+    }
   } catch (e) {
     showToast('Gagal Download: ' + e.message);
   } finally {
-    document.body.removeChild(clone);
     hideLoading();
   }
 };
@@ -9837,6 +9903,7 @@ function _buatHtmlSlip(nama, bagian, periode, rows, subtot, pinjHTML, total, tam
         // dipanggil, bukan dari HTTP cache browser. Tanpa ini, browser bisa
         // menganggap sw.js "tidak berubah" padahal di server sudah beda,
         // sehingga updatefound tidak pernah terpicu.
+        if (!('serviceWorker' in navigator)) return;
         navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
           .then(reg => {
             swReg = reg;
