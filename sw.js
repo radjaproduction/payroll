@@ -2,7 +2,8 @@ const CACHE_NAME = "payroll-radja-v3.0.3";
 
 const STATIC_ASSETS = [
   "./",
-  "./index.html"
+  "./index.html",
+  "./payroll-background.jpg"
 ];
 
 self.addEventListener("install", event => {

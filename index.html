@@ -82,8 +82,8 @@
     :root {
       --bg: #F2F5FA;
       --bg2: #E8EEF5;
-      --card: #FFFFFF;
-      --card2: #F7F9FC;
+      --card: rgba(255,255,255,.82);
+      --card2: rgba(255,255,255,.72);
       --primary: #4B8EF8;
       --primary2: #6BA3FF;
       --primary3: #1A56DB;
@@ -116,6 +116,12 @@
       color: var(--text);
       font-family: 'Plus Jakarta Sans', sans-serif;
       overflow:hidden;
+    }
+    html { background:var(--bg); }
+    body {
+      background:
+        linear-gradient(90deg, #1A56DB 0%, rgba(26,86,219,.86) 24%, rgba(26,86,219,.48) 58%, rgba(26,86,219,0) 100%),
+        url('./payroll-background.jpg') center / cover no-repeat;
     }
 
     /* ===== LOADING ===== */
@@ -155,7 +161,7 @@
     .home-page {
       width:100%; height:100vh; height:100dvh;
       display:flex; flex-direction:column;
-      background: var(--bg);
+      background: transparent;
       overflow:hidden;
     }
 
@@ -196,7 +202,6 @@
       border-radius:12px;
       display:flex; align-items:center; justify-content:center;
       color:#fff; font-size:17px; flex-shrink:0;
-      backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,.25);
     }
     .brand-title { font-size:17px; font-weight:900; color:#fff; line-height:1; letter-spacing:-.01em }
@@ -219,7 +224,6 @@
     }
     .summary-card.blue-card {
       background: rgba(255,255,255,.15);
-      backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,.25);
       color:#fff;
       position:relative; overflow:hidden;
@@ -264,9 +268,11 @@
 
     /* MENU CARDS – full-width row style (like reference) */
     .menu-section-title {
-      font-size:11px; font-weight:800; color:var(--muted);
+      align-self:flex-start;
+      font-size:12px; font-weight:900; color:#fff;
       letter-spacing:.08em; text-transform:uppercase;
-      margin-bottom:2px; padding-left:2px;
+      margin-bottom:2px; padding:0 2px;
+      text-shadow:0 1px 3px rgba(13,43,110,.8);
     }
     .menu-grid {
       display:flex;
@@ -276,7 +282,7 @@
     }
     .menu-grid-bottom {
       display:grid;
-      grid-template-columns:1fr 1fr 1fr;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:12px;
       width:100%;
     }
@@ -1165,8 +1171,6 @@
   background: rgba(255,255,255,0.15);
   padding: 4px 12px;
   border-radius: 8px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,0.2);
   z-index: 1;
 }
@@ -1233,7 +1237,13 @@
     /* ===== PAGE ===== */
     .page {
       position:fixed; inset:0;
-      background:var(--bg);
+      background-color:var(--bg);
+      background-image:
+        linear-gradient(90deg, #1A56DB 0%, rgba(26,86,219,.86) 24%, rgba(26,86,219,.48) 58%, rgba(26,86,219,0) 100%),
+        url('./payroll-background.jpg');
+      background-position:center;
+      background-size:cover;
+      background-repeat:no-repeat;
       z-index:9999;
       display:none; flex-direction:column;
     }
@@ -2140,6 +2150,10 @@
       .menu-grid { gap:8px }
       .menu-card { padding:12px 14px }
     }
+    @media (max-width:350px) {
+      .menu-grid-bottom { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .menu-grid-bottom > :last-child { grid-column:1 / -1; }
+    }
     .popup-sheet { max-height:88vh; max-height:88dvh }
     @media (max-height:680px) {
       .rc-card { max-height:96vh; max-height:96dvh }
@@ -2529,7 +2543,6 @@
   background: rgba(255,255,255,0.15);
   padding: 4px 12px;
   border-radius: 8px;
-  backdrop-filter: blur(8px);
 }
 
 .rc-period {
@@ -2933,6 +2946,69 @@
       white-space: nowrap;
     }
     #appUpdateBanner .aub-btn:active { transform: scale(.96); }
+
+    /* Lightweight glass surfaces: translucency and highlights without blur filters. */
+    .menu-card:not(.highlight),
+    .menu-card-sm,
+    .setting-row,
+    .setting-form-box,
+    .list-item,
+    .tab-switch,
+    .date-chip,
+    .table-wrap,
+    .rekap-card {
+      background:rgba(255,255,255,.82);
+      border-color:rgba(255,255,255,.72);
+      box-shadow:0 4px 14px rgba(13,43,110,.12);
+    }
+
+    .summary-card.blue-card {
+      background:rgba(255,255,255,.18);
+      border-color:rgba(255,255,255,.34);
+      box-shadow:0 4px 14px rgba(13,43,110,.12);
+    }
+
+    .summary-card.green-card {
+      background:linear-gradient(135deg, rgba(30,170,106,.84), rgba(34,197,94,.76));
+      border:1px solid rgba(255,255,255,.4);
+      box-shadow:0 4px 14px rgba(13,43,110,.12);
+    }
+
+    .popup-sheet,
+    .rc-card,
+    .list-popup-content,
+    #pwaInstallSheet {
+      background:rgba(255,255,255,.94);
+      border:1px solid rgba(255,255,255,.78);
+      box-shadow:0 6px 18px rgba(13,43,110,.14);
+    }
+
+    .back-bar {
+      background:rgba(255,255,255,.86);
+      border-top-color:rgba(255,255,255,.72);
+      box-shadow:0 -4px 14px rgba(13,43,110,.1);
+    }
+
+    .menu-card .m-arrow,
+    .menu-card-sm .m-arrow-sm,
+    .rekap-badge,
+    .rc-bagian {
+      border:1px solid rgba(255,255,255,.72);
+    }
+
+    .menu-card.card-input .m-arrow { background:rgba(75,142,248,.14); }
+    .menu-card.card-pinjaman .m-arrow { background:rgba(16,185,129,.14); }
+    .menu-card.card-bayar .m-arrow { background:rgba(245,158,11,.16); }
+    .menu-card.card-rekap .m-arrow { background:rgba(139,92,246,.14); }
+    .menu-card-sm.card-setting .m-arrow-sm { background:rgba(225,29,120,.12); }
+    .menu-card-sm.card-harga .m-arrow-sm { background:rgba(13,148,136,.12); }
+    .menu-card-sm.card-log .m-arrow-sm { background:rgba(124,58,237,.12); }
+
+    .rekap-badge.tambahan,
+    .rekap-badge.lunas { background:rgba(16,185,129,.12); }
+    .rekap-badge.pinjaman { background:rgba(239,68,68,.12); }
+
+    .rc-bagian { background:rgba(255,255,255,.18); }
   </style>
 </head>
 <body>
@@ -2984,7 +3060,7 @@
           <div class="brand-badge"><i class="fa-solid fa-circle" style="font-size:7px;"></i> Supabase Realtime</div>
         </div>
         <div style="flex-shrink:0;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
-          <div style="background:rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:3px 9px;font-size:10px;font-weight:800;letter-spacing:.06em;backdrop-filter:blur(6px);">v2.1.0</div>
+          <div style="background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:8px;padding:3px 9px;font-size:10px;font-weight:800;letter-spacing:.06em;">v2.1.0</div>
           <div style="font-size:9px;color:rgba(255,255,255,.65);font-weight:600;letter-spacing:.04em;">MAY 2026</div>
           <div style="font-size:8px;color:rgba(255,255,255,.8);font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:3px;"><i class="fa-solid fa-circle" style="font-size:6px;color:#22C55E;"></i> STABLE</div>
           <button id="btnInstallApp" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,.25);color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.04em;margin-top:2px;"><i class="fa-solid fa-download"></i> INSTALL</button>
@@ -3010,19 +3086,19 @@
     <div class="home-body">
       <!-- QUICK STATS ROW -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;">
-        <div style="background:linear-gradient(135deg, #B91C1C, #EF4444);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(239,68,68,.25);position:relative;overflow:hidden;">
+        <div style="background:linear-gradient(135deg, rgba(185,28,28,.78), rgba(239,68,68,.72));border:1px solid rgba(255,255,255,.4);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(239,68,68,.2);position:relative;overflow:hidden;">
           <div style="position:absolute;top:-8px;right:-8px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);"></div>
           <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Total Pinjaman</div>
           <div style="font-size:14px;font-weight:900;color:#fff;line-height:1;word-break:break-all;" id="homeStatTotalPinjaman">Rp 0</div>
           <div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:4px;font-weight:600;">outstanding</div>
         </div>
-        <div style="background:linear-gradient(135deg, #D97706, #F59E0B);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(245,158,11,.25);position:relative;overflow:hidden;">
+        <div style="background:linear-gradient(135deg, rgba(217,119,6,.78), rgba(245,158,11,.72));border:1px solid rgba(255,255,255,.4);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(245,158,11,.2);position:relative;overflow:hidden;">
           <div style="position:absolute;top:-8px;right:-8px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);"></div>
           <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Total Tambahan</div>
           <div style="font-size:14px;font-weight:900;color:#fff;line-height:1;word-break:break-all;" id="homeStatTotalTambahan">Rp 0</div>
           <div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:4px;font-weight:600;">lembur & lainnya</div>
         </div>
-        <div style="background:linear-gradient(135deg, #1A2A8C, #2347D8);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(26,86,219,.25);position:relative;overflow:hidden;">
+        <div style="background:linear-gradient(135deg, rgba(26,42,140,.82), rgba(35,71,216,.74));border:1px solid rgba(255,255,255,.4);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 16px rgba(26,86,219,.2);position:relative;overflow:hidden;">
           <div style="position:absolute;top:-8px;right:-8px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);"></div>
           <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Pegawai Aktif</div>
           <div style="font-size:22px;font-weight:900;color:#fff;line-height:1;" id="homeStatPegawaiAktif">0</div>
@@ -3032,14 +3108,14 @@
 
       <!-- STATUS BADGES ROW -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
-        <div style="background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:0 2px 12px rgba(26,86,219,.08);border:1px solid rgba(26,86,219,.06);display:flex;align-items:center;gap:10px;">
+        <div style="background:rgba(255,255,255,.82);border-radius:16px;padding:12px 14px;box-shadow:0 4px 14px rgba(13,43,110,.12);border:1px solid rgba(255,255,255,.72);display:flex;align-items:center;gap:10px;">
           <div style="width:36px;height:36px;border-radius:10px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;color:#D97706;font-size:14px;flex-shrink:0;"><i class="fa-solid fa-triangle-exclamation"></i></div>
           <div>
             <div style="font-size:16px;font-weight:900;color:var(--text);line-height:1;" id="homeStatWarning">0</div>
             <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Pinjaman Aktif</div>
           </div>
         </div>
-        <div style="background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:0 2px 12px rgba(26,86,219,.08);border:1px solid rgba(26,86,219,.06);display:flex;align-items:center;gap:10px;">
+        <div style="background:rgba(255,255,255,.82);border-radius:16px;padding:12px 14px;box-shadow:0 4px 14px rgba(13,43,110,.12);border:1px solid rgba(255,255,255,.72);display:flex;align-items:center;gap:10px;">
           <div style="width:36px;height:36px;border-radius:10px;background:#E0EAFF;display:flex;align-items:center;justify-content:center;color:var(--primary3);font-size:14px;flex-shrink:0;"><i class="fa-solid fa-check-double"></i></div>
           <div>
             <div style="font-size:16px;font-weight:900;color:var(--text);line-height:1;" id="homeStatLunas">0</div>
@@ -3280,7 +3356,7 @@
       <div class="page-title">Setting</div>
     </div>
     <div class="page-body">
-      <div class="setting-form-box" style="background:var(--card2); border:1.5px solid var(--border);">
+      <div class="setting-form-box">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <div>
             <div style="font-size:13px; font-weight:800; color:var(--text);"><i class="fa-solid fa-power-off" style="margin-right:6px;"></i>Status Aplikasi</div>
@@ -3510,7 +3586,7 @@
       <div class="page-title" id="rekapTitle">Rekap Pegawai</div>
     </div>
     <div class="rekap-inner">
-      <div class="tab-switch" style="margin:12px 16px 0; background:var(--card); border-radius:16px; padding:4px; box-shadow:var(--shadow); border:1px solid var(--border); display:flex; gap:4px;">
+      <div class="tab-switch" style="margin:12px 16px 0; border-radius:16px; padding:4px; display:flex; gap:4px;">
   <button class="tab-btn active" id="tabPegawai" onclick="gantiTab('pegawai')" style="flex:1; border:none; padding:12px; border-radius:12px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; background:linear-gradient(135deg, var(--primary3), var(--primary)); color:#fff; box-shadow:0 2px 8px rgba(26,86,219,.25); transition:all .2s;">
     <i class="fa-solid fa-users" style="margin-right:6px;"></i>Pegawai
   </button>
@@ -3521,14 +3597,14 @@
 
 <!-- GANTI: Date Bar (lebih compact, modern) -->
 <div class="date-bar" id="rekapDateBox" style="display:grid; grid-template-columns:1fr auto 1fr; gap:8px; padding:12px 16px 0; align-items:center;">
-  <div class="date-chip" onclick="bukaDatePicker('mulai')" style="background:var(--card); border-radius:14px; padding:12px 14px; text-align:center; font-size:13px; font-weight:700; color:var(--text); cursor:pointer; box-shadow:var(--shadow); transition:transform .1s; border:1.5px solid var(--border);">
+  <div class="date-chip" onclick="bukaDatePicker('mulai')" style="border-radius:14px; padding:12px 14px; text-align:center; font-size:13px; font-weight:700; color:var(--text); cursor:pointer; transition:transform .1s;">
     <small style="display:block; font-size:9px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:3px; font-weight:700;">Dari</small>
     <span id="tglMulaiTxt" style="color:var(--primary3);">22/06/2026</span>
   </div>
   <div style="color:var(--muted); font-size:12px; font-weight:800;">
     <i class="fa-solid fa-arrow-right"></i>
   </div>
-  <div class="date-chip" onclick="bukaDatePicker('akhir')" style="background:var(--card); border-radius:14px; padding:12px 14px; text-align:center; font-size:13px; font-weight:700; color:var(--text); cursor:pointer; box-shadow:var(--shadow); transition:transform .1s; border:1.5px solid var(--border);">
+  <div class="date-chip" onclick="bukaDatePicker('akhir')" style="border-radius:14px; padding:12px 14px; text-align:center; font-size:13px; font-weight:700; color:var(--text); cursor:pointer; transition:transform .1s;">
     <small style="display:block; font-size:9px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:3px; font-weight:700;">Sampai</small>
     <span id="tglAkhirTxt" style="color:var(--primary3);">25/06/2026</span>
   </div>
