@@ -5094,6 +5094,7 @@
                 bayarDihapus: bayarDocs.map(b => ({ id: b.id, bayar: b.bayar || 0, tanggal: b.tanggal || '' })),
                 waktu: sbTimestamp()
               });
+              await _trimPinjamanLunasLog();
             } catch (logErr) {
               console.error('Gagal menyimpan log lunas pinjaman:', logErr);
             }
@@ -5111,22 +5112,46 @@
     // penghapusan otomatis (yang berjalan tanpa konfirmasi user) tetap bisa
     // ditelusuri: kapan, pegawai mana, jenis apa, dan berapa dokumen/pembayaran
     // yang ikut terhapus.
+    async function _trimPinjamanLunasLog() {
+      const KEEP_LIMIT = 500;
+      const DELETE_BATCH_SIZE = 100;
+      while (true) {
+        const { data: oldRows, error: readError } = await sb.from(COL.pinjamanLunasLog)
+          .select('id')
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: false })
+          .range(KEEP_LIMIT, KEEP_LIMIT + DELETE_BATCH_SIZE - 1);
+        if (readError) throw _mkError(readError, 'supabase/get-failed');
+        if (!oldRows || oldRows.length === 0) break;
+
+        const { error: deleteError } = await sb.from(COL.pinjamanLunasLog)
+          .delete()
+          .in('id', oldRows.map(row => row.id));
+        if (deleteError) throw _mkError(deleteError, 'supabase/delete-failed');
+        if (oldRows.length < DELETE_BATCH_SIZE) break;
+      }
+    }
+
     window.bukaLogPinjamanLunas = async () => {
       if (_isAppLocked()) return;
       const existing = document.getElementById('logPinjamanLunasOverlay');
       if (existing) existing.remove();
       showLoading('Memuat log...');
       try {
-        const snap = await sbGetAll(sbTable(db, COL.pinjamanLunasLog));
-        const entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        entries.sort((a, b) => (_waktuSortMs(b) - _waktuSortMs(a)));
-
-        const rows = entries.length
-          ? entries.map(e => {
-              const jmlPin = (e.pinjamanDihapus || []).length;
-              const jmlBayar = (e.bayarDihapus || []).length;
-              const waktuStr = (() => { const t = Date.parse(e.waktu || ''); return isNaN(t) ? '-' : new Date(t).toLocaleString('id-ID'); })();
-              return `<div style="background:var(--card2);border:1.5px solid var(--muted);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+        await _trimPinjamanLunasLog();
+        const { data, error } = await sb.from(COL.pinjamanLunasLog)
+          .select('id, data, created_at')
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: false })
+          .range(0, 499);
+        if (error) throw _mkError(error, 'supabase/get-failed');
+        const entries = data || [];
+        const rows = entries.map(row => {
+          const e = { id: row.id, ...(row.data || {}) };
+          const jmlPin = (e.pinjamanDihapus || []).length;
+          const jmlBayar = (e.bayarDihapus || []).length;
+          const waktuStr = (() => { const t = Date.parse(e.waktu || row.created_at || ''); return isNaN(t) ? '-' : new Date(t).toLocaleString('id-ID'); })();
+          return `<div style="background:var(--card2);border:1.5px solid var(--muted);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
                   <div>
                     <div style="font-size:13px;font-weight:800;color:var(--text);">${e.nama || '-'}</div>
@@ -5141,15 +5166,14 @@
                   <span>Total Bayar: <b>Rp ${fmt(e.totalBayar || 0)}</b></span>
                 </div>
               </div>`;
-            }).join('')
-          : `<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada riwayat auto-hapus pinjaman lunas.</div>`;
+        }).join('');
 
         const overlay = document.createElement('div');
         overlay.id = 'logPinjamanLunasOverlay';
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99999999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
         overlay.innerHTML = `<div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;">
-          <div style="font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Log Auto-Hapus Pinjaman Lunas (${entries.length})</div>
-          ${rows}
+          <div style="font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Log Auto-Hapus Pinjaman Lunas (${entries.length}${entries.length === 500 ? ' terbaru' : ''})</div>
+          ${rows || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada riwayat auto-hapus pinjaman lunas.</div>'}
           <button onclick="document.getElementById('logPinjamanLunasOverlay').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;">Tutup</button>
         </div>`;
         document.body.appendChild(overlay);
