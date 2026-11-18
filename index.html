@@ -396,8 +396,7 @@
     .menu-card-sm:active { transform:scale(.97); box-shadow:none }
     .menu-card-sm.card-setting .m-icon { background:#E11D78; color:#FFE4F0; }
     .menu-card-sm.card-harga .m-icon { background:#0D9488; color:#CCFBF1; }
-    .menu-card-sm.card-log .m-icon { background:#7C3AED; color:#EDE9FE; }
-    .menu-card-sm .m-icon {
+        .menu-card-sm .m-icon {
       width:42px; height:42px;
       border-radius:14px;
       display:flex; align-items:center; justify-content:center;
@@ -407,8 +406,11 @@
     .menu-card-sm .m-label { font-size:13px; font-weight:800; color:var(--text); letter-spacing:.01em }
     .menu-card-sm.card-setting .m-label { color:#E11D78; }
     .menu-card-sm.card-harga .m-label { color:#0D9488; }
-    .menu-card-sm.card-log .m-label { color:#7C3AED; }
-    .menu-card-sm .m-sub { font-size:10px; color:var(--muted); font-weight:500 }
+    .menu-card-sm.card-rekap-pekerjaan .m-icon { background:#2563EB; color:#DBEAFE; }
+    .menu-card-sm.card-rekap-pekerjaan .m-label { color:#2563EB; }
+    .menu-card-sm.card-rekap-pekerjaan .m-arrow-sm { background:#DBEAFE; color:#2563EB; }
+    .menu-card-sm.card-rekap-pekerjaan .m-watermark { color:#2563EB; }
+        .menu-card-sm .m-sub { font-size:10px; color:var(--muted); font-weight:500 }
     .menu-card-sm .m-arrow-sm {
       position:absolute; top:14px; right:14px;
       width:26px; height:26px; border-radius:50%;
@@ -417,8 +419,7 @@
     }
     .menu-card-sm.card-setting .m-arrow-sm { background:#FFE4F0; color:#E11D78; }
     .menu-card-sm.card-harga .m-arrow-sm { background:#CCFBF1; color:#0D9488; }
-    .menu-card-sm.card-log .m-arrow-sm { background:#EDE9FE; color:#7C3AED; }
-
+    
     .menu-card-sm .m-watermark {
       position:absolute;
       right:-10px; bottom:-12px;
@@ -432,8 +433,7 @@
     .menu-card-sm > *:not(.m-watermark) { position:relative; z-index:1; }
     .menu-card-sm.card-setting .m-watermark { color:#E11D78; }
     .menu-card-sm.card-harga .m-watermark { color:#0D9488; }
-    .menu-card-sm.card-log .m-watermark { color:#7C3AED; }
-
+    
     /* ===== CSS POPUP UNIVERSAL — SEMUA POPUP DARI BAWAH ===== */
 /* ============================================================
    ===== CSS POPUP SYSTEM — PINJAMAN & BAYAR =====
@@ -3012,8 +3012,7 @@
     .menu-card.card-rekap .m-arrow { background:rgba(139,92,246,.14); }
     .menu-card-sm.card-setting .m-arrow-sm { background:rgba(225,29,120,.12); }
     .menu-card-sm.card-harga .m-arrow-sm { background:rgba(13,148,136,.12); }
-    .menu-card-sm.card-log .m-arrow-sm { background:rgba(124,58,237,.12); }
-
+    
     .rekap-badge.tambahan,
     .rekap-badge.lunas { background:rgba(16,185,129,.12); }
     .rekap-badge.pinjaman { background:rgba(239,68,68,.12); }
@@ -3190,12 +3189,12 @@
           <div class="m-label">HARGA</div>
           <div class="m-sub">Atur harga</div>
         </div>
-        <div class="menu-card-sm card-log" onclick="bukaLogPinjamanLunas()">
-          <i class="fa-solid fa-clock-rotate-left m-watermark"></i>
+        <div class="menu-card-sm card-rekap-pekerjaan" onclick="bukaRekapPekerjaan()">
+          <i class="fa-solid fa-chart-column m-watermark"></i>
           <div class="m-arrow-sm"><i class="fa-solid fa-chevron-right"></i></div>
-          <div class="m-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-          <div class="m-label">LOG</div>
-          <div class="m-sub">Riwayat</div>
+          <div class="m-icon"><i class="fa-solid fa-chart-column"></i></div>
+          <div class="m-label">REKAP PEKERJAAN</div>
+          <div class="m-sub">Total minggu ini</div>
         </div>
       </div>
     </div>
@@ -4383,7 +4382,6 @@
       input: 'payroll_input',
       pinjaman: 'payroll_pinjaman',
       bayar: 'payroll_bayar',
-      pinjamanLunasLog: 'payroll_pinjaman_lunas_log'
     };
 
     // ====================================================================
@@ -4922,33 +4920,12 @@
     }
 
     let _initTimeout;
-    let _lunasSweepDone = false;
-    async function _sweepPinjamanLunasSekaliJalan() {
-      if (_lunasSweepDone) return;
-      _lunasSweepDone = true;
-      try {
-        const { data: existingLogs, error } = await sb.from(COL.pinjamanLunasLog).select('data');
-        if (error) throw _mkError(error, 'supabase/get-failed');
-        const knownEventIds = new Set((existingLogs || []).map(row => {
-          const entry = row.data || {};
-          return _pinjamanLunasEventId(entry.nama, entry.jenis, entry.pinjamanDihapus || [], entry.bayarDihapus || []);
-        }));
-        const semuaNama = new Set(_CACHE.pinjaman.map(p => p.nama).filter(Boolean));
-        for (const nama of semuaNama) {
-          await _autoHapusPinjamanLunas(nama, { skipLogTrim: true, knownEventIds });
-        }
-        await _trimPinjamanLunasLog();
-      } catch (e) {
-        console.error('Sweep pinjaman lunas gagal:', e);
-      }
-    }
     function _tryInit() {
       if(Object.values(_initFlags).every(Boolean)) {
         clearTimeout(_initTimeout);
         hideLoading();
         loadDashboardDana();
-        _sweepPinjamanLunasSekaliJalan();
-      }
+        }
     }
     function _showDbError(msg) {
       clearTimeout(_initTimeout);
@@ -5102,142 +5079,74 @@
     // sebelumnya sudah benar memotongnya. Daftar "Pilih Pinjaman untuk dihapus"
     // sudah difilter sisa > 0 di tempat lain, jadi pinjaman yang sudah lunas
     // otomatis tidak muncul di sana walau datanya tetap disimpan.
-    async function _autoHapusPinjamanLunas(nama, options = {}) {
+    async function _autoHapusPinjamanLunas(nama) {
       if (!nama) return false;
       let adaYangLunas = false;
-      let logNeedsTrim = false;
       try {
         const jenisSet = new Set(_CACHE.pinjaman.filter(p => p.nama === nama).map(p => p.jenis || '(lainnya)'));
         for (const jenis of jenisSet) {
           const pinjamanDocs = _CACHE.pinjaman.filter(p => p.nama === nama && (p.jenis || '(lainnya)') === jenis);
-          if (!pinjamanDocs.length) continue;
-          const totalPinjaman = pinjamanDocs.reduce((s, p) => s + (p.nominal || 0), 0);
+          const totalPinjaman = pinjamanDocs.reduce((sum, p) => sum + (p.nominal || 0), 0);
           if (totalPinjaman <= 0) continue;
           const bayarDocs = _CACHE.bayar.filter(b => b.nama === nama && (b.jenisPinjaman || '(lainnya)') === jenis);
-          const totalBayar = bayarDocs.reduce((s, b) => s + (b.bayar || 0), 0);
-          if (totalBayar >= totalPinjaman) {
-            // Cuma dicatat ke log audit sebagai jejak "kapan jenis ini lunas" —
-            // datanya sendiri (pinjaman & bayar) sengaja TIDAK dihapus.
-            try {
-              const eventId = _pinjamanLunasEventId(nama, jenis, pinjamanDocs, bayarDocs);
-              if (!options.knownEventIds || !options.knownEventIds.has(eventId)) {
-                options.knownEventIds?.add(eventId);
-                await sbInsert(sbTable(db, COL.pinjamanLunasLog), {
-                  nama,
-                  jenis,
-                  totalPinjaman,
-                  totalBayar,
-                  pinjamanDihapus: pinjamanDocs.map(p => ({ id: p.id, nominal: p.nominal || 0, tanggal: p.tanggal || '' })),
-                  bayarDihapus: bayarDocs.map(b => ({ id: b.id, bayar: b.bayar || 0, tanggal: b.tanggal || '' })),
-                  waktu: sbTimestamp()
-                }, eventId);
-                logNeedsTrim = true;
-              }
-            } catch (logErr) {
-              if (logErr.code !== '23505') console.error('Gagal menyimpan log lunas pinjaman:', logErr);
-            }
-            adaYangLunas = true;
-          }
+          const totalBayar = bayarDocs.reduce((sum, b) => sum + (b.bayar || 0), 0);
+          if (totalBayar >= totalPinjaman) adaYangLunas = true;
         }
-        if (logNeedsTrim && !options.skipLogTrim) await _trimPinjamanLunasLog();
       } catch (e) {
         console.error('Cek lunas pinjaman gagal:', e);
       }
       return adaYangLunas;
     }
 
-    // ===== LOG AUDIT: RIWAYAT AUTO-HAPUS PINJAMAN LUNAS =====
-    // Menampilkan seluruh catatan yang ditulis _autoHapusPinjamanLunas, supaya
-    // penghapusan otomatis (yang berjalan tanpa konfirmasi user) tetap bisa
-    // ditelusuri: kapan, pegawai mana, jenis apa, dan berapa dokumen/pembayaran
-    // yang ikut terhapus.
-    async function _trimPinjamanLunasLog() {
-      const KEEP_LIMIT = 500;
-      const DELETE_BATCH_SIZE = 100;
-      while (true) {
-        const { data: oldRows, error: readError } = await sb.from(COL.pinjamanLunasLog)
-          .select('id')
-          .order('created_at', { ascending: false })
-          .order('id', { ascending: false })
-          .range(KEEP_LIMIT, KEEP_LIMIT + DELETE_BATCH_SIZE - 1);
-        if (readError) throw _mkError(readError, 'supabase/get-failed');
-        if (!oldRows || oldRows.length === 0) break;
-
-        const { error: deleteError } = await sb.from(COL.pinjamanLunasLog)
-          .delete()
-          .in('id', oldRows.map(row => row.id));
-        if (deleteError) throw _mkError(deleteError, 'supabase/delete-failed');
-        if (oldRows.length < DELETE_BATCH_SIZE) break;
-      }
-    }
-
-    function _pinjamanLunasEventId(nama, jenis, pinjamanDocs, bayarDocs) {
-      const fingerprint = JSON.stringify({
-        nama,
-        jenis,
-        pinjaman: pinjamanDocs.map(({ id, nominal }) => [id, nominal || 0]).sort((a, b) => String(a[0]).localeCompare(String(b[0]))),
-        pembayaran: bayarDocs.map(({ id, bayar }) => [id, bayar || 0]).sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-      });
-      let hashA = 2166136261;
-      let hashB = 0x9e3779b9;
-      for (let i = 0; i < fingerprint.length; i++) {
-        const code = fingerprint.charCodeAt(i);
-        hashA = Math.imul(hashA ^ code, 16777619);
-        hashB = Math.imul(hashB ^ code, 0x85ebca6b);
-      }
-      return `lunas_${(hashA >>> 0).toString(36)}${(hashB >>> 0).toString(36)}`;
-    }
-
-    window.bukaLogPinjamanLunas = async () => {
+    window.bukaRekapPekerjaan = () => {
       if (_isAppLocked()) return;
-      const existing = document.getElementById('logPinjamanLunasOverlay');
+      const existing = document.getElementById('rekapPekerjaanOverlay');
       if (existing) existing.remove();
-      showLoading('Memuat log...');
-      try {
-        await _trimPinjamanLunasLog();
-        const { data, error } = await sb.from(COL.pinjamanLunasLog)
-          .select('id, data, created_at')
-          .order('created_at', { ascending: false })
-          .order('id', { ascending: false })
-          .range(0, 499);
-        if (error) throw _mkError(error, 'supabase/get-failed');
-        const entries = data || [];
-        const rows = entries.map(row => {
-          const e = { id: row.id, ...(row.data || {}) };
-          const jmlPin = (e.pinjamanDihapus || []).length;
-          const jmlBayar = (e.bayarDihapus || []).length;
-          const waktuStr = (() => { const t = Date.parse(e.waktu || row.created_at || ''); return isNaN(t) ? '-' : new Date(t).toLocaleString('id-ID'); })();
-          return `<div style="background:var(--card2);border:1.5px solid var(--muted);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-                  <div>
-                    <div style="font-size:13px;font-weight:800;color:var(--text);">${e.nama || '-'}</div>
-                    <div style="font-size:11px;color:var(--muted);margin-top:2px;">${e.jenis || '(lainnya)'} • ${waktuStr}</div>
-                  </div>
-                  <div style="text-align:right;font-size:11px;color:var(--muted);">
-                    ${jmlPin} pinjaman<br>${jmlBayar} bayar
-                  </div>
-                </div>
-                <div style="display:flex;justify-content:space-between;padding-top:8px;margin-top:8px;border-top:1px solid var(--muted);font-size:12px;">
-                  <span>Total Pinjaman: <b>Rp ${fmt(e.totalPinjaman || 0)}</b></span>
-                  <span>Total Bayar: <b>Rp ${fmt(e.totalBayar || 0)}</b></span>
-                </div>
-              </div>`;
+
+      const mulai = _getMinggu(new Date());
+      const sampai = new Date(mulai);
+      sampai.setDate(sampai.getDate() + 6);
+      const dari = _localISODate(mulai);
+      const sampaiISO = _localISODate(sampai);
+      const items = getInputDataLocal(dari, sampaiISO);
+      const totals = {};
+
+      items.forEach(item => {
+        const jenis = (item.jenis || '(lainnya)').trim() || '(lainnya)';
+        if (!totals[jenis]) totals[jenis] = { qty: 0, jumlah: 0 };
+        totals[jenis].qty += Number(item.qty || 0);
+        totals[jenis].jumlah += Number(item.jumlah || 0);
+      });
+
+      const rows = Object.entries(totals)
+        .sort((a, b) => a[0].localeCompare(b[0], 'id'))
+        .map(([jenis, total]) => {
+          const safeJenis = jenis.replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
+          return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);">
+            <div style="min-width:0;">
+              <div style="font-size:13px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;">${safeJenis}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">Total hasil: ${fmt(total.qty)}</div>
+            </div>
+            <div style="font-size:13px;font-weight:900;color:#2563EB;white-space:nowrap;">Rp ${fmt(total.jumlah)}</div>
+          </div>`;
         }).join('');
 
-        const overlay = document.createElement('div');
-        overlay.id = 'logPinjamanLunasOverlay';
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99999999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
-        overlay.innerHTML = `<div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;">
-          <div style="font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">Log Auto-Hapus Pinjaman Lunas (${entries.length}${entries.length === 500 ? ' terbaru' : ''})</div>
-          ${rows || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada riwayat auto-hapus pinjaman lunas.</div>'}
-          <button onclick="document.getElementById('logPinjamanLunasOverlay').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--muted);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;">Tutup</button>
-        </div>`;
-        document.body.appendChild(overlay);
-      } catch (e) {
-        showToast('❌ Gagal memuat log: ' + e.message);
-      } finally {
-        hideLoading();
-      }
+      const grandQty = Object.values(totals).reduce((sum, v) => sum + v.qty, 0);
+      const grandTotal = Object.values(totals).reduce((sum, v) => sum + v.jumlah, 0);
+      const overlay = document.createElement('div');
+      overlay.id = 'rekapPekerjaanOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:99999999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+      overlay.innerHTML = `<div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;">
+        <div style="font-size:13px;font-weight:900;color:#2563EB;letter-spacing:.06em;text-transform:uppercase;">Total Rekap Pekerjaan</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:4px;margin-bottom:10px;">${fmtTgl(mulai)} - ${fmtTgl(sampai)} • Minggu-Sabtu</div>
+        ${rows || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada data pekerjaan pada periode ini.</div>'}
+        ${rows ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#DBEAFE;">
+          <div><div style="font-size:11px;color:#64748B;font-weight:700;">TOTAL SELURUH HASIL</div><div style="font-size:12px;font-weight:900;color:#2563EB;margin-top:2px;">${fmt(grandQty)}</div></div>
+          <div style="font-size:15px;font-weight:900;color:#2563EB;">Rp ${fmt(grandTotal)}</div>
+        </div>` : ''}
+        <button onclick="document.getElementById('rekapPekerjaanOverlay').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;">Tutup</button>
+      </div>`;
+      document.body.appendChild(overlay);
     };
 
     // ===== WINDOW FUNCTIONS =====
