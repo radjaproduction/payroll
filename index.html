@@ -5135,8 +5135,8 @@
 
       const overlay = document.createElement('div');
       overlay.id = 'rekapBagianOverlay';
-      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:99999999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
-      overlay.innerHTML = `<div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;">
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:99999999;display:flex;align-items:flex-end;justify-content:center;padding:16px 16px calc(16px + var(--safe-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;';
+      overlay.innerHTML = `<div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:480px;max-height:calc(100vh - 32px - var(--safe-top) - var(--safe-bottom));max-height:calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;">
         <div style="font-size:13px;font-weight:900;color:#2563EB;letter-spacing:.06em;text-transform:uppercase;">Total Rekap Bagian</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 8px;">
           <label style="font-size:10px;font-weight:800;color:var(--muted);">DARI
@@ -7347,15 +7347,25 @@ window.tutupNumpadBayar = () => {
   const _dari = _getISO('rekapMulai');
   const _sampai = _getISO('rekapAkhir');
   const query = String(filter || '').trim().toLocaleLowerCase('id');
-  const inputPeriode = query ? getInputDataLocal(_dari, _sampai) : [];
-  const rows = query ? rekapRows.filter(r => {
+  const inputPeriode = getInputDataLocal(_dari, _sampai);
+  const qtyPerNama = {};
+  inputPeriode.forEach(item => {
+    qtyPerNama[item.nama] = (qtyPerNama[item.nama] || 0) + (Number(item.qty) || 0);
+  });
+  const rows = (query ? rekapRows.filter(r => {
     if (r.nama.toLocaleLowerCase('id').includes(query)) return true;
     return inputPeriode.some(item => item.nama === r.nama &&
       [item.jenis, item.bagian, item.brand].some(value =>
         String(value || '').toLocaleLowerCase('id').includes(query)
       )
     );
-  }) : rekapRows;
+  }) : rekapRows).sort((a, b) => {
+    const qtyA = qtyPerNama[a.nama] || 0;
+    const qtyB = qtyPerNama[b.nama] || 0;
+    if (qtyA === 0 && qtyB !== 0) return 1;
+    if (qtyA !== 0 && qtyB === 0) return -1;
+    return a.nama.localeCompare(b.nama);
+  });
   
   if (!rows.length) {
     container.innerHTML = `
