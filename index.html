@@ -5177,26 +5177,38 @@
         const akhir = new Date(sampai + 'T00:00:00');
         periodeEl.textContent = `${fmtTgl(mulai)} - ${fmtTgl(akhir)} • Periode dipilih`;
 
-        const totals = {};
+        const totals = new Map();
         getInputDataLocal(dari, sampai).forEach(item => {
           const bagian = (item.bagian || '(lainnya)').trim() || '(lainnya)';
-          if (!totals[bagian]) totals[bagian] = { qty: 0, jumlah: 0 };
-          totals[bagian].qty += Number(item.qty || 0);
-          totals[bagian].jumlah += Number(item.jumlah || 0);
+          const brand = (item.brand || '(tanpa brand)').trim() || '(tanpa brand)';
+          const jenis = (item.jenis || '(lainnya)').trim() || '(lainnya)';
+          const key = JSON.stringify([bagian, brand, jenis]);
+          if (!totals.has(key)) totals.set(key, { bagian, brand, jenis, qty: 0, jumlah: 0 });
+          const total = totals.get(key);
+          total.qty += Number(item.qty || 0);
+          total.jumlah += Number(item.jumlah || 0);
         });
 
-        const rows = Object.entries(totals)
-          .sort((a, b) => a[0].localeCompare(b[0], 'id'))
-          .map(([bagian, total]) => {
-            const safeBagian = bagian.replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
+        const totalList = [...totals.values()].sort((a, b) =>
+          a.bagian.localeCompare(b.bagian, 'id') ||
+          a.brand.localeCompare(b.brand, 'id') ||
+          a.jenis.localeCompare(b.jenis, 'id')
+        );
+        const rows = totalList
+          .map(total => {
+            const label = `${total.bagian}-${total.brand}-${total.jenis}`;
+            const safeLabel = label.replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
             return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);">
-              <div style="min-width:0;"><div style="font-size:13px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;">${safeBagian}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Total hasil: ${fmt(total.qty)}</div></div>
-              <div style="font-size:13px;font-weight:900;color:#2563EB;white-space:nowrap;">Rp ${fmt(total.jumlah)}</div>
+              <div style="min-width:0;font-size:12px;font-weight:700;color:var(--text);overflow-wrap:anywhere;">${safeLabel}</div>
+              <div style="text-align:right;white-space:nowrap;flex-shrink:0;">
+                <div style="font-size:13px;font-weight:900;color:#2563EB;">= ${fmt(total.qty)}</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:2px;">Rp ${fmt(total.jumlah)}</div>
+              </div>
             </div>`;
           }).join('');
 
-        const grandQty = Object.values(totals).reduce((sum, v) => sum + v.qty, 0);
-        const grandTotal = Object.values(totals).reduce((sum, v) => sum + v.jumlah, 0);
+        const grandQty = totalList.reduce((sum, v) => sum + v.qty, 0);
+        const grandTotal = totalList.reduce((sum, v) => sum + v.jumlah, 0);
         contentEl.innerHTML = rows || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada data pekerjaan pada periode ini.</div>';
         if (rows) {
           contentEl.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#DBEAFE;">
