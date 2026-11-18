@@ -406,10 +406,10 @@
     .menu-card-sm .m-label { font-size:13px; font-weight:800; color:var(--text); letter-spacing:.01em }
     .menu-card-sm.card-setting .m-label { color:#E11D78; }
     .menu-card-sm.card-harga .m-label { color:#0D9488; }
-    .menu-card-sm.card-rekap-pekerjaan .m-icon { background:#2563EB; color:#DBEAFE; }
-    .menu-card-sm.card-rekap-pekerjaan .m-label { color:#2563EB; }
-    .menu-card-sm.card-rekap-pekerjaan .m-arrow-sm { background:#DBEAFE; color:#2563EB; }
-    .menu-card-sm.card-rekap-pekerjaan .m-watermark { color:#2563EB; }
+    .menu-card-sm.card-rekap-bagian .m-icon { background:#2563EB; color:#DBEAFE; }
+    .menu-card-sm.card-rekap-bagian .m-label { color:#2563EB; }
+    .menu-card-sm.card-rekap-bagian .m-arrow-sm { background:#DBEAFE; color:#2563EB; }
+    .menu-card-sm.card-rekap-bagian .m-watermark { color:#2563EB; }
         .menu-card-sm .m-sub { font-size:10px; color:var(--muted); font-weight:500 }
     .menu-card-sm .m-arrow-sm {
       position:absolute; top:14px; right:14px;
@@ -1580,6 +1580,32 @@
 .rekap-info {
   flex: 1;
   min-width: 0;
+}
+
+.rekap-total-qty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin-left: auto;
+  flex-shrink: 0;
+  align-self: flex-start;
+  padding: 2px 0 0 6px;
+}
+
+.rekap-total-qty-label {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  line-height: 1;
+}
+
+.rekap-total-qty-value {
+  color: var(--primary3);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.2;
 }
 
 .rekap-name-row {
@@ -3189,12 +3215,12 @@
           <div class="m-label">HARGA</div>
           <div class="m-sub">Atur harga</div>
         </div>
-        <div class="menu-card-sm card-rekap-pekerjaan" onclick="bukaRekapPekerjaan()">
+        <div class="menu-card-sm card-rekap-bagian" onclick="bukaRekapBagian()">
           <i class="fa-solid fa-chart-column m-watermark"></i>
           <div class="m-arrow-sm"><i class="fa-solid fa-chevron-right"></i></div>
           <div class="m-icon"><i class="fa-solid fa-chart-column"></i></div>
-          <div class="m-label">REKAP PEKERJAAN</div>
-          <div class="m-sub">Total minggu ini</div>
+          <div class="m-label">REKAP BAGIAN</div>
+          <div class="m-sub">Total per bagian</div>
         </div>
       </div>
     </div>
@@ -3623,7 +3649,7 @@
 <div class="search-bar" style="padding:12px 16px; display:flex; gap:10px; align-items:center;">
   <div style="flex:1; position:relative;">
     <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:13px;"></i>
-    <input type="text" placeholder="Cari nama pegawai..." oninput="filterRekap(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%; background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px 12px 40px; color:var(--text); font-size:13px; outline:none; font-family:inherit; font-weight:500; box-shadow:var(--shadow);">
+    <input type="text" placeholder="Cari nama pegawai atau pekerjaan..." oninput="filterRekap(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%; background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px 12px 40px; color:var(--text); font-size:13px; outline:none; font-family:inherit; font-weight:500; box-shadow:var(--shadow);">
   </div>
   <!-- Mode normal: tombol Pilih -->
   <button id="btnModePilih" onclick="masukModePilih()" style="height:44px; padding:0 16px; background:var(--card); color:var(--primary3); border:1.5px solid var(--primary3); border-radius:14px; font-size:12px; font-weight:800; font-family:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap; flex-shrink:0;">
@@ -5098,55 +5124,103 @@
       return adaYangLunas;
     }
 
-    window.bukaRekapPekerjaan = () => {
+    window.bukaRekapBagian = () => {
       if (_isAppLocked()) return;
-      const existing = document.getElementById('rekapPekerjaanOverlay');
+      const existing = document.getElementById('rekapBagianOverlay');
       if (existing) existing.remove();
 
-      const mulai = _getMinggu(new Date());
-      const sampai = new Date(mulai);
-      sampai.setDate(sampai.getDate() + 6);
-      const dari = _localISODate(mulai);
-      const sampaiISO = _localISODate(sampai);
-      const items = getInputDataLocal(dari, sampaiISO);
-      const totals = {};
+      const mulaiAwal = _getMinggu(new Date());
+      const sampaiAwal = new Date(mulaiAwal);
+      sampaiAwal.setDate(sampaiAwal.getDate() + 6);
 
-      items.forEach(item => {
-        const jenis = (item.jenis || '(lainnya)').trim() || '(lainnya)';
-        if (!totals[jenis]) totals[jenis] = { qty: 0, jumlah: 0 };
-        totals[jenis].qty += Number(item.qty || 0);
-        totals[jenis].jumlah += Number(item.jumlah || 0);
-      });
-
-      const rows = Object.entries(totals)
-        .sort((a, b) => a[0].localeCompare(b[0], 'id'))
-        .map(([jenis, total]) => {
-          const safeJenis = jenis.replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
-          return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);">
-            <div style="min-width:0;">
-              <div style="font-size:13px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;">${safeJenis}</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px;">Total hasil: ${fmt(total.qty)}</div>
-            </div>
-            <div style="font-size:13px;font-weight:900;color:#2563EB;white-space:nowrap;">Rp ${fmt(total.jumlah)}</div>
-          </div>`;
-        }).join('');
-
-      const grandQty = Object.values(totals).reduce((sum, v) => sum + v.qty, 0);
-      const grandTotal = Object.values(totals).reduce((sum, v) => sum + v.jumlah, 0);
       const overlay = document.createElement('div');
-      overlay.id = 'rekapPekerjaanOverlay';
+      overlay.id = 'rekapBagianOverlay';
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:99999999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
       overlay.innerHTML = `<div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;">
-        <div style="font-size:13px;font-weight:900;color:#2563EB;letter-spacing:.06em;text-transform:uppercase;">Total Rekap Pekerjaan</div>
-        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:4px;margin-bottom:10px;">${fmtTgl(mulai)} - ${fmtTgl(sampai)} • Minggu-Sabtu</div>
-        ${rows || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada data pekerjaan pada periode ini.</div>'}
-        ${rows ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#DBEAFE;">
-          <div><div style="font-size:11px;color:#64748B;font-weight:700;">TOTAL SELURUH HASIL</div><div style="font-size:12px;font-weight:900;color:#2563EB;margin-top:2px;">${fmt(grandQty)}</div></div>
-          <div style="font-size:15px;font-weight:900;color:#2563EB;">Rp ${fmt(grandTotal)}</div>
-        </div>` : ''}
-        <button onclick="document.getElementById('rekapPekerjaanOverlay').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;">Tutup</button>
+        <div style="font-size:13px;font-weight:900;color:#2563EB;letter-spacing:.06em;text-transform:uppercase;">Total Rekap Bagian</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 8px;">
+          <label style="font-size:10px;font-weight:800;color:var(--muted);">DARI
+            <input id="rekapBagianMulai" type="date" value="${_localISODate(mulaiAwal)}" style="display:block;width:100%;margin-top:5px;padding:10px 8px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-family:inherit;font-size:12px;font-weight:700;">
+          </label>
+          <label style="font-size:10px;font-weight:800;color:var(--muted);">SAMPAI
+            <input id="rekapBagianSampai" type="date" value="${_localISODate(sampaiAwal)}" style="display:block;width:100%;margin-top:5px;padding:10px 8px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-family:inherit;font-size:12px;font-weight:700;">
+          </label>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <button id="rekapBagianMingguIni" style="flex:1;padding:9px 6px;border:0;border-radius:9px;background:#DBEAFE;color:#2563EB;font-family:inherit;font-size:11px;font-weight:800;">Minggu Ini</button>
+          <button id="rekapBagianMingguLalu" style="flex:1;padding:9px 6px;border:0;border-radius:9px;background:var(--bg2);color:var(--muted);font-family:inherit;font-size:11px;font-weight:800;">Minggu Lalu</button>
+        </div>
+        <div id="rekapBagianPeriode" style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px;"></div>
+        <div id="rekapBagianContent"></div>
+        <button onclick="document.getElementById('rekapBagianOverlay').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;">Tutup</button>
       </div>`;
       document.body.appendChild(overlay);
+
+      const renderRekap = () => {
+        const dari = document.getElementById('rekapBagianMulai').value;
+        const sampai = document.getElementById('rekapBagianSampai').value;
+        const periodeEl = document.getElementById('rekapBagianPeriode');
+        const contentEl = document.getElementById('rekapBagianContent');
+
+        if (!dari || !sampai) {
+          periodeEl.textContent = 'Pilih tanggal mulai dan akhir.';
+          contentEl.innerHTML = '';
+          return;
+        }
+        if (dari > sampai) {
+          periodeEl.textContent = 'Tanggal mulai tidak boleh melebihi tanggal akhir.';
+          contentEl.innerHTML = '';
+          return;
+        }
+
+        const mulai = new Date(dari + 'T00:00:00');
+        const akhir = new Date(sampai + 'T00:00:00');
+        periodeEl.textContent = `${fmtTgl(mulai)} - ${fmtTgl(akhir)} • Periode dipilih`;
+
+        const totals = {};
+        getInputDataLocal(dari, sampai).forEach(item => {
+          const bagian = (item.bagian || '(lainnya)').trim() || '(lainnya)';
+          if (!totals[bagian]) totals[bagian] = { qty: 0, jumlah: 0 };
+          totals[bagian].qty += Number(item.qty || 0);
+          totals[bagian].jumlah += Number(item.jumlah || 0);
+        });
+
+        const rows = Object.entries(totals)
+          .sort((a, b) => a[0].localeCompare(b[0], 'id'))
+          .map(([bagian, total]) => {
+            const safeBagian = bagian.replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
+            return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);">
+              <div style="min-width:0;"><div style="font-size:13px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;">${safeBagian}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Total hasil: ${fmt(total.qty)}</div></div>
+              <div style="font-size:13px;font-weight:900;color:#2563EB;white-space:nowrap;">Rp ${fmt(total.jumlah)}</div>
+            </div>`;
+          }).join('');
+
+        const grandQty = Object.values(totals).reduce((sum, v) => sum + v.qty, 0);
+        const grandTotal = Object.values(totals).reduce((sum, v) => sum + v.jumlah, 0);
+        contentEl.innerHTML = rows || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada data pekerjaan pada periode ini.</div>';
+        if (rows) {
+          contentEl.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#DBEAFE;">
+            <div><div style="font-size:11px;color:#64748B;font-weight:700;">TOTAL SELURUH HASIL</div><div style="font-size:12px;font-weight:900;color:#2563EB;margin-top:2px;">${fmt(grandQty)}</div></div>
+            <div style="font-size:15px;font-weight:900;color:#2563EB;">Rp ${fmt(grandTotal)}</div>
+          </div>`;
+        }
+      };
+
+      const setPeriodeMingguan = selisihMinggu => {
+        const mulai = _getMinggu(new Date());
+        mulai.setDate(mulai.getDate() + (selisihMinggu * 7));
+        const sampai = new Date(mulai);
+        sampai.setDate(sampai.getDate() + 6);
+        document.getElementById('rekapBagianMulai').value = _localISODate(mulai);
+        document.getElementById('rekapBagianSampai').value = _localISODate(sampai);
+        renderRekap();
+      };
+
+      document.getElementById('rekapBagianMulai').addEventListener('change', renderRekap);
+      document.getElementById('rekapBagianSampai').addEventListener('change', renderRekap);
+      document.getElementById('rekapBagianMingguIni').addEventListener('click', () => setPeriodeMingguan(0));
+      document.getElementById('rekapBagianMingguLalu').addEventListener('click', () => setPeriodeMingguan(-1));
+      renderRekap();
     };
 
     // ===== WINDOW FUNCTIONS =====
@@ -7270,7 +7344,18 @@ window.tutupNumpadBayar = () => {
 
     function renderTabelRekap(filter='') {
   const container = $('rekapCardList');
-  const rows = filter ? rekapRows.filter(r => r.nama.toLowerCase().includes(filter.toLowerCase())) : rekapRows;
+  const _dari = _getISO('rekapMulai');
+  const _sampai = _getISO('rekapAkhir');
+  const query = String(filter || '').trim().toLocaleLowerCase('id');
+  const inputPeriode = query ? getInputDataLocal(_dari, _sampai) : [];
+  const rows = query ? rekapRows.filter(r => {
+    if (r.nama.toLocaleLowerCase('id').includes(query)) return true;
+    return inputPeriode.some(item => item.nama === r.nama &&
+      [item.jenis, item.bagian, item.brand].some(value =>
+        String(value || '').toLocaleLowerCase('id').includes(query)
+      )
+    );
+  }) : rekapRows;
   
   if (!rows.length) {
     container.innerHTML = `
@@ -7282,9 +7367,6 @@ window.tutupNumpadBayar = () => {
     return;
   }
 
-  const _dari = _getISO('rekapMulai');
-  const _sampai = _getISO('rekapAkhir');
-  
   // Build pinjaman map
   const pinjamanAktifMap = {};
   _CACHE.pinjaman.forEach(p => {
@@ -7329,6 +7411,7 @@ window.tutupNumpadBayar = () => {
 
     // Rincian item: Pekerjaan
     const _dataRincian = getRincianLocal(r.nama, _dari, _sampai);
+    const totalQty = _dataRincian.items.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
     window._rekapPekerjaanRaw = window._rekapPekerjaanRaw || {};
     window._rekapPekerjaanRaw[idx] = _dataRincian.items;
     let pekerjaanHTML = '';
@@ -7389,6 +7472,10 @@ window.tutupNumpadBayar = () => {
             </div>
             <div class="rekap-bagian">${bagian}</div>
           </div>
+            <div class="rekap-total-qty" aria-label="Total kuantitas pekerjaan">
+              <span class="rekap-total-qty-label">TOTAL QTY</span>
+              <span class="rekap-total-qty-value">${fmt(totalQty)}</span>
+            </div>
         </div>
         <div style="display:flex; align-items:center; padding:0 16px 14px; gap:0;">
           <div class="rekap-amount-main" style="flex:1;">
