@@ -5151,6 +5151,10 @@
           <button id="rekapBagianMingguLalu" style="flex:1;padding:9px 6px;border:0;border-radius:9px;background:var(--bg2);color:var(--muted);font-family:inherit;font-size:11px;font-weight:800;">Minggu Lalu</button>
         </div>
         <div id="rekapBagianPeriode" style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px;"></div>
+        <div style="position:relative;margin-bottom:10px;">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;"></i>
+          <input id="rekapBagianCari" type="search" placeholder="Cari bagian, pekerjaan, brand, model..." autocomplete="off" style="width:100%;padding:11px 12px 11px 36px;border:1.5px solid var(--border);border-radius:11px;background:var(--card);color:var(--text);font-family:inherit;font-size:12px;outline:none;">
+        </div>
         <div id="rekapBagianContent"></div>
         <button onclick="document.getElementById('rekapBagianOverlay').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;">Tutup</button>
       </div>`;
@@ -5176,9 +5180,17 @@
         const mulai = new Date(dari + 'T00:00:00');
         const akhir = new Date(sampai + 'T00:00:00');
         periodeEl.textContent = `${fmtTgl(mulai)} - ${fmtTgl(akhir)} • Periode dipilih`;
+        const query = document.getElementById('rekapBagianCari').value.trim().toLocaleLowerCase('id');
 
         const totals = new Map();
-        getInputDataLocal(dari, sampai).forEach(item => {
+        getInputDataLocal(dari, sampai).filter(item => {
+          if (!query) return true;
+          return Object.entries(item).some(([key, value]) =>
+            typeof value === 'string' &&
+            !/(^id$|tanggal|waktu|timestamp|created|updated)/i.test(key) &&
+            value.toLocaleLowerCase('id').includes(query)
+          );
+        }).forEach(item => {
           const bagian = (item.bagian || '(lainnya)').trim() || '(lainnya)';
           const brand = (item.brand || '(tanpa brand)').trim() || '(tanpa brand)';
           const jenis = (item.jenis || '(lainnya)').trim() || '(lainnya)';
@@ -5194,22 +5206,47 @@
           a.brand.localeCompare(b.brand, 'id') ||
           a.jenis.localeCompare(b.jenis, 'id')
         );
-        const rows = totalList
-          .map(total => {
-            const label = `${total.bagian}-${total.brand}-${total.jenis}`;
-            const safeLabel = label.replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
-            return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);">
-              <div style="min-width:0;font-size:12px;font-weight:700;color:var(--text);overflow-wrap:anywhere;">${safeLabel}</div>
-              <div style="text-align:right;white-space:nowrap;flex-shrink:0;">
-                <div style="font-size:13px;font-weight:900;color:#2563EB;">= ${fmt(total.qty)}</div>
-                <div style="font-size:10px;color:var(--muted);margin-top:2px;">Rp ${fmt(total.jumlah)}</div>
+        const totalsByBagian = new Map();
+        totalList.forEach(total => {
+          const namaBagian = (total.bagian.split('+')[0].trim() || '(lainnya)').toLocaleUpperCase('id');
+          if (!totalsByBagian.has(namaBagian)) totalsByBagian.set(namaBagian, { qty: 0, jumlah: 0, items: [] });
+          const grup = totalsByBagian.get(namaBagian);
+          grup.qty += total.qty;
+          grup.jumlah += total.jumlah;
+          grup.items.push(total);
+        });
+        const escapeHtml = value => String(value).replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
+        const renderItem = total => {
+          const label = `${total.bagian}-${total.brand}-${total.jenis}`;
+          return `<div style="display:grid;grid-template-columns:minmax(0,1fr) 82px;align-items:center;column-gap:6px;padding:6px 4px;border-bottom:1px solid var(--border);">
+            <div style="min-width:0;font-size:10px;font-weight:700;color:var(--text);overflow-wrap:anywhere;line-height:1.35;">${escapeHtml(label)}</div>
+            <div style="width:82px;text-align:right;white-space:nowrap;">
+              <div style="font-size:11px;font-weight:900;color:#2563EB;">= ${fmt(total.qty)}</div>
+              <div style="font-size:8px;color:var(--muted);margin-top:2px;">Rp ${fmt(total.jumlah)}</div>
+            </div>
+          </div>`;
+        };
+        const rows = query
+          ? totalList.map(renderItem).join('')
+          : [...totalsByBagian.entries()]
+          .map(([namaBagian, grup]) => {
+            const judul = escapeHtml(namaBagian);
+            const rincian = grup.items.map(renderItem).join('');
+            return `<section style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;background:#DBEAFE;color:#1D4ED8;">
+                <div style="font-size:12px;font-weight:900;text-transform:uppercase;">${judul}</div>
+                <div style="text-align:right;white-space:nowrap;">
+                  <div style="font-size:12px;font-weight:900;">Total Qty ${fmt(grup.qty)}</div>
+                  <div style="font-size:10px;font-weight:700;margin-top:2px;">Rp ${fmt(grup.jumlah)}</div>
+                </div>
               </div>
-            </div>`;
+              <div style="padding-left:8px;">${rincian}</div>
+            </section>`;
           }).join('');
 
         const grandQty = totalList.reduce((sum, v) => sum + v.qty, 0);
         const grandTotal = totalList.reduce((sum, v) => sum + v.jumlah, 0);
-        contentEl.innerHTML = rows || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">Belum ada data pekerjaan pada periode ini.</div>';
+        contentEl.innerHTML = rows || `<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px 0;">${query ? 'Tidak ada hasil yang cocok.' : 'Belum ada data pekerjaan pada periode ini.'}</div>`;
         if (rows) {
           contentEl.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#DBEAFE;">
             <div><div style="font-size:11px;color:#64748B;font-weight:700;">TOTAL SELURUH HASIL</div><div style="font-size:12px;font-weight:900;color:#2563EB;margin-top:2px;">${fmt(grandQty)}</div></div>
@@ -5232,6 +5269,7 @@
       document.getElementById('rekapBagianSampai').addEventListener('change', renderRekap);
       document.getElementById('rekapBagianMingguIni').addEventListener('click', () => setPeriodeMingguan(0));
       document.getElementById('rekapBagianMingguLalu').addEventListener('click', () => setPeriodeMingguan(-1));
+      document.getElementById('rekapBagianCari').addEventListener('input', renderRekap);
       renderRekap();
     };
 
