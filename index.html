@@ -5127,7 +5127,10 @@
     window.bukaRekapBagian = () => {
       if (_isAppLocked()) return;
       const existing = document.getElementById('rekapBagianOverlay');
-      if (existing) existing.remove();
+      if (existing) {
+        existing._cleanupViewport?.();
+        existing.remove();
+      }
 
       const mulaiAwal = _getMinggu(new Date());
       const sampaiAwal = new Date(mulaiAwal);
@@ -5156,9 +5159,55 @@
           <input id="rekapBagianCari" type="search" placeholder="Cari bagian, pekerjaan, brand, model..." autocomplete="off" style="width:100%;padding:11px 12px 11px 36px;border:1.5px solid var(--border);border-radius:11px;background:var(--card);color:var(--text);font-family:inherit;font-size:12px;outline:none;">
         </div>
         <div id="rekapBagianContent"></div>
-        <button onclick="document.getElementById('rekapBagianOverlay').remove()" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;">Tutup</button>
+        <button id="rekapBagianTutup" style="width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;">Tutup</button>
       </div>`;
       document.body.appendChild(overlay);
+
+      const panel = overlay.firstElementChild;
+      const searchInput = document.getElementById('rekapBagianCari');
+      const visualViewport = window.visualViewport;
+      const initialPanelMaxHeight = panel.style.maxHeight;
+      let searchFocused = false;
+      const viewportController = new AbortController();
+      const syncKeyboardViewport = () => {
+        if (searchFocused) {
+          const height = visualViewport ? visualViewport.height : window.innerHeight;
+          const offsetTop = visualViewport ? visualViewport.offsetTop : 0;
+          overlay.style.inset = 'auto 0 auto';
+          overlay.style.top = `${offsetTop}px`;
+          overlay.style.height = `${height}px`;
+          overlay.style.padding = '12px 16px';
+          overlay.style.alignItems = 'flex-start';
+          panel.style.maxHeight = `${Math.max(180, height - 24)}px`;
+          return;
+        }
+        overlay.style.inset = '0';
+        overlay.style.top = '';
+        overlay.style.height = '';
+        overlay.style.padding = '';
+        overlay.style.alignItems = 'flex-end';
+        panel.style.maxHeight = initialPanelMaxHeight;
+      };
+      overlay._cleanupViewport = () => viewportController.abort();
+      if (visualViewport) visualViewport.addEventListener('resize', syncKeyboardViewport, { signal: viewportController.signal });
+      window.addEventListener('resize', syncKeyboardViewport, { signal: viewportController.signal });
+      searchInput.addEventListener('focus', () => {
+        searchFocused = true;
+        syncKeyboardViewport();
+        requestAnimationFrame(() => {
+          const panelTop = panel.getBoundingClientRect().top;
+          const inputTop = searchInput.getBoundingClientRect().top;
+          panel.scrollTop += inputTop - panelTop - 12;
+        });
+      });
+      searchInput.addEventListener('blur', () => {
+        searchFocused = false;
+        syncKeyboardViewport();
+      });
+      document.getElementById('rekapBagianTutup').addEventListener('click', () => {
+        overlay._cleanupViewport();
+        overlay.remove();
+      });
 
       const renderRekap = () => {
         const dari = document.getElementById('rekapBagianMulai').value;
